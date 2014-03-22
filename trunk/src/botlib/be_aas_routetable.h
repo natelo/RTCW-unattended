@@ -54,7 +54,7 @@ extern int disable_routetable;
 // Permanent structures (in order of highest to lowest count)
 typedef struct
 {
-	unsigned short int reachable_index;         // reachability index (from this area's first reachability link in the world) to head for to get to the destination
+	short int reachable_index;         // reachability index (from this area's first reachability link in the world) to head for to get to the destination
 	unsigned short int travel_time;             // travel time (!)
 } aas_rt_route_t;
 

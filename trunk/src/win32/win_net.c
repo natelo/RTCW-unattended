@@ -245,7 +245,7 @@ qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 	int ret;
 	struct sockaddr from;
 	int fromlen;
-	int net_socket;
+	unsigned int net_socket;
 	int protocol;
 	int err;
 

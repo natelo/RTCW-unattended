@@ -74,6 +74,11 @@ If you have questions concerning this license or the applicable additional terms
 #define idppc 1
 #endif
 
+// L0 - Fix DirectX
+#ifndef DIRECTINPUT_VERSION
+	#define DIRECTINPUT_VERSION 0x0800
+#endif
+
 /**********************************************************************
   VM Considerations
 
