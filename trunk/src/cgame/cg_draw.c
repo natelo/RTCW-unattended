@@ -855,6 +855,49 @@ static float CG_DrawTeamOverlay( float y ) {
 
 
 /*
+========================
+L0 - respawn timer
+========================
+*/
+static float CG_DrawRespawnTimer(float y) {
+	char		*str = { 0 };
+	int			w;
+	float		x;
+
+	if (!cg_drawRespawnTimer.integer)
+		return y;
+
+	// Don't draw timer if client is checking scoreboard
+	if (CG_DrawScoreboard())
+		return y;
+
+	if (cgs.gamestate != GS_PLAYING)
+		str = "";
+	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_SPECTATOR)
+		str = "";
+	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED)
+		str = va(CG_TranslateString("Re: %-2d"), 
+			(int)(1 + (float)(cg_redlimbotime.integer - (cg.time % cg_redlimbotime.integer)) * 0.001f)); 
+	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE)
+		str = va(CG_TranslateString("Re: %-2d"), 
+			(int)(1 + (float)(cg_bluelimbotime.integer - (cg.time % cg_bluelimbotime.integer)) * 0.001f)); 
+
+	w = CG_DrawStrlen(str) * TINYCHAR_WIDTH;
+
+	x = 46 + 6;
+	y = 480 - 245;
+
+	if (cgs.gamestate != GS_PLAYING) {
+		CG_DrawStringExt((x + 4) - w, y, str, colorYellow, qtrue, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+	}
+	else if (cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR){
+		CG_DrawStringExt(x - w, y, str, colorRed, qtrue, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+	}
+	return y += TINYCHAR_HEIGHT;
+}
+
+
+/*
 =====================
 CG_DrawUpperRight
 
@@ -882,6 +925,11 @@ static void CG_DrawUpperRight( void ) {
 //		y = CG_DrawAttacker( y );
 //	}
 //----(SA)	end
+
+	// L0 - Respawn timer
+	if (cg_drawRespawnTimer.integer) {
+		y = CG_DrawRespawnTimer(y);
+	}
 }
 
 /*
@@ -1710,10 +1758,13 @@ static void CG_DrawCrosshair( void ) {
 
 	w = h = cg_crosshairSize.value;
 
-	// RF, crosshair size represents aim spread
-	f = (float)cg.snap->ps.aimSpreadScale / 255.0;
-	w *= ( 1 + f * 2.0 );
-	h *= ( 1 + f * 2.0 );
+	// L0 - Solid crosshair
+	if (!cg_solidCrosshair.integer) {
+		// RF, crosshair size represents aim spread
+		f = (float)cg.snap->ps.aimSpreadScale / 255.0;
+		w *= (1 + f * 2.0);
+		h *= (1 + f * 2.0);
+	} 
 
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
@@ -2667,6 +2718,11 @@ static void CG_DrawFlashDamage( void ) {
 	float redFlash;
 
 	if ( !cg.snap ) {
+		return;
+	}
+
+	// L0 - blood blend
+	if (cg_bloodBlend.integer) {
 		return;
 	}
 

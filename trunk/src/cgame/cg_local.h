@@ -992,6 +992,9 @@ typedef struct {
 
 	pmoveExt_t pmext;
 
+	// OSP's Crosshairs
+	vec4_t xhairColor;
+	vec4_t xhairColorAlt;
 } cg_t;
 
 #define NUM_FUNNEL_SPRITES  21
@@ -1776,6 +1779,15 @@ extern vmCvar_t cg_descriptiveText;
 // TTimo
 extern vmCvar_t cg_autoReload;
 extern vmCvar_t cg_antilag;
+
+// L0
+extern vmCvar_t	cg_bloodBlend;
+extern vmCvar_t cg_solidCrosshair;
+extern vmCvar_t cg_drawRespawnTimer;
+extern vmCvar_t cg_crosshairColor;
+extern vmCvar_t cg_crosshairColorAlt;
+extern vmCvar_t cg_crosshairAlpha;
+extern vmCvar_t cg_crosshairAlphaAlt;
 
 //
 // cg_main.c

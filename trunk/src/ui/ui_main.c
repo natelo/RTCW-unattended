@@ -7499,6 +7499,15 @@ vmCvar_t ui_userAxisRespawnTime;
 vmCvar_t ui_glCustom;    // JPW NERVE missing from q3ta
 // -NERVE - SMF
 
+// L0 - Crosshairs
+vmCvar_t ui_crosshairColor;
+vmCvar_t ui_crosshairColorAlt;
+vmCvar_t ui_crosshairAlpha;
+vmCvar_t ui_crosshairAlphaAlt;
+vmCvar_t ui_crosshairSize;
+vmCvar_t ui_coloredCrosshair;
+// End
+
 cvarTable_t cvarTable[] = {
 
 	{ &ui_glCustom, "ui_glCustom", "4", CVAR_ARCHIVE }, // JPW NERVE missing from q3ta
@@ -7625,6 +7634,15 @@ cvarTable_t cvarTable[] = {
 	{ &ui_isSpectator, "ui_isSpectator", "1", 0 },
 	// -NERVE - SMF
 
+	// L0 - Crosshairs
+	{ &ui_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE },
+	{ &ui_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE },
+	{ &ui_crosshairSize, "cg_crosshairSize", "48", CVAR_ARCHIVE },
+	{ &ui_crosshairAlphaAlt, "cg_crosshairAlphaAlt", "1.0", CVAR_ARCHIVE },
+	{ &ui_crosshairAlpha, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE },
+	{ &ui_coloredCrosshair, "cg_coloredCrosshair", "1.0", CVAR_ARCHIVE },
+	// End
+
 	{ &ui_hudAlpha, "cg_hudAlpha", "1.0", CVAR_ARCHIVE }
 };
 
@@ -7642,6 +7660,12 @@ void UI_RegisterCvars( void ) {
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
+
+		// L0 - Crosshairs
+		BG_setCrosshair(ui_crosshairColor.string, uiInfo.xhairColor, ui_crosshairAlpha.value, "cg_crosshairColor");
+		BG_setCrosshair(ui_crosshairColorAlt.string, uiInfo.xhairColorAlt, ui_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
+		uiInfo.currentCrosshair = ui_drawCrosshair.integer;
+		// End
 	}
 }
 
@@ -7656,6 +7680,17 @@ void UI_UpdateCvars( void ) {
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
+
+		// L0 - Crosshairs
+		if (cv->vmCvar == &ui_crosshairColor || cv->vmCvar == &ui_crosshairAlpha) {
+			BG_setCrosshair(ui_crosshairColor.string, uiInfo.xhairColor, ui_crosshairAlpha.value, "cg_crosshairColor");
+		}
+		if (cv->vmCvar == &ui_crosshairColorAlt || cv->vmCvar == &ui_crosshairAlphaAlt) {
+			BG_setCrosshair(ui_crosshairColorAlt.string, uiInfo.xhairColorAlt, ui_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
+		}
+		if (cv->vmCvar == &ui_drawCrosshair) {
+			uiInfo.currentCrosshair = ui_drawCrosshair.integer;
+		} // End
 	}
 }
 

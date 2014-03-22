@@ -1711,3 +1711,6 @@ int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event );
 
 extern animStringItem_t animStateStr[];
 extern animStringItem_t animBodyPartsStr[];
+
+// L0 - Crosshairs
+void BG_setCrosshair(char *colString, float *col, float alpha, char *cvarName);

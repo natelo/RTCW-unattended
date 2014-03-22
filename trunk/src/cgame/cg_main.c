@@ -286,6 +286,16 @@ vmCvar_t cg_bluelimbotime;
 vmCvar_t cg_autoReload;
 vmCvar_t cg_antilag;
 
+// L0 - New stuff
+vmCvar_t cg_bloodBlend;
+vmCvar_t cg_solidCrosshair;
+vmCvar_t cg_drawRespawnTimer;
+vmCvar_t cg_crosshairColor;
+vmCvar_t cg_crosshairColorAlt;
+vmCvar_t cg_crosshairAlpha;
+vmCvar_t cg_crosshairAlphaAlt;
+// End
+
 typedef struct {
 	vmCvar_t    *vmCvar;
 	char        *cvarName;
@@ -486,6 +496,16 @@ cvarTable_t cvarTable[] = {
 
 	{ &cg_autoReload, "cg_autoReload", "1", CVAR_ARCHIVE },
 
+	// L0 - New stuff
+	{ &cg_bloodBlend, "cg_bloodBlend", "0", CVAR_ARCHIVE },
+	{ &cg_solidCrosshair, "cg_solidCrosshair", "0", CVAR_ARCHIVE },
+	{ &cg_drawRespawnTimer, "cg_drawRespawnTimer", "0", CVAR_ARCHIVE },
+	{ &cg_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE },
+	{ &cg_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE },
+	{ &cg_crosshairAlpha, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE },
+	{ &cg_crosshairAlphaAlt, "cg_crosshairAlphaAlt", "1.0", CVAR_ARCHIVE },
+	// End
+
 	{ &cg_antilag, "g_antilag", "0", 0 }
 };
 int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -516,7 +536,9 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register( NULL, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 
-
+	// L0 - Crosshairs
+	BG_setCrosshair(cg_crosshairColor.string, cg.xhairColor, cg_crosshairAlpha.value, "cg_crosshairColor");
+	BG_setCrosshair(cg_crosshairColorAlt.string, cg.xhairColorAlt, cg_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
 }
 
 /*
@@ -549,6 +571,14 @@ void CG_UpdateCvars( void ) {
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
+
+		// L0 - Crosshairs
+		if (cv->vmCvar == &cg_crosshairColor || cv->vmCvar == &cg_crosshairAlpha) {
+			BG_setCrosshair(cg_crosshairColor.string, cg.xhairColor, cg_crosshairAlpha.value, "cg_crosshairColor");
+		}
+		else if (cv->vmCvar == &cg_crosshairColorAlt || cv->vmCvar == &cg_crosshairAlphaAlt)     {
+			BG_setCrosshair(cg_crosshairColorAlt.string, cg.xhairColorAlt, cg_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
+		} // End
 	}
 
 	// if force model changed

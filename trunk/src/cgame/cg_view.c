@@ -990,6 +990,11 @@ static void CG_DamageBlendBlob( void ) {
 		return;
 	}
 
+	// L0 - we don't need this if bloodblend is enabled..
+	if (cg_bloodBlend.integer) {
+		return;
+	}
+
 	redFlash = 0;
 
 	for ( i = 0; i < MAX_VIEWDAMAGE; i++ ) {

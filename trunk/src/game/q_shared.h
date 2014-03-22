@@ -489,13 +489,23 @@ extern vec4_t colorBlue;
 extern vec4_t colorYellow;
 extern vec4_t colorMagenta;
 extern vec4_t colorCyan;
+extern vec4_t colorOrange;
 extern vec4_t colorWhite;
 extern vec4_t colorLtGrey;
 extern vec4_t colorMdGrey;
 extern vec4_t colorDkGrey;
+// L0 - New colors
+extern vec4_t colorMdRed;
+extern vec4_t colorMdGreen;
+extern vec4_t colorDkGreen;
+extern vec4_t colorMdCyan;
+extern vec4_t colorMdYellow;
+extern vec4_t colorMdOrange;
+extern vec4_t colorMdBlue;
+// End
 
 #define Q_COLOR_ESCAPE  '^'
-#define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
+#define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
 
 #define COLOR_BLACK     '0'
 #define COLOR_RED       '1'
@@ -505,7 +515,21 @@ extern vec4_t colorDkGrey;
 #define COLOR_CYAN      '5'
 #define COLOR_MAGENTA   '6'
 #define COLOR_WHITE     '7'
-#define ColorIndex( c )   ( ( ( c ) - '0' ) & 7 )
+// L0 - colors
+#define COLOR_ORANGE	'8'
+#define COLOR_MDGREY	'9'
+#define COLOR_LTGREY	':'
+#define COLOR_MDGREEN	'<'
+#define COLOR_MDYELLOW	'='
+#define COLOR_MDBLUE	'>'
+#define COLOR_MDRED		'?'
+#define COLOR_LTORANGE	'A'
+#define COLOR_MDCYAN	'B'
+#define COLOR_MDPURPLE	'C'
+#define COLOR_NULL		'*'
+#define COLOR_BITS	31
+#define ColorIndex(c)	( ( (c) - '0' ) & COLOR_BITS )
+// End
 
 #define S_COLOR_BLACK   "^0"
 #define S_COLOR_RED     "^1"
@@ -515,11 +539,30 @@ extern vec4_t colorDkGrey;
 #define S_COLOR_CYAN    "^5"
 #define S_COLOR_MAGENTA "^6"
 #define S_COLOR_WHITE   "^7"
+// L0 - Colors
+#define S_COLOR_ORANGE		"^8"
+#define S_COLOR_MDGREY		"^9"
+#define S_COLOR_LTGREY		"^z"
+#define S_COLOR_MDGREEN		"^<"
+#define S_COLOR_MDYELLOW	"^="
+#define S_COLOR_MDBLUE		"^>"
+#define S_COLOR_MDRED		"^j"
+#define S_COLOR_LTORANGE	"^A"
+#define S_COLOR_MDCYAN		"^B"
+#define S_COLOR_MDPURPLE	"^C"
+#define S_COLOR_NULL		"^*"
 
-extern vec4_t g_color_table[8];
+extern vec4_t	g_color_table[32];
 
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
+
+// L0 - Crosshairs
+#define gethex( ch ) ( ( ch ) > '9' ? ( ( ch ) >= 'a' ? ( ( ch ) - 'a' + 10 ) : ( ( ch ) - '7' ) ) : ( ( ch ) - '0' ) )
+#define ishex( ch )  ( ( ch ) && ( ( ( ch ) >= '0' && ( ch ) <= '9' ) || ( ( ch ) >= 'A' && ( ch ) <= 'F' ) || ( ( ch ) >= 'a' && ( ch ) <= 'f' ) ) )
+#define Q_IsHexColorString( p ) ( ishex( *( p ) ) && ishex( *( ( p ) + 1 ) ) && ishex( *( ( p ) + 2 ) ) && ishex( *( ( p ) + 3 ) ) && ishex( *( ( p ) + 4 ) ) && ishex( *( ( p ) + 5 ) ) )
+#define Q_HexColorStringHasAlpha( p ) ( ishex( *( ( p ) + 6 ) ) && ishex( *( ( p ) + 7 ) ) )
+// End
 
 #define DEG2RAD( a ) ( ( ( a ) * M_PI ) / 180.0F )
 #define RAD2DEG( a ) ( ( ( a ) * 180.0f ) / M_PI )
