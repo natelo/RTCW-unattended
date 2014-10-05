@@ -838,8 +838,8 @@ typedef enum {
 	EV_POPUP,
 	EV_POPUPBOOK,
 	EV_GIVEPAGE,    //----(SA)	added
-	EV_MG42BULLET_HIT_FLESH,    // Arnout: these two send the seed as well
-	EV_MG42BULLET_HIT_WALL,
+	//EV_MG42BULLET_HIT_FLESH,    // Arnout: these two send the seed as well
+	//EV_MG42BULLET_HIT_WALL,
 	EV_MAX_EVENTS   // just added as an 'endcap'
 
 } entity_event_t;
@@ -1325,14 +1325,14 @@ typedef enum {
 
 	ET_CAMERA,
 	ET_MOVERSCALED,
-
+/*
 	ET_CORPSE,              // Arnout: dead player
 	ET_SMOKER,              // Arnout: target_smoke entity
 
 	ET_TEMPHEAD,            // Gordon: temporary head for clients for bullet traces
 
 	ET_MG42_BARREL,         // Arnout: MG42 barrel
-
+*/
 	ET_EVENTS               // any of the EV_* events can be added freestanding
 							// by setting eType to ET_EVENTS + eventNum
 							// this avoids having to set eFlags and eventNum

@@ -2609,6 +2609,7 @@ void CG_Player( centity_t *cent ) {
 		// find the mg42 we're attached to
 		for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 			mg42 = &cg_entities[ cg.snap->entities[ num ].number ];
+			/*
 			if ( mg42->currentState.eType == ET_MG42_BARREL &&
 				 mg42->currentState.otherEntityNum == cent->currentState.number ) {
 				// found it, clamp behind gun
@@ -2620,6 +2621,7 @@ void CG_Player( centity_t *cent ) {
 				playerOrigin[2] = cent->lerpOrigin[2];
 				break;
 			}
+			*/
 
 			if ( num == cg.snap->numEntities ) {
 				VectorCopy( cent->lerpOrigin, playerOrigin );
