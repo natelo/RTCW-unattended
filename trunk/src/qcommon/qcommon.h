@@ -263,20 +263,19 @@ You or the server may be running older versions of the game. Press the auto-upda
 // the demo uses a different protocol version for independant browsing
   #define   PROTOCOL_VERSION    50  // NERVE - SMF - wolfMP protocol version
 #endif
-
 // NERVE - SMF - wolf multiplayer master servers
-#define UPDATE_SERVER_NAME      "127.0.0.1"            // 192.246.40.65
-#define MASTER_SERVER_NAME      "127.0.0.1"
-#define AUTHORIZE_SERVER_NAME   "127.0.0.1"
+#define MASTER_SERVER_NAME      "wolfmaster.s4ndmod.com"
+#define	AUTHORIZE_SERVER_NAME	"auth.rtcwmp.com"
+#define UPDATE_SERVER_NAME      "updt.rtcwmp.com" 
 
 // TTimo: allow override for easy dev/testing..
 // see cons -- update_server=myhost
 #if !defined( AUTOUPDATE_SERVER_NAME )
-  #define AUTOUPDATE_SERVER1_NAME   "uptd.rtcwx.com"
-  #define AUTOUPDATE_SERVER2_NAME   "pub.rtcwx.com"
-  #define AUTOUPDATE_SERVER3_NAME   "repository.rtcwx.com"
-  #define AUTOUPDATE_SERVER4_NAME   "uptd2.rtcwx.com"
-  #define AUTOUPDATE_SERVER5_NAME   "uptd3.rtcwx.com"
+  #define AUTOUPDATE_SERVER1_NAME   "uptd.rtcwmp.com"
+  #define AUTOUPDATE_SERVER2_NAME   "pub.rtcwmp.com"
+  #define AUTOUPDATE_SERVER3_NAME   "repository.rtcwmp.com"
+  #define AUTOUPDATE_SERVER4_NAME   "cdn.rtcwmp.com"
+  #define AUTOUPDATE_SERVER5_NAME   "static.rtcwmp.com"
 #else
   #define AUTOUPDATE_SERVER1_NAME   AUTOUPDATE_SERVER_NAME
   #define AUTOUPDATE_SERVER2_NAME   AUTOUPDATE_SERVER_NAME

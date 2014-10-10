@@ -3248,16 +3248,19 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	char*   str;
 	char    *infoString;
 	int prot;
-	char    *gameName;
+	//char    *gameName;
 
 	infoString = MSG_ReadString( msg );
 
+	// L0 - 1.0 has no game name or a different one (1.31 PB patch) so blindly ignore this..
+	/*
 	// Arnout: if this isn't the correct game, ignore it
 	gameName = Info_ValueForKey( infoString, "gamename" );
 	if ( !gameName[0] || Q_stricmp( gameName, GAMENAME_STRING ) ) {
 		Com_DPrintf( "Different game info packet: %s\n", infoString );
 		return;
 	}
+	*/
 
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
