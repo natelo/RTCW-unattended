@@ -1553,7 +1553,7 @@ static int IRCH_Connected(void)
 	if (IRC_ThreadStatus != IRC_THREAD_SETNICK)
 	{
 		IRC_Display(IRC_MakeEvent(QUIT, 1), "", "IRC client bug\n");
-		IRC_Send("QUIT :wolfX IRC bug!\n");
+		IRC_Send("QUIT :rtcwmp IRC bug!\n");
 		return IRC_CMD_RETRY;
 	}
 	IRC_ThreadStatus = IRC_THREAD_CONNECTED;
@@ -1575,7 +1575,7 @@ static int IRCH_Joined(void)
 	if (IRC_ThreadStatus < IRC_THREAD_CONNECTED)
 	{
 		IRC_Display(IRC_MakeEvent(QUIT, 1), "", "IRC client bug\n");
-		IRC_Send("QUIT :wolfX IRC bug!\n");
+		IRC_Send("QUIT :rtcwmp IRC bug!\n");
 		return IRC_CMD_RETRY;
 	}
 
@@ -1700,7 +1700,7 @@ static int IRC_HandleMessage(qboolean is_channel, const char *string)
 
 	if (IRC_CheckEventRate(IRC_RL_MESSAGE))
 	{
-		return IRC_Send("PRIVMSG %s :Sorry, the wolfX IRC client does not support private messages\n", IRC_String(pfx_nickOrServer));
+		return IRC_Send("PRIVMSG %s :Sorry, the rtcwmp IRC client does not support private messages\n", IRC_String(pfx_nickOrServer));
 	}
 	return IRC_CMD_SUCCESS;
 }
@@ -1814,7 +1814,7 @@ static int CTCP_Action(qboolean is_channel, const char *argument)
 
 	if (IRC_CheckEventRate(IRC_RL_MESSAGE))
 	{
-		return IRC_Send("PRIVMSG %s :Sorry, the wolfX IRC client does not support private messages\n", IRC_String(pfx_nickOrServer));
+		return IRC_Send("PRIVMSG %s :Sorry, the rtcwmp IRC client does not support private messages\n", IRC_String(pfx_nickOrServer));
 	}
 	return IRC_CMD_SUCCESS;
 }
@@ -1855,7 +1855,7 @@ static int CTCP_Version(qboolean is_channel, const char *argument)
 		return IRC_CMD_SUCCESS;
 	}
 
-	return IRC_Send("NOTICE %s :\001VERSION wolfX IRC client - v\n" Q3_VERSION "\001", IRC_String(pfx_nickOrServer));
+	return IRC_Send("NOTICE %s :\001VERSION rtcwmp IRC client - v\n" Q3_VERSION "\001", IRC_String(pfx_nickOrServer));
 }
 
 /*--------------------------------------------------------------------------*/
@@ -2324,7 +2324,7 @@ static void IRC_MainLoop(void)
 			{
 				IRC_ThreadStatus = IRC_THREAD_QUITTING;
 				IRC_Display(IRC_MakeEvent(QUIT, 1), "", "quit from menu\n");
-				err_code = IRC_Send("QUIT : wolfX IRC %s\n", Q3_VERSION);
+				err_code = IRC_Send("QUIT : rtcwmp IRC %s\n", Q3_VERSION);
 			}
 			else
 			{
