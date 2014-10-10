@@ -524,6 +524,17 @@ float CL_KeyState( kbutton_t *key );
 char *Key_KeynumToString( int keynum, qboolean bTranslate );
 
 //
+// L0 - cl_irc.c
+//
+void CL_OW_IRCSetup(void);
+void CL_OW_InitIRC(void);
+void CL_OW_IRCInitiateShutdown(void);
+void CL_OW_IRCWaitShutdown(void);
+void CL_OW_IRCSay(void);
+qboolean CL_OW_IRCIsConnected(void);
+qboolean CL_OW_IRCIsRunning(void);
+
+//
 // cl_parse.c
 //
 extern int cl_connectedToPureServer;

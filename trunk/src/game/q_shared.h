@@ -809,6 +809,21 @@ char    *Q_strrchr( const char* string, int c );
 // buffer size safe library replacements
 void    Q_strncpyz( char *dest, const char *src, int destsize );
 void    Q_strcat( char *dest, int size, const char *src );
+int		Q_strnicmp(const char *string1, const char *string2, int n);  // L0 - IRC
+
+// L0 - IRC
+#define ID_INLINE __inline
+
+#ifndef __attribute__
+# if !defined(__GNUC__)
+#  define __attribute__(A)
+# elif GCC_VERSION < 2008
+#  define __attribute__(A)
+# elif defined(__cplusplus) && GCC_VERSION < 3004
+#  define __attribute__(A)
+# endif
+#endif
+// ~L0
 
 // strlen that discounts Quake color sequences
 int Q_PrintStrlen( const char *string );
