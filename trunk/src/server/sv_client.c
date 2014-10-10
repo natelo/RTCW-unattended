@@ -1209,8 +1209,8 @@ void SV_UserinfoChanged( client_t *cl ) {
 		if ( strlen( val ) ) {
 			i = atoi( val );
 			cl->rate = i;
-			if ( cl->rate < 1000 ) {
-				cl->rate = 1000;
+			if (cl->rate < 5000) { // L0 - Switched rate from lower bottom 1000 to 8000...
+				cl->rate = 5000;
 			} else if ( cl->rate > 90000 ) {
 				cl->rate = 90000;
 			}

@@ -556,6 +556,11 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		cl.viewangles[YAW] -= m_yaw->value * mx;
 	}
 
+	// L0 - Lock m_pitch..	
+	if (m_pitch->value < 0.015f) // Should I need to check for negative values as well? 
+		Cvar_Set("m_pitch", "0.015");
+	// end
+
 	if ( ( kb[KB_MLOOK].active || cl_freelook->integer ) && !kb[KB_STRAFE].active ) {
 		cl.viewangles[PITCH] += m_pitch->value * my;
 	} else {
@@ -768,8 +773,9 @@ qboolean CL_ReadyToSendPacket( void ) {
 	}
 
 	// check for exceeding cl_maxpackets
-	if ( cl_maxpackets->integer < 15 ) {
-		Cvar_Set( "cl_maxpackets", "15" );
+	// L0 - Switched from 15 to 40..
+	if (cl_maxpackets->integer < 40) {
+		Cvar_Set("cl_maxpackets", "40");
 	} else if ( cl_maxpackets->integer > 100 ) {
 		Cvar_Set( "cl_maxpackets", "100" );
 	}
@@ -957,7 +963,7 @@ CL_InitInput
 ============
 */
 void CL_InitInput( void ) {
-	Cmd_AddCommand( "centerview",IN_CenterView );
+//	Cmd_AddCommand( "centerview",IN_CenterView ); // L0 - Go away...
 
 	Cmd_AddCommand( "+moveup",IN_UpDown );
 	Cmd_AddCommand( "-moveup",IN_UpUp );

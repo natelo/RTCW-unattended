@@ -2484,7 +2484,7 @@ void Com_Init( char *commandLine ) {
 	//
 	// init commands and vars
 	//
-	com_maxfps = Cvar_Get( "com_maxfps", "85", CVAR_ARCHIVE | CVAR_LATCH );
+	com_maxfps = Cvar_Get( "com_maxfps", "125", CVAR_ARCHIVE | CVAR_LATCH );
 	com_blood = Cvar_Get( "com_blood", "1", CVAR_ARCHIVE );
 
 	com_developer = Cvar_Get( "developer", "0", CVAR_TEMP );
@@ -2772,6 +2772,10 @@ void Com_Frame( void ) {
 	if ( com_speeds->integer ) {
 		timeBeforeFirstEvents = Sys_Milliseconds();
 	}
+
+	// L0 - Fix maxfps abuse..
+	if (com_maxfps->integer > 125)
+		Cvar_Set("com_maxfps", "125");
 
 	// we may want to spin here if things are going too fast
 	if ( !com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer ) {

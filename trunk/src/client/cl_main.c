@@ -49,7 +49,6 @@ cvar_t  *rconAddress;
 cvar_t  *cl_timeout;
 cvar_t  *cl_maxpackets;
 cvar_t  *cl_packetdup;
-cvar_t  *cl_timeNudge;
 cvar_t  *cl_showTimeDelta;
 cvar_t  *cl_freezeDemo;
 
@@ -2847,7 +2846,6 @@ void CL_Init( void ) {
 
 	cl_wavefilerecord = Cvar_Get( "cl_wavefilerecord", "0", CVAR_TEMP );
 
-	cl_timeNudge = Cvar_Get( "cl_timeNudge", "0", CVAR_TEMP );
 	cl_shownet = Cvar_Get( "cl_shownet", "0", CVAR_TEMP );
 	cl_shownuments = Cvar_Get( "cl_shownuments", "0", CVAR_TEMP );
 	cl_visibleClients = Cvar_Get( "cl_visibleClients", "0", CVAR_TEMP );

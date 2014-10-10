@@ -2478,6 +2478,11 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 		return qfalse;
 	}
 
+	// L0 - Don't draw this above 1...
+	if (cg_shadows.integer > 1) {
+		trap_Cvar_Set("cg_shadows", "1");
+	}
+
 	// no shadows when invisible
 	if ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) {
 		return qfalse;
