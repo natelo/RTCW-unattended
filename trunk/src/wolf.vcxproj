@@ -810,6 +810,7 @@
     <ClInclude Include="game\g_public.h" />
     <ClInclude Include="A3D\ia3dapi.h" />
     <ClInclude Include="qcommon\htable.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ui\keycodes.h" />
     <ClInclude Include="client\keys.h" />
     <ClInclude Include="game\q_shared.h" />
@@ -1412,6 +1413,14 @@
       <Project>{b6842d42-fba7-4494-a393-802ca7e94351}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="wolf.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
+    <Image Include="win32\wolf.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

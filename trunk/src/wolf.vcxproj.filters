@@ -289,6 +289,9 @@
     <ClInclude Include="qcommon\htable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="unix\ChangeLog">
@@ -623,5 +626,15 @@
     <CustomBuild Include="..\main\scripts\z_light.shader">
       <Filter>main\scripts</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="wolf.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
+    <Image Include="win32\wolf.ico" />
   </ItemGroup>
 </Project>
