@@ -166,31 +166,33 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		}
 		return 0;
 	case WM_CTLCOLORSTATIC:
-		if ( ( HWND ) lParam == s_wcd.hwndBuffer ) {
-			SetBkColor( ( HDC ) wParam, RGB( 86, 117, 100 ) );
-			SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0xff ) );
+		if ((HWND)lParam == s_wcd.hwndBuffer) {
+			SetBkColor((HDC)wParam, RGB(105, 105, 105)); // L0 - modify ded console to match new look. :)
+			SetTextColor((HDC)wParam, RGB(0xff, 0xff, 0xff));
 
 #if 0   // this draws a background in the edit box, but there are issues with this
 			if ( ( hdcScaled = CreateCompatibleDC( ( HDC ) wParam ) ) != 0 ) {
 				if ( SelectObject( ( HDC ) hdcScaled, s_wcd.hbmLogo ) ) {
 					StretchBlt( ( HDC ) wParam, 0, 0, 512, 384,
-								hdcScaled, 0, 0, 512, 384,
-								SRCCOPY );
+						hdcScaled, 0, 0, 512, 384,
+						SRCCOPY );
 				}
 				DeleteDC( hdcScaled );
 			}
 #endif
-			return ( long ) s_wcd.hbrEditBackground;
-		} else if ( ( HWND ) lParam == s_wcd.hwndErrorBox )   {
-			if ( s_timePolarity & 1 ) {
-				SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
-				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0x0, 0x00 ) );
-			} else
-			{
-				SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
-				SetTextColor( ( HDC ) wParam, RGB( 0x00, 0x0, 0x00 ) );
+			return (long)s_wcd.hbrEditBackground;
+		}
+		else if ((HWND)lParam == s_wcd.hwndErrorBox)   {
+			if (s_timePolarity & 1) {
+				SetBkColor((HDC)wParam, RGB(0x80, 0x80, 0x80));
+				SetTextColor((HDC)wParam, RGB(255, 255, 255)); // L0 - blink to white as red looks ugly...
 			}
-			return ( long ) s_wcd.hbrErrorBackground;
+			else
+			{
+				SetBkColor((HDC)wParam, RGB(0x80, 0x80, 0x80));
+				SetTextColor((HDC)wParam, RGB(0x00, 0x0, 0x00));
+			}
+			return (long)s_wcd.hbrErrorBackground;
 		}
 		break;
 
@@ -215,9 +217,9 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 	case WM_CREATE:
 //		s_wcd.hbmLogo = LoadBitmap( g_wv.hInstance, MAKEINTRESOURCE( IDB_BITMAP1 ) );
 //		s_wcd.hbmClearBitmap = LoadBitmap( g_wv.hInstance, MAKEINTRESOURCE( IDB_BITMAP2 ) );
-		s_wcd.hbrEditBackground = CreateSolidBrush( RGB( 86, 117, 100 ) );
-		s_wcd.hbrErrorBackground = CreateSolidBrush( RGB( 0x80, 0x80, 0x80 ) );
-		SetTimer( hWnd, 1, 1000, NULL );
+		s_wcd.hbrEditBackground = CreateSolidBrush(RGB(105, 105, 105));  // L0 - modify ded console a lil..
+		s_wcd.hbrErrorBackground = CreateSolidBrush(RGB(0x80, 0x80, 0x80));
+		SetTimer(hWnd, 1, 1000, NULL);
 		break;
 	case WM_ERASEBKGND:
 #if 0
