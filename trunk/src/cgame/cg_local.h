@@ -711,6 +711,20 @@ typedef struct {
 #define MAX_SPAWN_VARS          64
 #define MAX_SPAWN_VARS_CHARS    2048
 
+// OSPx - Draw HUDnames
+typedef struct specName_s
+{
+	float		x;
+	float		y;
+	float		scale;
+	const char *text;
+	vec3_t		origin;
+	int         lastVisibleTime;
+	int         lastInvisibleTime;
+	qboolean    visible;
+	float		alpha;
+}specName_t;
+
 typedef struct {
 	int clientFrame;                // incremented each frame
 
@@ -794,6 +808,11 @@ typedef struct {
 	float zoomSensitivity;
 	float zoomval;
 
+	// OSPx - zoomFOV
+	qboolean zoomedFOV;
+	int zoomedTime;
+	float zoomedVal;
+	float zoomedSens;
 
 	// information screen text during loading
 	char infoScreenText[MAX_STRING_CHARS];
@@ -990,11 +1009,29 @@ typedef struct {
 	char thirtySecondSound_g[MAX_QPATH];
 	char thirtySecondSound_a[MAX_QPATH];
 
-	pmoveExt_t pmext;
-
-	// OSP's Crosshairs
+// OSPx 
+	// Crosshairs
 	vec4_t xhairColor;
 	vec4_t xhairColorAlt;
+
+	// Announcer
+	int		centerPrintAnnouncerTime;
+	char	*centerPrintAnnouncer;
+	float	centerPrintAnnouncerScale;
+	int		centerPrintAnnouncerDuration;
+	vec3_t	centerPrintAnnouncerColor;
+	int		centerPrintAnnouncerMode;
+
+	// Draw names on hud
+	qboolean	renderingFreeCam;
+	specName_t	specOnScreenNames[MAX_CLIENTS];
+
+	// Reinforcements 
+	vec4_t reinforcementColor;
+// -OSPx
+
+	pmoveExt_t pmext;
+
 } cg_t;
 
 #define NUM_FUNNEL_SPRITES  21
@@ -1780,14 +1817,29 @@ extern vmCvar_t cg_descriptiveText;
 extern vmCvar_t cg_autoReload;
 extern vmCvar_t cg_antilag;
 
-// L0
-extern vmCvar_t	cg_bloodBlend;
-extern vmCvar_t cg_solidCrosshair;
-extern vmCvar_t cg_drawRespawnTimer;
-extern vmCvar_t cg_crosshairColor;
-extern vmCvar_t cg_crosshairColorAlt;
+// OSPx
+extern vmCvar_t cg_crosshairPulse;
+extern vmCvar_t cg_bloodDamageBlend;
+extern vmCvar_t cg_bloodFlash;
 extern vmCvar_t cg_crosshairAlpha;
 extern vmCvar_t cg_crosshairAlphaAlt;
+extern vmCvar_t cg_crosshairColor;
+extern vmCvar_t cg_crosshairColorAlt;
+extern vmCvar_t cg_drawWeaponIconFlash;
+extern vmCvar_t cg_printObjectiveInfo;
+extern vmCvar_t cg_muzzleFlash;
+extern vmCvar_t cg_complaintPopUp;
+extern vmCvar_t cg_drawReinforcementTime;
+extern vmCvar_t cg_reinforcementTimeColor;
+extern vmCvar_t cg_noChat;
+extern vmCvar_t cg_noVoice;
+extern vmCvar_t cg_zoomedFOV;
+extern vmCvar_t cg_zoomedSens;
+extern vmCvar_t cg_noAmmoAutoSwitch;
+extern vmCvar_t cg_coloredCrosshairNames;
+extern vmCvar_t	vp_drawnames;
+extern vmCvar_t	cg_drawNames;
+// -OSPx
 
 //
 // cg_main.c
@@ -1829,6 +1881,9 @@ void CG_ZoomDown_f( void );
 void CG_ZoomIn_f( void );
 void CG_ZoomOut_f( void );
 void CG_ZoomUp_f( void );
+// OSPx - FOV zoom effect
+void CG_zoomViewSet_f(void);
+void CG_zoomViewRevert_f(void);
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
@@ -1932,7 +1987,23 @@ qboolean CG_YourTeamHasFlag();
 qboolean CG_OtherTeamHasFlag();
 qhandle_t CG_StatusHandle( int task );
 void CG_Fade( int r, int g, int b, int a, float time );
-
+// OSPx
+// - Text
+int CG_Text_Width_Ext(const char *text, float scale, int limit, fontInfo_t* font);
+int CG_Text_Height_Ext(const char *text, float scale, int limit, fontInfo_t* font);
+void CG_Text_Paint_Ext(float x, float y, float scalex, float scaley, vec4_t color, const char *text, float adjust, int limit, int style, fontInfo_t* font);
+// - Hud names
+void CG_Text_Paint_ext2(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
+int CG_Text_Width_ext2(const char *text, float scale, int limit);
+int CG_Text_Height_ext2(const char *text, float scale, int limit);
+// - Announcer
+void CG_AddAnnouncer(char *text, sfxHandle_t sound, float scale, int duration, float r, float g, float b, int mode);
+void CG_DrawAnnouncer(void);
+#define ANNOUNCER_NORMAL 1
+#define ANNOUNCER_SINE 2
+#define ANNOUNCER_INVERSE_SINE 3
+#define ANNOUNCER_TAN 4
+// -OSPx
 
 
 
@@ -2002,6 +2073,7 @@ void CG_NextWeapon_f( void );
 void CG_PrevWeapon_f( void );
 void CG_Weapon_f( void );
 void CG_WeaponBank_f( void );
+qboolean CG_WeaponSelectable(int i);
 
 void CG_FinishWeaponChange( int lastweap, int newweap );
 

@@ -131,14 +131,13 @@ extern vmCvar_t ui_limboOptions;
 extern vmCvar_t ui_isSpectator;
 // -NERVE - SMF
 
-// L0 - Crosshairs
+// OSPx
 extern vmCvar_t ui_crosshairColor;
 extern vmCvar_t ui_crosshairColorAlt;
 extern vmCvar_t ui_crosshairAlpha;
 extern vmCvar_t ui_crosshairAlphaAlt;
 extern vmCvar_t ui_crosshairSize;
-extern vmCvar_t ui_coloredCrosshair;
-// End
+// -OSPx
 
 //
 // ui_qmenu.c
@@ -890,10 +889,10 @@ typedef struct {
 	int nextFindPlayerRefresh;
 
 	int currentCrosshair;
-	// L0 - Crosshairs
+	// OSPx - Crosshairs
 	vec4_t xhairColor;
 	vec4_t xhairColorAlt;
-	// End
+	// -OSPx
 
 	int startPostGameTime;
 	sfxHandle_t newHighScoreSound;

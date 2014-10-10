@@ -264,9 +264,9 @@ You or the server may be running older versions of the game. Press the auto-upda
 #endif
 
 // NERVE - SMF - wolf multiplayer master servers
-#define UPDATE_SERVER_NAME      "wolfmotd.rtcwx.com"            // 192.246.40.65
-#define MASTER_SERVER_NAME      "master.rtcwx.com"
-#define AUTHORIZE_SERVER_NAME   "auth.rtcwx.com"
+#define UPDATE_SERVER_NAME      "127.0.0.1"            // 192.246.40.65
+#define MASTER_SERVER_NAME      "127.0.0.1"
+#define AUTHORIZE_SERVER_NAME   "127.0.0.1"
 
 // TTimo: allow override for easy dev/testing..
 // see cons -- update_server=myhost

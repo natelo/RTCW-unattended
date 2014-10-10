@@ -1967,11 +1967,9 @@ static void CG_ProcessEntity( centity_t *cent ) {
 	case ET_BAT:
 		CG_Bat( cent );
 		break;
-	/*
-	case ET_SMOKER:
-		CG_Smoker( cent );
-		break;
-	*/
+//	case ET_SMOKER:
+//		CG_Smoker( cent );
+//		break;
 	}
 }
 

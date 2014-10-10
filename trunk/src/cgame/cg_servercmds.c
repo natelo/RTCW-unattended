@@ -677,6 +677,9 @@ static void CG_MapRestart( void ) {
 	cg.zoomedBinoc = cg.zoomedScope = qfalse;
 	cg.zoomTime = 0;
 	cg.zoomval = 0;
+	// OSPx - Reset ZoomedFOV
+	cg.zoomedFOV = qfalse;
+	cg.zoomedTime = 0;
 
 	// reset fog to world fog (if present)
 	trap_R_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0 );
@@ -756,6 +759,13 @@ static void CG_MapRestart( void ) {
 		}
 	}
 #endif
+
+	// OSPx - Fight Announcement 
+	if (cg.warmup == 0)
+		// Poor man's solution...replace font one of this days as this is ridicoulus.	:C		
+		CG_AddAnnouncer("F IGH T !", cgs.media.countFightSound, 1.6f, 1200, 0.5f, 0.0f, 0.0f, ANNOUNCER_NORMAL);
+	// -OSPx
+
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
 }
 
@@ -1439,6 +1449,11 @@ static void CG_ServerCommand( void ) {
 				s = va( "%s%s", CG_Argv( 3 ), s );
 			}
 
+			// OSPx - Client logging
+			if (cg_printObjectiveInfo.integer > 0 && (args == 4 || atoi(CG_Argv(2)) > 1) && !cg.warmup) {
+				CG_Printf("[cgnotify]*** INFO: ^3%s\n", Q_CleanStr((char *)CG_LocalizeServerCommand(CG_Argv(1))));
+			}
+
 			CG_PriorityCenterPrint( s, SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.25 ), SMALLCHAR_WIDTH, atoi( CG_Argv( 2 ) ) );
 		} else {
 			CG_CenterPrint( CG_LocalizeServerCommand( CG_Argv( 1 ) ), SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.25 ), SMALLCHAR_WIDTH );  //----(SA)	modified
@@ -1488,7 +1503,11 @@ static void CG_ServerCommand( void ) {
 		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 		Q_strncpyz( text, s, MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
-		CG_AddToTeamChat( text ); // JPW NERVE
+
+		// OSPx - No chat if it's disabled..
+		if (!cg_noChat.integer)			
+			CG_AddToTeamChat( text ); // JPW NERVE
+
 		CG_Printf( "[skipnotify]%s\n", text ); // JPW NERVE
 
 		// NERVE - SMF - we also want this to display in limbo chat
@@ -1511,7 +1530,11 @@ static void CG_ServerCommand( void ) {
 		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 		Q_strncpyz( text, s, MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
-		CG_AddToTeamChat( text );
+
+		// OSPx - No chat if it's disabled..
+		if (!cg_noChat.integer)
+			CG_AddToTeamChat( text );
+
 		CG_Printf( "[skipnotify]%s\n", text ); // JPW NERVE
 
 		// NERVE - SMF - we also want this to display in limbo chat
@@ -1523,16 +1546,28 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "vchat" ) ) {
+		// OSPx - No voice prints
+		if (cg_noVoice.integer == 1 || cg_noVoice.integer == 3)
+			return;
+
 		CG_VoiceChat( SAY_ALL );            // NERVE - SMF - enabled support
 		return;
 	}
 
 	if ( !strcmp( cmd, "vtchat" ) ) {
+		// OSPx - No voice prints
+		if (cg_noVoice.integer == 2 || cg_noVoice.integer == 3)
+			return;
+
 		CG_VoiceChat( SAY_TEAM );           // NERVE - SMF - enabled support
 		return;
 	}
 
 	if ( !strcmp( cmd, "vtell" ) ) {
+		// OSPx - No voice prints
+		if (cg_noVoice.integer)
+			return;
+
 		CG_VoiceChat( SAY_TELL );           // NERVE - SMF - enabled support
 		return;
 	}

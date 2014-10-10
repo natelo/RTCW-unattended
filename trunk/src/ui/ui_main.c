@@ -368,7 +368,9 @@ void AssetCache() {
 	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
 	for ( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + n ) );
+		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va( "gfx/2d/crosshair%c_OSPx", 'a' + n ) );
+		// OSPx - Crosshairs
+		uiInfo.uiDC.Assets.crosshairAltShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c_alt_OSPx", 'a' + n));
 	}
 
 	//uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav");
@@ -2331,7 +2333,14 @@ static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color ) {
 	if ( uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS ) {
 		uiInfo.currentCrosshair = 0;
 	}
+	
+	// OSPx - Crosshairs
+	trap_R_SetColor( uiInfo.xhairColor );
 	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair] );
+	trap_R_SetColor( uiInfo.xhairColorAlt );
+	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairAltShader[uiInfo.currentCrosshair] );
+	// -OSPx
+
 	trap_R_SetColor( NULL );
 }
 
@@ -7499,14 +7508,16 @@ vmCvar_t ui_userAxisRespawnTime;
 vmCvar_t ui_glCustom;    // JPW NERVE missing from q3ta
 // -NERVE - SMF
 
-// L0 - Crosshairs
+// OSPx
+
+// Crosshairs
 vmCvar_t ui_crosshairColor;
 vmCvar_t ui_crosshairColorAlt;
 vmCvar_t ui_crosshairAlpha;
 vmCvar_t ui_crosshairAlphaAlt;
 vmCvar_t ui_crosshairSize;
-vmCvar_t ui_coloredCrosshair;
-// End
+
+// -OSPx
 
 cvarTable_t cvarTable[] = {
 
@@ -7634,14 +7645,14 @@ cvarTable_t cvarTable[] = {
 	{ &ui_isSpectator, "ui_isSpectator", "1", 0 },
 	// -NERVE - SMF
 
-	// L0 - Crosshairs
+// OSPx	
+	// cgame mappings	
 	{ &ui_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE },
 	{ &ui_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE },
 	{ &ui_crosshairSize, "cg_crosshairSize", "48", CVAR_ARCHIVE },
 	{ &ui_crosshairAlphaAlt, "cg_crosshairAlphaAlt", "1.0", CVAR_ARCHIVE },
 	{ &ui_crosshairAlpha, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE },
-	{ &ui_coloredCrosshair, "cg_coloredCrosshair", "1.0", CVAR_ARCHIVE },
-	// End
+// -OSPx
 
 	{ &ui_hudAlpha, "cg_hudAlpha", "1.0", CVAR_ARCHIVE }
 };
@@ -7660,13 +7671,12 @@ void UI_RegisterCvars( void ) {
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
-
-		// L0 - Crosshairs
-		BG_setCrosshair(ui_crosshairColor.string, uiInfo.xhairColor, ui_crosshairAlpha.value, "cg_crosshairColor");
-		BG_setCrosshair(ui_crosshairColorAlt.string, uiInfo.xhairColorAlt, ui_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
-		uiInfo.currentCrosshair = ui_drawCrosshair.integer;
-		// End
 	}
+
+	// OSPx - Crosshairs
+	BG_setCrosshair(ui_crosshairColor.string, uiInfo.xhairColor, ui_crosshairAlpha.value, "cg_crosshairColor");
+	BG_setCrosshair(ui_crosshairColorAlt.string, uiInfo.xhairColorAlt, ui_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
+	uiInfo.currentCrosshair = ui_drawCrosshair.integer;
 }
 
 /*
@@ -7681,7 +7691,7 @@ void UI_UpdateCvars( void ) {
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
 
-		// L0 - Crosshairs
+// OSPx
 		if (cv->vmCvar == &ui_crosshairColor || cv->vmCvar == &ui_crosshairAlpha) {
 			BG_setCrosshair(ui_crosshairColor.string, uiInfo.xhairColor, ui_crosshairAlpha.value, "cg_crosshairColor");
 		}
@@ -7690,7 +7700,8 @@ void UI_UpdateCvars( void ) {
 		}
 		if (cv->vmCvar == &ui_drawCrosshair) {
 			uiInfo.currentCrosshair = ui_drawCrosshair.integer;
-		} // End
+		} 
+// -OSPx
 	}
 }
 

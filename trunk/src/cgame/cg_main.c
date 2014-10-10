@@ -286,15 +286,29 @@ vmCvar_t cg_bluelimbotime;
 vmCvar_t cg_autoReload;
 vmCvar_t cg_antilag;
 
-// L0 - New stuff
-vmCvar_t cg_bloodBlend;
-vmCvar_t cg_solidCrosshair;
-vmCvar_t cg_drawRespawnTimer;
-vmCvar_t cg_crosshairColor;
-vmCvar_t cg_crosshairColorAlt;
+// OSPx
+vmCvar_t cg_crosshairPulse;
+vmCvar_t cg_bloodDamageBlend;
+vmCvar_t cg_bloodFlash;
 vmCvar_t cg_crosshairAlpha;
 vmCvar_t cg_crosshairAlphaAlt;
-// End
+vmCvar_t cg_crosshairColor;
+vmCvar_t cg_crosshairColorAlt;
+vmCvar_t cg_drawWeaponIconFlash;
+vmCvar_t cg_printObjectiveInfo;
+vmCvar_t cg_muzzleFlash;
+vmCvar_t cg_complaintPopUp;
+vmCvar_t cg_drawReinforcementTime;
+vmCvar_t cg_reinforcementTimeColor;
+vmCvar_t cg_noChat;
+vmCvar_t cg_noVoice;
+vmCvar_t cg_zoomedFOV;
+vmCvar_t cg_zoomedSens;
+vmCvar_t cg_noAmmoAutoSwitch;
+vmCvar_t cg_coloredCrosshairNames;
+vmCvar_t vp_drawnames;
+vmCvar_t cg_drawNames;
+// -OSPx
 
 typedef struct {
 	vmCvar_t    *vmCvar;
@@ -496,17 +510,31 @@ cvarTable_t cvarTable[] = {
 
 	{ &cg_autoReload, "cg_autoReload", "1", CVAR_ARCHIVE },
 
-	// L0 - New stuff
-	{ &cg_bloodBlend, "cg_bloodBlend", "0", CVAR_ARCHIVE },
-	{ &cg_solidCrosshair, "cg_solidCrosshair", "0", CVAR_ARCHIVE },
-	{ &cg_drawRespawnTimer, "cg_drawRespawnTimer", "0", CVAR_ARCHIVE },
-	{ &cg_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE },
-	{ &cg_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE },
+	{ &cg_antilag, "g_antilag", "0", 0 },
+
+	// OSPx
+	{ &cg_crosshairPulse, "cg_crosshairPulse", "1", CVAR_ARCHIVE },
+	{ &cg_bloodDamageBlend, "cg_bloodDamageBlend", "1.0", CVAR_ARCHIVE },
+	{ &cg_bloodFlash, "cg_bloodFlash", "1.0", CVAR_ARCHIVE },
 	{ &cg_crosshairAlpha, "cg_crosshairAlpha", "1.0", CVAR_ARCHIVE },
 	{ &cg_crosshairAlphaAlt, "cg_crosshairAlphaAlt", "1.0", CVAR_ARCHIVE },
-	// End
-
-	{ &cg_antilag, "g_antilag", "0", 0 }
+	{ &cg_crosshairColor, "cg_crosshairColor", "White", CVAR_ARCHIVE },
+	{ &cg_crosshairColorAlt, "cg_crosshairColorAlt", "White", CVAR_ARCHIVE },
+	{ &cg_drawWeaponIconFlash, "cg_drawWeaponIconFlash", "0", CVAR_ARCHIVE },
+	{ &cg_printObjectiveInfo, "cg_printObjectiveInfo", "1", CVAR_ARCHIVE },
+	{ &cg_muzzleFlash, "cg_muzzleFlash", "1", CVAR_ARCHIVE },
+	{ &cg_complaintPopUp, "cg_complaintPopUp", "1", CVAR_ARCHIVE },
+	{ &cg_drawReinforcementTime, "cg_drawReinforcementTime", "0", CVAR_ARCHIVE },
+	{ &cg_reinforcementTimeColor, "cg_reinforcementTimeColor", "yellow", CVAR_ARCHIVE },
+	{ &cg_noChat, "cg_noChat", "0", CVAR_ARCHIVE },
+	{ &cg_noVoice, "cg_noVoice", "0", CVAR_ARCHIVE },
+	{ &cg_zoomedFOV, "cg_zoomedFOV", "90", CVAR_ARCHIVE },
+	{ &cg_zoomedSens, "cg_zoomedSens", ".3", CVAR_ARCHIVE },
+	{ &cg_noAmmoAutoSwitch, "cg_noAmmoAutoSwitch", "1", CVAR_ARCHIVE },
+	{ &cg_coloredCrosshairNames, "cg_coloredCrosshairNames", "1", CVAR_ARCHIVE },
+	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
+	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM }
+	// -OSPx
 };
 int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 
@@ -536,9 +564,17 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
 	trap_Cvar_Register( NULL, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 
-	// L0 - Crosshairs
+// OSPx
+	// Auto actions
+	//CG_setClientFlags();
+
+	// Crosshairs
 	BG_setCrosshair(cg_crosshairColor.string, cg.xhairColor, cg_crosshairAlpha.value, "cg_crosshairColor");
 	BG_setCrosshair(cg_crosshairColorAlt.string, cg.xhairColorAlt, cg_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
+
+	// Reinforcements color
+	BG_setCrosshair(cg_reinforcementTimeColor.string, cg.reinforcementColor, 1.0, "cg_reinforcementTimeColor");
+// -OSPx
 }
 
 /*
@@ -572,13 +608,19 @@ void CG_UpdateCvars( void ) {
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
 
-		// L0 - Crosshairs
+// OSPx 
+		// Crosshairs
 		if (cv->vmCvar == &cg_crosshairColor || cv->vmCvar == &cg_crosshairAlpha) {
 			BG_setCrosshair(cg_crosshairColor.string, cg.xhairColor, cg_crosshairAlpha.value, "cg_crosshairColor");
 		}
 		else if (cv->vmCvar == &cg_crosshairColorAlt || cv->vmCvar == &cg_crosshairAlphaAlt)     {
 			BG_setCrosshair(cg_crosshairColorAlt.string, cg.xhairColorAlt, cg_crosshairAlphaAlt.value, "cg_crosshairColorAlt");
-		} // End
+		} 
+		// Reinforcements
+		else if (cv->vmCvar == &cg_reinforcementTimeColor) {
+			BG_setCrosshair(cg_reinforcementTimeColor.string, cg.reinforcementColor, 1.0, "cg_reinforcementTimeColor");
+		}
+// -OSPx
 	}
 
 	// if force model changed
@@ -1259,8 +1301,8 @@ static void CG_RegisterGraphics( void ) {
 //----(SA)	end
 
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
-		cgs.media.crosshairShader[i] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c", 'a' + i ) );
-		cg.crosshairShaderAlt[i] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c_alt", 'a' + i ) );
+		cgs.media.crosshairShader[i] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c_OSPx", 'a' + i ) );
+		cg.crosshairShaderAlt[i] = trap_R_RegisterShader( va( "gfx/2d/crosshair%c_alt_OSPx", 'a' + i ) );
 	}
 
 	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );

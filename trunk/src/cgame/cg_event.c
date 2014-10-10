@@ -1877,8 +1877,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME( "EV_NOAMMO" );
 		if ( ( es->weapon != WP_GRENADE_LAUNCHER ) && ( es->weapon != WP_GRENADE_PINEAPPLE ) && ( es->weapon != WP_DYNAMITE )  && ( es->weapon != WP_DYNAMITE2 ) ) {
 			trap_S_StartSound( NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound );
-		}
-		if ( es->number == cg.snap->ps.clientNum ) {
+		}		
+		if (es->number == cg.snap->ps.clientNum) {
 			CG_OutOfAmmoChange();
 		}
 		break;
@@ -2117,7 +2117,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitWall( es->weapon, 0, position, dir, 0 ); // (SA) modified to send missilehitwall surface parameters
 		break;
-/*
+		/*
 	case EV_MG42BULLET_HIT_WALL:
 		DEBUGNAME( "EV_MG42BULLET_HIT_WALL" );
 		ByteToDir( es->eventParm, dir );
