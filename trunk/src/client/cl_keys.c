@@ -811,7 +811,10 @@ void Field_Paste( field_t *edit ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
-	free( cbd );
+	// L0 - ctrl+v console crash fix..
+	// Makes me wonder how much more of memory crap is out there to fix.. :C
+	//free( cbd );
+	Z_Free(cbd);
 }
 
 /*
