@@ -367,7 +367,7 @@ void R_BloomScreen(void)
 void R_BloomInit(void) {
 	memset(&bloom, 0, sizeof(bloom));
 
-	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
+	r_bloom = ri.Cvar_Get("r_bloom", "1", CVAR_ARCHIVE);
 	r_bloom_alpha = ri.Cvar_Get("r_bloom_alpha", "0.3", CVAR_ARCHIVE);
 	r_bloom_diamond_size = ri.Cvar_Get("r_bloom_diamond_size", "8", CVAR_ARCHIVE);
 	r_bloom_intensity = ri.Cvar_Get("r_bloom_intensity", "1.3", CVAR_ARCHIVE);

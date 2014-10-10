@@ -3065,6 +3065,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand("irc_connect", CL_OW_InitIRC);
 	Cmd_AddCommand("irc_quit", CL_OW_IRCInitiateShutdown);
 	Cmd_AddCommand("irc_say", CL_OW_IRCSay);
+	Cmd_AddCommand("say_irc", CL_OW_IRCSay);
 	// End
 
 	// Ridah, startup-caching system
