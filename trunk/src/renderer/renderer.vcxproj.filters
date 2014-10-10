@@ -214,6 +214,9 @@
     <ClCompile Include="..\jpeg-6\jutils.c">
       <Filter>jpeg\Source Files No. 1</Filter>
     </ClCompile>
+    <ClCompile Include="tr_bloom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anorms256.h">

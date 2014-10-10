@@ -1141,6 +1141,10 @@ const void  *RB_DrawSurfs( const void *data ) {
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
+	// L0 - Bloom 
+	backEnd.doneSurfaces = qtrue;
+	// end
+
 	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 
 	return (const void *)( cmd + 1 );
@@ -1282,6 +1286,11 @@ const void  *RB_SwapBuffers( const void *data ) {
 
 	backEnd.projection2D = qfalse;
 
+	// L0 - Bloom
+	backEnd.doneBloom = qfalse;
+	backEnd.doneSurfaces = qfalse;
+	// End
+
 	return (const void *)( cmd + 1 );
 }
 
@@ -1310,6 +1319,9 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			data = RB_SetColor( data );
 			break;
 		case RC_STRETCH_PIC:
+			// L0 - Bloom
+			R_BloomScreen();
+			// End
 			data = RB_StretchPic( data );
 			break;
 		case RC_ROTATED_PIC:
@@ -1325,6 +1337,9 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			data = RB_DrawBuffer( data );
 			break;
 		case RC_SWAP_BUFFERS:
+			// L0 - Bloom
+			R_BloomScreen();
+			// End
 			data = RB_SwapBuffers( data );
 			break;
 

@@ -1528,6 +1528,10 @@ typedef enum {
 	CA_CINEMATIC        // playing a cinematic or a static pic, not connected to a server
 } connstate_t;
 
+// L0 - Client state so it can be globaly used..
+qboolean CLCON_STATE;
+// End
+
 // font support
 
 #define GLYPH_START 0

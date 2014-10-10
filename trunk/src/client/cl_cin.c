@@ -1407,6 +1407,9 @@ static void RoQShutdown( void ) {
 
 	if ( cinTable[currentHandle].alterGameState ) {
 		cls.state = CA_DISCONNECTED;
+		// L0 - Con state
+		CLCON_STATE = qfalse;
+		// End
 		// we can't just do a vstr nextmap, because
 		// if we are aborting the intro cinematic with
 		// a devmap command, nextmap would be valid by
