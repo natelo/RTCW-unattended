@@ -258,6 +258,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 // 1.4 - protocol 60
 #define PROTOCOL_VERSION 57
 #define GAMENAME_STRING     "wolfmp"
+#define CODENAME	"SAVINGBlazkowicz"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
 #else
 // the demo uses a different protocol version for independant browsing
   #define   PROTOCOL_VERSION    50  // NERVE - SMF - wolfMP protocol version

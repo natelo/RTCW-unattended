@@ -897,6 +897,30 @@ void CL_ForwardCommandToServer( const char *string ) {
 
 /*
 ===================
+L0 - CL_RequestVersion
+
+Check against auth if new version is available..
+===================
+*/
+void CL_RequestVersion(void) {
+
+	Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);		 // L0 - IPv6
+	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.authorizeServer)) {
+		Com_Printf("Couldn't resolve address\n");
+		return;
+	}
+	cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
+	Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+		cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
+		cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
+		BigShort(cls.authorizeServer.port));
+
+	Com_sprintf(cls.versionChallenge, sizeof(cls.versionChallenge), "%i", rand());
+	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, va("getVersion %s %s", cls.versionChallenge, CODENAME));
+}
+
+/*
+===================
 CL_RequestMotd
 
 ===================
@@ -1762,6 +1786,30 @@ void CL_DisconnectPacket( netadr_t from ) {
 	CL_Disconnect( qtrue );
 }
 
+/*
+===================
+L0 - CL_VersionPacket
+
+Check if there's newer version available
+===================
+*/
+void CL_VersionPacket(netadr_t from) {
+	char    *info;
+
+	// if not from our server, ignore it
+	if (!NET_CompareAdr(from, cls.authorizeServer)) {
+		return;
+	}
+
+	// check challenge	
+	info = Cmd_Argv(1);
+	if (strcmp(info, cls.versionChallenge) != 0) {
+		return;
+	}
+
+	if (strcmp(Cmd_Argv(2), "1") == 0)
+		Com_Error(ERR_FATAL, "New version has been released! Download it @ http://rtcwmp.com");
+}
 
 /*
 ===================
@@ -2081,6 +2129,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	// global MOTD from id
 	if ( !Q_stricmp( c, "motd" ) ) {
 		CL_MotdPacket( from );
+		return;
+	}
+
+	// L0 - Update 
+	if (!Q_stricmp(c, "version")) {
+		CL_VersionPacket(from);
 		return;
 	}
 
@@ -2598,6 +2652,11 @@ void CL_CheckAutoUpdate( void ) {
 	NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
 
 	CL_RequestMotd();
+
+	// L0 - Update 
+	// Hooking it here since it makes more sense that redoing it..
+	CL_RequestVersion();
+	// End
 
 	autoupdateChecked = qtrue;
 }

@@ -329,6 +329,9 @@ typedef struct {
 
 	netadr_t authorizeServer;
 
+	// L0 - Version checking
+	char versionChallenge[MAX_TOKEN_CHARS];
+
 	// DHM - Nerve :: Auto-update Info
 	char autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
 	netadr_t autoupdateServer;
