@@ -1134,6 +1134,129 @@ static int CG_CalcFov( void ) {
 	return inwater;
 }
 
+/*
+===============
+CG_WaterBlendBlob
+
+L0 - Water effect / OpenwWolf port
+===============
+*/
+
+#define MAX_DROPS 64
+#define WATER_OUT_TIME 1500
+#define WATER_IN_TIME 150
+
+int num_drops = 0;
+float dropx[MAX_DROPS];
+float dropy[MAX_DROPS];
+float drops[MAX_DROPS];
+qhandle_t dropShader[MAX_DROPS];
+float dropSeed[MAX_DROPS];
+qboolean waswater = qfalse;
+int watertime = 0;
+int waterintime = 0;
+
+float dropAccel[MAX_DROPS][2];
+static void CG_WaterBlendBlob(int inwater) {
+	int             i, n, t, z;
+	float           phase, v, in;
+	refEntity_t     ent;
+
+	if (inwater){
+		if (!waswater) { // new in water
+			waterintime = cg.time + WATER_IN_TIME;
+		}
+
+		waswater = qtrue;
+
+		if (!num_drops)
+		{
+			z = sqrt((float)MAX_DROPS);
+			for (i = 0; i < z; i++)
+			{
+				for (n = 0; n < z; n++)
+				{
+					dropx[num_drops] = (i * z - (MAX_DROPS / 2) + 2 + 1 * crandom()) * 16 / MAX_DROPS;
+					dropy[num_drops] = (n * z - (MAX_DROPS / 2) + 1 + 1 * crandom()) * 16 / MAX_DROPS;
+
+					drops[num_drops] = 8 + crandom();
+					dropShader[num_drops] = trap_R_RegisterShader(va("gfx/hud/drop%i", ((int)(2 + 2 * crandom()))));
+
+					dropAccel[num_drops][0] = 0.0f;
+					dropAccel[num_drops][1] = 0.0f;
+
+					dropSeed[num_drops] = random();
+					num_drops++;
+				}
+
+			}
+		}
+	}
+
+
+	// when coming out of water, draw drops
+	if (!inwater && waswater) // init the drops
+	{
+		watertime = cg.time + WATER_OUT_TIME;
+		waswater = qfalse;
+	}
+
+	t = watertime - cg.time;
+
+	if (t <= 0 && !inwater)
+	{
+		num_drops = 0;
+		return;
+	}
+
+	if (!num_drops) {
+		return;
+	}
+
+	phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+	if (cg.time < waterintime) {
+		in = 1.0f - (1.0f / WATER_IN_TIME * (waterintime - cg.time));
+	}
+	else {
+		in = 1.0f;
+	}
+
+	v = (0.7f + 0.1f * sin(phase)) * in;
+
+	// do the drops
+	for (i = 0; i < MAX_DROPS; i++) {
+		memset(&ent, 0, sizeof(ent));
+		ent.reType = RT_SPRITE;
+		ent.renderfx = RF_FIRST_PERSON;
+		ent.rotation = 360 * sin(phase * 0.05f * dropSeed[i]);
+
+		VectorMA(cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin);
+		VectorMA(ent.origin, dropx[i] + sin(phase * 0.1f) + dropAccel[i][0], cg.refdef.viewaxis[1], ent.origin);
+		VectorMA(ent.origin, dropy[i] + cos(phase * 0.1f) + dropAccel[i][1], cg.refdef.viewaxis[2], ent.origin);
+		//VectorMA(ent.origin, dropx[i] , cg.refdef.viewaxis[1], ent.origin);
+		//VectorMA(ent.origin, dropy[i] , cg.refdef.viewaxis[2], ent.origin);
+
+		ent.customShader = dropShader[i];
+
+		if (inwater) {
+			ent.shaderTime = v;
+			dropAccel[i][0] = 0.0f;
+			dropAccel[i][1] = 0.0f;
+		}
+		else {
+
+			ent.shaderTime = v / WATER_OUT_TIME * t;
+			dropAccel[i][1] = (1.0f - ent.shaderTime) * (-dropSeed[i] * 10);
+			//dropAccel[i][1] = 0;
+		}
+
+		ent.radius = drops[i] * (ent.shaderTime * dropSeed[i]);
+		//ent.radius = drops[i] * ( ent.shaderTime * ent.shaderTime );
+
+		trap_R_AddRefEntityToScene(&ent);
+	}
+
+}
 
 /*
 ==============
@@ -1903,6 +2026,8 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// first person blend blobs, done after AnglesToAxis
 	if ( !cg.renderingThirdPerson ) {
 		CG_DamageBlendBlob();
+		// L0 - Water effect
+		CG_WaterBlendBlob(inwater);
 	}
 
 	DEBUGTIME
