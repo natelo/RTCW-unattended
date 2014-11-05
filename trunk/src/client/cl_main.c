@@ -96,6 +96,11 @@ cvar_t  *cl_updateavailable;
 cvar_t  *cl_updatefiles;
 // DHM - Nerve
 
+// L0 - New stuff
+cvar_t	*cl_demoName;
+cvar_t	*cl_demoLast;
+// ~L0
+
 clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
@@ -323,13 +328,23 @@ void CL_Record_f( void ) {
 
 	if (Cmd_Argc() == 2) {
 		s = Cmd_Argv( 1 );
-		Q_strncpyz(demoName, va("demos/%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], s, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
-		Com_sprintf(name, sizeof(name), "%s.dm_%d", demoName, PROTOCOL_VERSION);
+		Q_strncpyz(demoName, va("%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], s, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+		Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
 	}
 	else {
-		Q_strncpyz(demoName, va("demos/%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
-		Com_sprintf(name, sizeof(name), "%s.dm_%d", demoName, PROTOCOL_VERSION);
+		// L0 - Check if prefix is set..
+		if (strlen(cl_demoName->string) > 0) {
+			Q_strncpyz(demoName, va("%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], cl_demoName->string, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
+		}
+		else {
+			Q_strncpyz(demoName, va("%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
+		}
 	}
+
+	// L0 - Store last demo..
+	Cvar_Set( "cl_demoLast", demoName );
 
 	// open the demo file
 
@@ -572,6 +587,10 @@ void CL_PlayDemo_f( void ) {
 
 	// open the demo file
 	arg = Cmd_Argv( 1 );
+	// L0 - Check if client wants last demo..
+	if (!Q_stricmp(arg, "last"))
+		arg = cl_demoLast->string;
+	// Go for it now
 	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
 		Com_sprintf( name, sizeof( name ), "demos/%s", arg );
@@ -3018,6 +3037,11 @@ void CL_Init( void ) {
 	cl_language = Cvar_Get( "cl_language", "0", CVAR_ARCHIVE );
 	cl_debugTranslation = Cvar_Get( "cl_debugTranslation", "0", 0 );
 	// -NERVE - SMF
+
+	// L0 - New Stuff
+	cl_demoName = Cvar_Get( "cl_demoName", "", CVAR_ARCHIVE );
+	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );
+	// ~L0
 
 	// DHM - Nerve :: Auto-update
 	cl_updateavailable = Cvar_Get( "cl_updateavailable", "0", CVAR_ROM );

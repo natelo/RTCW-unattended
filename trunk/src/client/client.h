@@ -406,6 +406,11 @@ extern cvar_t  *cl_waitForFire;
 extern cvar_t  *cl_language;
 // -NERVE - SMF
 
+// L0 - New Stuff
+extern cvar_t	*cl_demoName;
+extern cvar_t	*cl_demoLast;
+// ~L0
+
 //=================================================
 
 //
