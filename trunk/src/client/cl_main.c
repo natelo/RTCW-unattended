@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 #include <limits.h>
+#include <time.h>
 
 #ifdef __linux__
 #include <sys/stat.h>
@@ -276,6 +277,13 @@ void CL_DemoFilename( int number, char *fileName ) {
 				 , a, b, c, d );
 }
 
+static const char *MonthAbbrev[] = {
+	"Jan", "Feb", "Mar",
+	"Apr", "May", "Jun",
+	"Jul", "Aug", "Sep",
+	"Oct", "Nov", "Dec"
+};
+
 /*
 ====================
 CL_Record_f
@@ -295,6 +303,8 @@ void CL_Record_f( void ) {
 	entityState_t   *ent;
 	entityState_t nullstate;
 	char        *s;
+	qtime_t q;
+	Com_RealTime(&q);
 
 	if ( Cmd_Argc() > 2 ) {
 		Com_Printf( "record <demoname>\n" );
@@ -311,32 +321,8 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-	// ATVI Wolfenstein Misc #479 - changing this to a warning
-	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
-	// L0 - Remove this as it's useless
-	/*
-	if ( !Cvar_VariableValue( "g_synchronousClients" ) ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n" );
-	} */
-
-	if ( Cmd_Argc() == 2 ) {
-		s = Cmd_Argv( 1 );
-		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
-	} else {
-		int number;
-
-		// scan for a free demo name
-		for ( number = 0 ; number <= 9999 ; number++ ) {
-			CL_DemoFilename( number, demoName );
-			Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
-
-			len = FS_ReadFile( name, NULL );
-			if ( len <= 0 ) {
-				break;  // file doesn't exist
-			}
-		}
-	}
+	Q_strncpyz(demoName, va("demos/%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+	Com_sprintf( name, sizeof( name ), "%s.dm_%d", demoName, PROTOCOL_VERSION );
 
 	// open the demo file
 
