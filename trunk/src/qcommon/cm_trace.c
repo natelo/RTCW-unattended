@@ -139,17 +139,23 @@ SquareRootFloat
 ================
 */
 float SquareRootFloat( float number ) {
-	long i;
+	// L0 - applaying render fix from ioquake fix
+	union {
+		float f;
+		int i;
+	} t;
+	// ~L0
 	float x, y;
 	const float f = 1.5F;
 
 	x = number * 0.5F;
-	y  = number;
-	i  = *( long * ) &y;
-	i  = 0x5f3759df - ( i >> 1 );
-	y  = *( float * ) &i;
-	y  = y * ( f - ( x * y * y ) );
-	y  = y * ( f - ( x * y * y ) );
+	// L0 - applaying render fix from ioquake fix
+	t.f = number;
+	t.i = 0x5f3759df - (t.i >> 1);
+	y = t.f;
+	// ~L0
+	y = y * (f - (x * y * y));
+	y = y * (f - (x * y * y));
 	return number * y;
 }
 
