@@ -4392,7 +4392,7 @@ NERVE - SMF - compare formatting characters
 */
 qboolean CL_CheckTranslationString( char *original, char *translated ) {
 	char format_org[128], format_trans[128];
-	int len, i;
+	unsigned int len, i;
 
 	memset( format_org, 0, 128 );
 	memset( format_trans, 0, 128 );
