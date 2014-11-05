@@ -99,6 +99,7 @@ cvar_t  *cl_updatefiles;
 // L0 - New stuff
 cvar_t	*cl_demoName;
 cvar_t	*cl_demoLast;
+cvar_t	*cl_demoDir;
 // ~L0
 
 clientActive_t cl;
@@ -587,10 +588,14 @@ void CL_PlayDemo_f( void ) {
 
 	// open the demo file
 	arg = Cmd_Argv( 1 );
-	// L0 - Check if client wants last demo..
+// L0
+	// Check if client wants last demo..
 	if (!Q_stricmp(arg, "last"))
 		arg = cl_demoLast->string;
-	// Go for it now
+	// Check if client set preview for folder..
+	if (strlen(cl_demoDir->string) > 1)
+		arg = va("%s%s", cl_demoDir, arg);
+// ~L0
 	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
 		Com_sprintf( name, sizeof( name ), "demos/%s", arg );
@@ -3041,6 +3046,7 @@ void CL_Init( void ) {
 	// L0 - New Stuff
 	cl_demoName = Cvar_Get( "cl_demoName", "", CVAR_ARCHIVE );
 	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );
+	cl_demoDir = Cvar_Get( "cl_demoDir", "", CVAR_ARCHIVE );
 	// ~L0
 
 	// DHM - Nerve :: Auto-update

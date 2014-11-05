@@ -409,6 +409,7 @@ extern cvar_t  *cl_language;
 // L0 - New Stuff
 extern cvar_t	*cl_demoName;
 extern cvar_t	*cl_demoLast;
+extern cvar_t	*cl_demoDir;
 // ~L0
 
 //=================================================
