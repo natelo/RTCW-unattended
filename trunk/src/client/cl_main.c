@@ -321,8 +321,15 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-	Q_strncpyz(demoName, va("demos/%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
-	Com_sprintf( name, sizeof( name ), "%s.dm_%d", demoName, PROTOCOL_VERSION );
+	if (Cmd_Argc() == 2) {
+		s = Cmd_Argv( 1 );
+		Q_strncpyz(demoName, va("demos/%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], s, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+		Com_sprintf(name, sizeof(name), "%s.dm_%d", demoName, PROTOCOL_VERSION);
+	}
+	else {
+		Q_strncpyz(demoName, va("demos/%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+		Com_sprintf(name, sizeof(name), "%s.dm_%d", demoName, PROTOCOL_VERSION);
+	}
 
 	// open the demo file
 
