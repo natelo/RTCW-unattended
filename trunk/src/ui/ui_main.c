@@ -7154,6 +7154,7 @@ void Text_PaintCenter( float x, float y, float scale, vec4_t color, const char *
 	Text_Paint( x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 }
 
+// L0 - Styled downloads view a little..
 #define ESTIMATES 80
 static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, float scale ) {
 	static char dlText[]    = "Downloading:";
@@ -7170,7 +7171,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	int xferRate;
 	const char *s;
 
-	vec4_t bg_color = { 0.3f, 0.3f, 0.3f, 0.8f };
+	vec4_t bg_color = { 0.1f, 0.1f, 0.1f, 0.6f };
 
 	downloadSize = trap_Cvar_VariableValue( "cl_downloadSize" );
 	downloadCount = trap_Cvar_VariableValue( "cl_downloadCount" );
@@ -7179,10 +7180,10 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 	// Background
 	UI_FillRect( 0, yStart + 185, 640, 83, bg_color );
 
-	UI_SetColor( colorYellow );
-	Text_Paint( 92, yStart + 210, scale, colorYellow, dlText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE );
-	Text_Paint( 35, yStart + 235, scale, colorYellow, etaText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE );
-	Text_Paint( 86, yStart + 260, scale, colorYellow, xferText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE );
+	UI_SetColor(colorRed);
+	Text_Paint(92, yStart + 210, scale, colorRed, dlText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	Text_Paint(35, yStart + 235, scale, colorRed, etaText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	Text_Paint(86, yStart + 260, scale, colorRed, xferText, 0, 64, ITEM_TEXTSTYLE_SHADOWEDMORE);
 
 	if ( downloadSize > 0 ) {
 		s = va( "%s (%d%%)", downloadName, downloadCount * 100 / downloadSize );
@@ -7190,14 +7191,16 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 		s = downloadName;
 	}
 
-	Text_Paint( 260, yStart + 210, scale, colorYellow, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+	s = (strlen(s) > 40) ? "Downloading from HTTP repository" : s;
+
+	Text_Paint( 260, yStart + 210, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 
 	UI_ReadableSize( dlSizeBuf,     sizeof dlSizeBuf,       downloadCount );
 	UI_ReadableSize( totalSizeBuf,  sizeof totalSizeBuf,    downloadSize );
 
 	if ( downloadCount < 4096 || !downloadTime ) {
-		Text_PaintCenter( centerPoint, yStart + 235, scale, colorYellow, "estimating", 0 );
-		Text_PaintCenter( centerPoint, yStart + 340, scale, colorYellow, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
+		Text_PaintCenter( centerPoint, yStart + 235, scale, colorWhite, "estimating", 0 );
+		Text_PaintCenter( centerPoint, yStart + 340, scale, colorWhite, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
 	} else {
 		if ( ( uiInfo.uiDC.realTime - downloadTime ) / 1000 ) {
 			xferRate = downloadCount / ( ( uiInfo.uiDC.realTime - downloadTime ) / 1000 );
@@ -7225,19 +7228,21 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 
 			UI_PrintTime( dlTimeBuf, sizeof dlTimeBuf, timeleft );
 
-			Text_Paint( 260, yStart + 235, scale, colorYellow, dlTimeBuf, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
-			Text_PaintCenter( centerPoint, yStart + 340, scale, colorYellow, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
-		} else {
-			Text_PaintCenter( centerPoint, yStart + 235, scale, colorYellow, "estimating", 0 );
-			if ( downloadSize ) {
-				Text_PaintCenter( centerPoint, yStart + 340, scale, colorYellow, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
-			} else {
-				Text_PaintCenter( centerPoint, yStart + 340, scale, colorYellow, va( "(%s copied)", dlSizeBuf ), 0 );
+			Text_Paint(260, yStart + 235, scale, colorWhite, dlTimeBuf, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+			Text_PaintCenter(centerPoint, yStart + 340, scale, colorWhite, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
+		}
+		else {
+			Text_PaintCenter(centerPoint, yStart + 235, scale, colorWhite, "estimating", 0);
+			if (downloadSize) {
+				Text_PaintCenter(centerPoint, yStart + 340, scale, colorWhite, va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), 0);
+			}
+			else {
+				Text_PaintCenter(centerPoint, yStart + 340, scale, colorWhite, va("(%s copied)", dlSizeBuf), 0);
 			}
 		}
 
-		if ( xferRate ) {
-			Text_Paint( 260, yStart + 260, scale, colorYellow, va( "%s/Sec", xferRateBuf ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+		if (xferRate) {
+			Text_Paint(260, yStart + 260, scale, colorWhite, va("%s/Sec", xferRateBuf), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		}
 	}
 }
