@@ -676,7 +676,13 @@ static void RB_FogPass( void ) {
 	fog_t       *fog;
 	int i;
 
-	if ( tr.refdef.rdflags & RDF_SNOOPERVIEW ) { // no fog pass in snooper
+	// no fog pass in snooper
+	if (tr.refdef.rdflags & RDF_SNOOPERVIEW || tess.shader->noFog || !r_wolffog->integer) {
+		return;
+	}
+
+	// ydnar: no world, no fogging
+	if (backEnd.refdef.rdflags & RDF_NOWORLDMODEL) {
 		return;
 	}
 
@@ -1152,11 +1158,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			//
 			// set state
 			//
-			if ( pStage->bundle[0].vertexLightmap && ( ( r_vertexLight->integer && !r_uiFullScreen->integer ) || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer ) {
-				GL_Bind( tr.whiteImage );
-			} else {
-				R_BindAnimatedImage( &pStage->bundle[0] );
-			}
+			R_BindAnimatedImage( &pStage->bundle[0] );
 
 			// Ridah, per stage fogging (detail textures)
 			if ( tess.shader->noFog && pStage->isFogged ) {
@@ -1171,41 +1173,52 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input ) {
 			//----(SA)	fading model stuff
 			fadeStart = backEnd.currentEntity->e.fadeStartTime;
 
-			if ( fadeStart ) {
+			if (fadeStart) {
 				fadeEnd = backEnd.currentEntity->e.fadeEndTime;
-				if ( fadeStart > tr.refdef.time ) {       // has not started to fade yet
-					GL_State( pStage->stateBits );
-				} else
+				if (fadeStart > tr.refdef.time) {       // has not started to fade yet
+					GL_State(pStage->stateBits);
+				}
+				else
 				{
 					int i;
 					unsigned int tempState;
 					float alphaval;
 
-					if ( fadeEnd < tr.refdef.time ) {     // entity faded out completely
+					if (fadeEnd < tr.refdef.time) {     // entity faded out completely
 						continue;
 					}
 
-					alphaval = (float)( fadeEnd - tr.refdef.time ) / (float)( fadeEnd - fadeStart );
+					alphaval = (float)(fadeEnd - tr.refdef.time) / (float)(fadeEnd - fadeStart);
 
 					tempState = pStage->stateBits;
 					// remove the current blend, and don't write to Z buffer
-					tempState &= ~( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE );
+					tempState &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS | GLS_DEPTHMASK_TRUE);
 					// set the blend to src_alpha, dst_one_minus_src_alpha
-					tempState |= ( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-					GL_State( tempState );
-					GL_Cull( CT_FRONT_SIDED );
+					tempState |= (GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA);
+					GL_State(tempState);
+					GL_Cull(CT_FRONT_SIDED);
 					// modulate the alpha component of each vertex in the render list
-					for ( i = 0; i < tess.numVertexes; i++ ) {
+					for (i = 0; i < tess.numVertexes; i++) {
 						tess.svars.colors[i][0] *= alphaval;
 						tess.svars.colors[i][1] *= alphaval;
 						tess.svars.colors[i][2] *= alphaval;
 						tess.svars.colors[i][3] *= alphaval;
 					}
 				}
+			}
+			//----(SA)	end
+			// ydnar: lightmap stages should be GL_ONE GL_ZERO so they can be seen
+			else if (r_lightmap->integer && (pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap)) {
+				unsigned int stateBits;
+
+
+				stateBits = (pStage->stateBits & ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) |
+					(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
+				GL_State(stateBits);
+
 			} else {
 				GL_State( pStage->stateBits );
 			}
-			//----(SA)	end
 
 			//
 			// draw
