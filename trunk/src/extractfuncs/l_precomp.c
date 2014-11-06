@@ -2532,7 +2532,7 @@ int PC_Directive_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	sprintf( token.string, "%1.2f", Q_fabs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 	PC_UnreadSourceToken( source, &token );
@@ -2642,7 +2642,7 @@ int PC_DollarDirective_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	sprintf( token.string, "%1.2f", Q_fabs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE

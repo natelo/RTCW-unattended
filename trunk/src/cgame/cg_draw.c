@@ -2826,7 +2826,7 @@ static void CG_DrawFlashDamage( void ) {
 	}
 
 	if ( cg.v_dmg_time > cg.time ) {
-		redFlash = fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
+		redFlash = Q_fabs( cg.v_dmg_pitch * ( ( cg.v_dmg_time - cg.time ) / DAMAGE_TIME ) );
 
 		// blend the entire screen red
 		if ( redFlash > 5 ) {
@@ -3162,10 +3162,10 @@ void CG_DrawObjectiveIcons() {
 
 	// OSPx - Print fancy warmup in corner..
 	if (cgs.gamestate != GS_PLAYING) {
-		fade = fabs(sin(cg.time * 0.002)) * cg_hudAlpha.value;
+		fade = Q_fabs(sin(cg.time * 0.002)) * cg_hudAlpha.value;
 		s = va("^3Warmup");
 	} else if (msec < 0) {
-		fade = fabs( sin( cg.time * 0.002 ) ) * cg_hudAlpha.value;
+		fade = Q_fabs( sin( cg.time * 0.002 ) ) * cg_hudAlpha.value;
 		s = va( "0:00" );
 	} else {
 		s = va( "%i:%i%i", mins, tens, seconds ); // float cast to line up with reinforce time
