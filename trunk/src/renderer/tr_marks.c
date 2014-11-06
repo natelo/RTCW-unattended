@@ -187,7 +187,7 @@ void R_BoxSurfaces_r( mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **l
 		}
 		// extra check for surfaces to avoid list overflows
 		else if ( *( surf->data ) == SF_FACE ) {
-			//if (((srfSurfaceFace_t *)surf->data)->plane.type != PLANE_NON_PLANAR) {
+			if (((srfSurfaceFace_t *)surf->data)->plane.type != PLANE_NON_PLANAR) {
 				// the face plane should go through the box
 				s = BoxOnPlaneSide(mins, maxs, &((srfSurfaceFace_t *)surf->data)->plane);
 				if (s == 1 || s == 2) {
@@ -197,7 +197,7 @@ void R_BoxSurfaces_r( mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **l
 					// don't add faces that make sharp angles with the projection direction
 					surf->viewCount = tr.viewCount;
 				}
-			//}
+			}
 		}
 		else if (*(surfaceType_t *)(surf->data) != SF_GRID && *(surfaceType_t *)(surf->data) != SF_TRIANGLES) {
 			surf->viewCount = tr.viewCount;
@@ -752,7 +752,12 @@ int R_MarkFragments(int orientation, const vec3_t *points, const vec3_t projecti
 
 			surf = (srfSurfaceFace_t *)surfaces[i];
 			
-			VectorCopy(surf->plane.normal, surfnormal);
+			if (surf->plane.type == PLANE_NON_PLANAR) {
+				VectorCopy(bestnormal, surfnormal);
+			}
+			else {
+				VectorCopy(surf->plane.normal, surfnormal);
+			}
 
 			if (!oldMapping) {
 
@@ -761,18 +766,23 @@ int R_MarkFragments(int orientation, const vec3_t *points, const vec3_t projecti
 				// we project the center of the original impact center out along the projection vector,
 				// onto the current surface
 				
-				// find the center of the new decal
-				dot = DotProduct(center, surfnormal);
-				dot -= surf->plane.dist;
-				// check the normal of this face
-				if (dot < -epsilon && DotProduct(surfnormal, projectionDir) >= 0.01) {
-					continue;
+				if (surf->plane.type == PLANE_NON_PLANAR) {
+					VectorCopy(center, newCenter);
 				}
-				else if (Q_fabs(dot) > radius) {
-					continue;
+				else {
+					// find the center of the new decal
+					dot = DotProduct(center, surfnormal);
+					dot -= surf->plane.dist;
+					// check the normal of this face
+					if (dot < -epsilon && DotProduct(surfnormal, projectionDir) >= 0.01) {
+						continue;
+					}
+					else if (Q_fabs(dot) > radius) {
+						continue;
+					}
+					// if the impact point is behind the surface, subtract the projection, otherwise add it
+					VectorMA(center, -dot, bestnormal, newCenter);
 				}
-				// if the impact point is behind the surface, subtract the projection, otherwise add it
-				VectorMA(center, -dot, bestnormal, newCenter);
 
 				// recalc dot from the offset position
 				dot = DotProduct(newCenter, surfnormal);
