@@ -632,7 +632,4 @@
       <Filter>Source Files</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="win32\wolf.ico" />
-  </ItemGroup>
 </Project>
