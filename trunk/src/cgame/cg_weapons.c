@@ -195,9 +195,9 @@ void CG_MachineGunEjectBrass( centity_t *cent ) {
 
 // JPW NERVE new brass handling behavior because the SP stuff just doesn't cut it for MP
 	if ( cent->currentState.eFlags & EF_MG42_ACTIVE ) {
-		offset[0] = 25;
+		offset[0] = 0;
 		offset[1] = -4;
-		offset[2] = 28;
+		offset[2] = 2;
 		velocity[0] = -20 + 40 * crandom(); // JPW NERVE -- more reasonable brass ballistics for a machinegun
 		velocity[1] = -150 + 40 * crandom(); // JPW NERVE
 		velocity[2] = 100 + 50 * crandom(); // JPW NERVE
