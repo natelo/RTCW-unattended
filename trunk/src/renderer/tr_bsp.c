@@ -1457,7 +1457,8 @@ void R_MovePatchSurfacesToHunk( void ) {
 		Com_Memcpy( hunkgrid->widthLodError, grid->widthLodError, grid->width * 4 );
 
 		hunkgrid->heightLodError = ri.Hunk_Alloc( grid->height * 4, h_low );
-		Com_Memcpy( grid->heightLodError, grid->heightLodError, grid->height * 4 );
+		// rain - copy into hunkgrid instead of copying grid overtop of itself
+		Com_Memcpy(hunkgrid->heightLodError, grid->heightLodError, grid->height * 4);
 
 		R_FreeSurfaceGridMesh( grid );
 
@@ -2231,8 +2232,6 @@ void RE_LoadWorldMap( const char *name ) {
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadPlanes( &header->lumps[LUMP_PLANES] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadFogs( &header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES] );
-	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadSurfaces( &header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadMarksurfaces( &header->lumps[LUMP_LEAFSURFACES] );
@@ -2241,6 +2240,11 @@ void RE_LoadWorldMap( const char *name ) {
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadSubmodels( &header->lumps[LUMP_MODELS] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
+
+	// moved fog lump loading here, so fogs can be tagged with a model num
+	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
+	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
+
 	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );

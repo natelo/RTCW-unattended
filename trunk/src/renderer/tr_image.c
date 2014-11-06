@@ -57,6 +57,8 @@ static unsigned char s_gammatable[256];
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
+float gl_anisotropy = 1.0; // L0 - ET port
+
 #define FILE_HASH_SIZE      4096
 static image_t*        hashTable[FILE_HASH_SIZE];
 
@@ -201,6 +203,39 @@ void GL_TextureMode( const char *string ) {
 		}
 	}
 }
+
+/*
+===============
+L0 - ET port
+
+GL_TextureAnisotropy
+===============
+*/
+void GL_TextureAnisotropy(float anisotropy) {
+	int i;
+	image_t *glt;
+
+	if (r_ext_texture_filter_anisotropic->integer == 1) {
+		if (anisotropy < 1.0 || anisotropy > glConfig.maxAnisotropy) {
+			ri.Printf(PRINT_ALL, "anisotropy out of range\n");
+			return;
+		}
+	}
+
+	gl_anisotropy = anisotropy;
+
+	if (!glConfig.anisotropicAvailable) {
+		return;
+	}
+
+	// change all the existing texture objects
+	for (i = 0; i < tr.numImages; i++) {
+		glt = tr.images[i];
+		GL_Bind(glt);
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy);
+	}
+}
+
 
 /*
 ===============
@@ -827,6 +862,11 @@ done:
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	}
 
+	// L0 - ET Port
+	if (glConfig.anisotropicAvailable) {
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, gl_anisotropy);
+	}
+
 	GL_CheckErrors();
 
 	//if ( scaledBuffer != 0 )
@@ -869,6 +909,12 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		noCompress = qtrue;
 	}
 
+	// L0 - ET Port
+	// ydnar: don't compress textures smaller or equal to 128x128 pixels
+	if ((width * height) <= (128 * 128)) {
+		noCompress = qtrue;
+	}
+
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
 	}
@@ -876,13 +922,14 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	// Ridah
 	image = tr.images[tr.numImages] = R_CacheImageAlloc( sizeof( image_t ) );
 
-	image->texnum = 1024 + tr.numImages;
-
 	// Ridah
 	if ( r_cacheShaders->integer ) {
 		R_FindFreeTexnum( image );
 	}
 	// done.
+
+	// ydnar: ok, let's try the recommended way
+	qglGenTextures(1, &image->texnum);
 
 	tr.numImages++;
 
@@ -1127,12 +1174,16 @@ PCX LOADING
 /*
 ==============
 LoadPCX
+
+L0 - ET port (patched existing)
 ==============
 */
-static void LoadPCX( const char *filename, byte **pic, byte **palette, int *width, int *height ) {
+#define DECODEPCX( b, d, r ) d = *b++; if ( ( d & 0xC0 ) == 0xC0 ) {r = d & 0x3F; d = *b++;} else {r = 1;}
+
+static void LoadPCX(const char *filename, byte **pic, byte **palette, int *width, int *height) {
 	byte    *raw;
 	pcx_t   *pcx;
-	int x, y;
+	int x, y, lsize;
 	int len;
 	int dataByte, runLength;
 	byte    *out, *pix;
@@ -1140,12 +1191,13 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 
 	*pic = NULL;
 	*palette = NULL;
+	runLength = 0;
 
 	//
 	// load the file
 	//
-	len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
-	if ( !raw ) {
+	len = ri.FS_ReadFile((char *)filename, (void **)&raw);
+	if (!raw) {
 		return;
 	}
 
@@ -1155,64 +1207,89 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	pcx = (pcx_t *)raw;
 	raw = &pcx->data;
 
-	xmax = LittleShort( pcx->xmax );
-	ymax = LittleShort( pcx->ymax );
+	xmax = LittleShort(pcx->xmax);
+	ymax = LittleShort(pcx->ymax);
 
-	if ( pcx->manufacturer != 0x0a
-		 || pcx->version != 5
-		 || pcx->encoding != 1
-		 || pcx->bits_per_pixel != 8
-		 || xmax >= 1024
-		 || ymax >= 1024 ) {
-		ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
+	if (pcx->manufacturer != 0x0a
+		|| pcx->version != 5
+		|| pcx->encoding != 1
+		|| pcx->bits_per_pixel != 8
+		|| xmax >= 1024
+		|| ymax >= 1024) {
+		ri.Printf(PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax);
 		return;
 	}
 
-	out = R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE );
+	out = R_GetImageBuffer((ymax + 1) * (xmax + 1), BUFFER_IMAGE);
 
 	*pic = out;
 
 	pix = out;
 
-	if ( palette ) {
-		*palette = ri.Z_Malloc( 768 );
-		memcpy( *palette, (byte *)pcx + len - 768, 768 );
+	if (palette) {
+		*palette = ri.Z_Malloc(768);
+		memcpy(*palette, (byte *)pcx + len - 768, 768);
 	}
 
-	if ( width ) {
+	if (width) {
 		*width = xmax + 1;
 	}
-	if ( height ) {
+	if (height) {
 		*height = ymax + 1;
 	}
-// FIXME: use bytes_per_line here?
+	// FIXME: use bytes_per_line here?
 
-	for ( y = 0 ; y <= ymax ; y++, pix += xmax + 1 )
+	// Arnout: this doesn't work for all pcx files
+	/*for (y=0 ; y<=ymax ; y++, pix += xmax+1)
 	{
-		for ( x = 0 ; x <= xmax ; )
+	for (x=0 ; x<=xmax ; )
+	{
+	dataByte = *raw++;
+
+	if((dataByte & 0xC0) == 0xC0)
+	{
+	runLength = dataByte & 0x3F;
+	dataByte = *raw++;
+	}
+	else
+	runLength = 1;
+
+	while(runLength-- > 0)
+	pix[x++] = dataByte;
+	}
+
+	}*/
+
+	lsize = pcx->color_planes * pcx->bytes_per_line;
+
+	// go scanline by scanline
+	for (y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1)
+	{
+		// do a scanline
+		for (x = 0; x <= pcx->xmax;)
 		{
-			dataByte = *raw++;
-
-			if ( ( dataByte & 0xC0 ) == 0xC0 ) {
-				runLength = dataByte & 0x3F;
-				dataByte = *raw++;
-			} else {
-				runLength = 1;
-			}
-
-			while ( runLength-- > 0 )
+			DECODEPCX(raw, dataByte, runLength);
+			while (runLength-- > 0)
 				pix[x++] = dataByte;
 		}
 
+		// discard any other data
+		while (x < lsize)
+		{
+			DECODEPCX(raw, dataByte, runLength);
+			x++;
+		}
+		while (runLength-- > 0)
+			x++;
 	}
 
-	if ( raw - (byte *)pcx > len ) {
-		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
-		ri.Free( *pic );
+	if (raw - (byte *)pcx > len) {
+		ri.Printf(PRINT_DEVELOPER, "PCX file %s was malformed", filename);
+		ri.Free(*pic);
 		*pic = NULL;
 	}
 
-	ri.FS_FreeFile( pcx );
+	ri.FS_FreeFile(pcx);
 }
 
 
@@ -2303,11 +2380,25 @@ void R_SetColorMappings( void ) {
 		ri.Cvar_Set("r_intensity", "3");
 	} // End
 
-	if ( r_gamma->value < 0.5f ) {
-		ri.Cvar_Set( "r_gamma", "0.5" );
-	} else if ( r_gamma->value > 3.0f ) {
-		ri.Cvar_Set( "r_gamma", "3.0" );
+#ifdef __linux__
+	if (r_gamma->value != -1) {
+#endif
+
+		if (r_gamma->value < 0.5f) {
+			ri.Cvar_Set("r_gamma", "0.5");
+		}
+		else if (r_gamma->value > 3.0f) {
+			ri.Cvar_Set("r_gamma", "3.0");
+		}
+		g = r_gamma->value;
+
+#ifdef __linux__
 	}
+	else {
+		g = 1.0f;
+	}
+#endif
+
 
 	g = r_gamma->value;
 
@@ -2558,6 +2649,10 @@ qhandle_t RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightma
 			}
 
 			surf = bmodel->firstSurface + surfnum;
+			// RF, check for null shader (can happen on func_explosive's with botclips attached)
+			if (!surf->shader) {
+				return 0;
+			}
 //			if(surf->shader->lightmapIndex != LIGHTMAP_NONE) {
 			if ( surf->shader->lightmapIndex > LIGHTMAP_NONE ) {
 				image_t *image;
