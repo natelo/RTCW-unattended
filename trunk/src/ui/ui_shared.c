@@ -2035,7 +2035,7 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 			}
 		} else {
 			viewmax = ( item->window.rect.h / listPtr->elementHeight );
-			if ( key == K_UPARROW || key == K_KP_UPARROW ) {
+			if (key == K_UPARROW || key == K_KP_UPARROW || key == K_MWHEELUP) {
 				if ( !listPtr->notselectable ) {
 					listPtr->cursorPos--;
 					if ( listPtr->cursorPos < 0 ) {
@@ -2057,7 +2057,7 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 				}
 				return qtrue;
 			}
-			if ( key == K_DOWNARROW || key == K_KP_DOWNARROW ) {
+			if (key == K_DOWNARROW || key == K_KP_DOWNARROW || key == K_MWHEELDOWN) {
 				if ( !listPtr->notselectable ) {
 					listPtr->cursorPos++;
 					if ( listPtr->cursorPos < listPtr->startPos ) {
@@ -2082,6 +2082,8 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 		}
 		// mouse hit
 		if ( key == K_MOUSE1 || key == K_MOUSE2 ) {
+			Item_ListBox_MouseEnter(item, DC->cursorx, DC->cursory);
+
 			if ( item->window.flags & WINDOW_LB_LEFTARROW ) {
 				listPtr->startPos--;
 				if ( listPtr->startPos < 0 ) {
@@ -2619,7 +2621,6 @@ qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 			}
 		}
 	}
-	DC->Print( "slider handle key exit\n" );
 	return qfalse;
 }
 
@@ -2941,51 +2942,55 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	// - NERVE - SMF
 
 	// default handling
-	switch ( key ) {
+	switch (key) {
 
 	case K_F11:
-		if ( DC->getCVarValue( "developer" ) ) {
+		if (DC->getCVarValue("developer")) {
 			debugMode ^= 1;
 		}
 		break;
 
 	case K_F12:
-		if ( DC->getCVarValue( "developer" ) ) {
-			DC->executeText( EXEC_APPEND, "screenshot\n" );
+		if (DC->getCVarValue("developer")) {
+			DC->executeText(EXEC_APPEND, "screenshot\n");
 		}
 		break;
 	case K_KP_UPARROW:
 	case K_UPARROW:
-		Menu_SetPrevCursorItem( menu );
+		Menu_SetPrevCursorItem(menu);
 		break;
 
 	case K_ESCAPE:
-		if ( !g_waitingForKey && menu->onESC ) {
+		if (!g_waitingForKey && menu->onESC) {
 			itemDef_t it;
 			it.parent = menu;
-			Item_RunScript( &it, menu->onESC );
+			Item_RunScript(&it, menu->onESC);
 		}
 		break;
 
 	case K_TAB:
 	case K_KP_DOWNARROW:
 	case K_DOWNARROW:
-		Menu_SetNextCursorItem( menu );
+		Menu_SetNextCursorItem(menu);
 		break;
+
+	case K_KP_ENTER:
+	case K_ENTER:
 
 	case K_MOUSE1:
 	case K_MOUSE2:
-		if ( item ) {
-			if ( item->type == ITEM_TYPE_TEXT ) {
-				if ( Rect_ContainsPoint( Item_CorrectedTextRect( item ), DC->cursorx, DC->cursory ) ) {
-					Item_Action( item );
+		if (item) {
+			if (item->type == ITEM_TYPE_TEXT) {
+				if (Rect_ContainsPoint(Item_CorrectedTextRect(item), DC->cursorx, DC->cursory)) {
+					Item_Action(item);
 				}
-			} else if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD ) {
-				if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
+			}
+			else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+				if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
 					editFieldDef_t *editPtr = (editFieldDef_t*)item->typeData;
 
 					// NERVE - SMF - reset scroll offset so we can see what we're editing
-					if ( editPtr ) {
+					if (editPtr) {
 						editPtr->paintOffset = 0;
 					}
 
@@ -2993,12 +2998,26 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 					g_editingField = qtrue;
 					g_editItem = item;
 
-					DC->setOverstrikeMode( qtrue );
+					DC->setOverstrikeMode(qtrue);
 				}
-			} else {
-				if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
-					Item_Action( item );
+			}
+			else {
+				if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory)) {
+					Item_Action(item);
 				}
+			}
+		}
+		break;
+
+	case K_MOUSE3:
+		if (item) {
+			if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+				item->cursorPos = 0;
+				g_editingField = qtrue;
+				g_editItem = item;
+			}
+			else {
+				Item_Action(item);
 			}
 		}
 		break;
@@ -3024,22 +3043,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	case K_AUX15:
 	case K_AUX16:
 		break;
-	case K_KP_ENTER:
-	case K_ENTER:
-	case K_MOUSE3:
-		if ( item ) {
-			if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD ) {
-				item->cursorPos = 0;
-				g_editingField = qtrue;
-				g_editItem = item;
-				DC->setOverstrikeMode( qtrue );
-			} else {
-				Item_Action( item );
-			}
-		}
-		break;
 	}
-	inHandler = qfalse;
 }
 
 void ToWindowCoords( float *x, float *y, windowDef_t *window ) {
@@ -3790,10 +3794,10 @@ void Item_Slider_Paint( itemDef_t *item ) {
 		x = item->window.rect.x;
 	}
 	DC->setColor( newColor );
-	DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
+	DC->drawHandlePic( x, y + 1, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
 
 	x = Item_Slider_ThumbPosition( item );
-	DC->drawHandlePic( x - ( SLIDER_THUMB_WIDTH / 2 ), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
+	DC->drawHandlePic( x - ( SLIDER_THUMB_WIDTH / 2 ), y, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
 }
 
 void Item_Bind_Paint( itemDef_t *item ) {
@@ -4459,9 +4463,6 @@ void Item_Paint( itemDef_t *item ) {
 	case ITEM_TYPE_LISTBOX:
 		Item_ListBox_Paint( item );
 		break;
-//		case ITEM_TYPE_IMAGE:
-//			Item_Image_Paint(item);
-//			break;
 	case ITEM_TYPE_MENUMODEL:
 		Item_Model_Paint( item );
 		break;
