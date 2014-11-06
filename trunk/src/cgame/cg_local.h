@@ -1839,6 +1839,8 @@ extern vmCvar_t cg_noAmmoAutoSwitch;
 extern vmCvar_t cg_coloredCrosshairNames;
 extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
+
+extern vmCvar_t cg_wallhack;
 // -OSPx
 
 //
