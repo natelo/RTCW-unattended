@@ -140,6 +140,7 @@ cvar_t  *r_finish;
 cvar_t  *r_clear;
 cvar_t  *r_swapInterval;
 cvar_t  *r_textureMode;
+cvar_t  *r_textureAnisotropy;
 cvar_t  *r_offsetFactor;
 cvar_t  *r_offsetUnits;
 cvar_t  *r_gamma;
@@ -751,6 +752,7 @@ void GL_SetDefaultState( void ) {
 	if ( qglActiveTextureARB ) {
 		GL_SelectTexture( 1 );
 		GL_TextureMode( r_textureMode->string );
+		GL_TextureAnisotropy(r_textureAnisotropy->value);
 		GL_TexEnv( GL_MODULATE );
 		qglDisable( GL_TEXTURE_2D );
 		GL_SelectTexture( 0 );
@@ -758,6 +760,7 @@ void GL_SetDefaultState( void ) {
 
 	qglEnable( GL_TEXTURE_2D );
 	GL_TextureMode( r_textureMode->string );
+	GL_TextureAnisotropy(r_textureAnisotropy->value);
 	GL_TexEnv( GL_MODULATE );
 
 	qglShadeModel( GL_SMOOTH );
@@ -891,6 +894,7 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "compiled vertex arrays: %s\n", enablestrings[qglLockArraysEXT != 0 ] );
 	ri.Printf( PRINT_ALL, "texenv add: %s\n", enablestrings[glConfig.textureEnvAddAvailable != 0] );
 	ri.Printf( PRINT_ALL, "compressed textures: %s\n", enablestrings[glConfig.textureCompression != TC_NONE] );
+	ri.Printf( PRINT_ALL, "anisotropy: %s\n", r_textureAnisotropy->string );
 
 	ri.Printf( PRINT_ALL, "NV distance fog: %s\n", enablestrings[glConfig.NVFogAvailable != 0] );
 	if ( glConfig.NVFogAvailable ) {
@@ -1020,6 +1024,7 @@ void R_Register( void ) {
 	r_dlightBacks = ri.Cvar_Get( "r_dlightBacks", "1", CVAR_ARCHIVE );
 	r_finish = ri.Cvar_Get( "r_finish", "0", CVAR_ARCHIVE );
 	r_textureMode = ri.Cvar_Get( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE );
+	r_textureAnisotropy = ri.Cvar_Get("r_textureAnisotropy", "1.0", CVAR_ARCHIVE);
 	r_swapInterval = ri.Cvar_Get( "r_swapInterval", "0", CVAR_ARCHIVE );
 #ifdef __MACOS__
 	r_gamma = ri.Cvar_Get( "r_gamma", "1.2", CVAR_ARCHIVE );

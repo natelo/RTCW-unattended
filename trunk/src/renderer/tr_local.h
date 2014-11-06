@@ -1143,6 +1143,7 @@ extern cvar_t  *r_glDriver;
 extern cvar_t  *r_glIgnoreWicked3D;
 extern cvar_t  *r_swapInterval;
 extern cvar_t  *r_textureMode;
+extern cvar_t  *r_textureAnisotropy;
 extern cvar_t  *r_offsetFactor;
 extern cvar_t  *r_offsetUnits;
 
@@ -1245,6 +1246,7 @@ void    GL_Bind( image_t *image );
 void    GL_SetDefaultState( void );
 void    GL_SelectTexture( int unit );
 void    GL_TextureMode( const char *string );
+void    GL_TextureAnisotropy(float anisotropy);
 void    GL_CheckErrors( void );
 void    GL_State( unsigned long stateVector );
 void    GL_TexEnv( int env );
