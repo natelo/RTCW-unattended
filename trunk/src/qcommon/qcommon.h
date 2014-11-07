@@ -253,16 +253,10 @@ The server you attempted to join is running an incompatible version of the game.
 You or the server may be running older versions of the game. Press the auto-update\
  button if it appears on the Main Menu screen."
 
-#ifndef PRE_RELEASE_DEMO
-// 1.33 - protocol 59
-// 1.4 - protocol 60
 #define PROTOCOL_VERSION 57
 #define GAMENAME_STRING     "wolfmp"
 #define CODENAME	"SAVINGBlazkowicz"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
-#else
-// the demo uses a different protocol version for independant browsing
-  #define   PROTOCOL_VERSION    50  // NERVE - SMF - wolfMP protocol version
-#endif
+
 // NERVE - SMF - wolf multiplayer master servers
 #define MASTER_SERVER_NAME      "wolfmaster.s4ndmod.com"
 #define	AUTHORIZE_SERVER_NAME	"auth.rtcwmp.com"
@@ -1218,6 +1212,11 @@ extern huffman_t clientHuffTables;
 #else
 #error unknown OS
 #endif
+
+// -- L0 md5 -- 
+char *Com_MD5File(const char *fn, int length, const char *prefix, int prefix_len);
+char *Com_MD5(const void *data, int length, const char *prefix, int prefix_len, int hexcase);
+// End
 
 #endif // _QCOMMON_H_
 

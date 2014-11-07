@@ -469,6 +469,7 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
     </ClCompile>
     <ClCompile Include="qcommon\htable.c" />
+    <ClCompile Include="qcommon\http.c" />
     <ClCompile Include="qcommon\huffman.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</BrowseInformation>
@@ -487,6 +488,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
     </ClCompile>
+    <ClCompile Include="qcommon\md5.c" />
     <ClCompile Include="qcommon\msg.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</BrowseInformation>
@@ -810,6 +812,7 @@
     <ClInclude Include="game\g_public.h" />
     <ClInclude Include="A3D\ia3dapi.h" />
     <ClInclude Include="qcommon\htable.h" />
+    <ClInclude Include="qcommon\http.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ui\keycodes.h" />
     <ClInclude Include="client\keys.h" />

@@ -21,6 +21,9 @@
     <Filter Include="Misc">
       <UniqueIdentifier>{87d59c45-86e8-49d6-9cd3-7fd59f9c296c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="http">
+      <UniqueIdentifier>{1ee2bcb5-28b0-424a-99da-eeec4ffec548}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\cl_cgame.c">
@@ -188,6 +191,12 @@
     <ClCompile Include="qcommon\htable.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="qcommon\http.c">
+      <Filter>http</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\md5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A3D\a3dWrapperdp.h">
@@ -291,6 +300,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\http.h">
+      <Filter>http</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
