@@ -1051,7 +1051,7 @@ void CL_RequestAuthorization( void ) {
 		nums[j] = 0;
 	}
 
-	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %i %s", fs->integer, nums ) );
+	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %s",  nums ) );
 }
 
 /*
