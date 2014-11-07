@@ -1012,7 +1012,6 @@ in anyway.
 void CL_RequestAuthorization( void ) {
 	char nums[64];
 	int i, j, l;
-	cvar_t  *fs;
 
 	if ( !cls.authorizeServer.port ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
@@ -1052,7 +1051,6 @@ void CL_RequestAuthorization( void ) {
 		nums[j] = 0;
 	}
 
-	fs = Cvar_Get( "cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO );
 	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %i %s", fs->integer, nums ) );
 }
 
