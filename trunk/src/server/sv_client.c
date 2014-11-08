@@ -244,11 +244,6 @@ SV_DirectConnect
 A "connect" OOB command has been received
 ==================
 */
-
-#define PB_MESSAGE "PunkBuster Anti-Cheat software must be installed " \
-				   "and Enabled in order to join this server. An updated game patch can be downloaded from " \
-				   "www.castlewolfenstein.com.\n"
-
 void SV_DirectConnect( netadr_t from ) {
 	char userinfo[MAX_INFO_STRING];
 	int i;

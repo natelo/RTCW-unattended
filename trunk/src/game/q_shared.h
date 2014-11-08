@@ -33,11 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 #define Q3_VERSION      "WolfMP.com 1.0/x01"
-// 1.41b-MP: fix autodl sploit
-// 1.4-MP : (== 1.34)
-// 1.3-MP : final for release
-// 1.1b - TTimo SP linux release (+ MP updates)
-// 1.1b5 - Mac update merge in
+
+// L0 - Guid
+#define GUID_LEN 33
 
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
