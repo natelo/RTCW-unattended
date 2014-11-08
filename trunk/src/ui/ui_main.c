@@ -4571,10 +4571,10 @@ static void UI_RunMenuScript( char **args ) {
 			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey4" ) );
 			trap_Cvar_Set( "cdkey", buff );
 			if ( trap_VerifyCDKey( buff, UI_Cvar_VariableString( "cdkeychecksum" ) ) ) {
-				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "CD key appears to be valid." ) );
+				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "rtcwMP key appears to be valid." ) );
 				trap_SetCDKey( buff );
 			} else {
-				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "CD key does not appear to be valid." ) );
+				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "rtcwMP does not appear to be valid." ) );
 			}
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
