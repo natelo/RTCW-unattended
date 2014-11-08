@@ -747,6 +747,8 @@ static void CLUI_SetCDKey( char *buf ) {
 		// set the flag so the fle will be written at the next opportunity
 		cvar_modifiedFlags |= CVAR_ARCHIVE;
 	}
+	// etp: after changing key we have to update cl_guid
+	CL_UpdateGUID();
 }
 
 
