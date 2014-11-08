@@ -1035,7 +1035,7 @@ void CL_RequestAuthorization( void ) {
 	}
 	nums[j] = 0;	
 
-	Com_Printf(HTTP_QueryAddres(WEB_AUTH, nums));
+	Com_Printf(HTTP_QueryAddres(WEB_AUTH, va("%s %i", nums, cls.authorizeCookie)));
 }
 
 /*
@@ -1711,11 +1711,18 @@ void CL_CheckForResend( void ) {
 
 	switch ( cls.state ) {
 	case CA_CONNECTING:
+		// L0 - Generate challenge..
+		if (clc.connectPacketCount == 1) {
+			cls.authorizeCookie = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
+		} // End
+
 		// requesting a challenge
 		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
 			CL_RequestAuthorization();
 		}
-		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "getchallenge" );
+
+		// L0 - Add cl_guid and challange
+		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge %s %i", cl_guid->string, cls.authorizeCookie);
 		break;
 
 	case CA_CHALLENGING:
@@ -1746,6 +1753,58 @@ void CL_CheckForResend( void ) {
 	default:
 		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
 	}
+}
+
+/*
+===================
+L0 
+
+CL_AuthPacket
+===================
+*/
+void CL_AuthPacket(netadr_t from) {
+	int	challenge;
+	unsigned int type;
+	char *msg;
+
+	// if not from our server, ignore it
+	if (!NET_CompareAdr(from, clc.serverAddress)) {
+		return;
+	}
+
+	challenge = atoi(Cmd_Argv(1));
+	if (challenge != cls.authorizeCookie) {
+		return;
+	}
+
+	// Packet handler
+	type = atoi(Cmd_Argv(2));
+	msg = Cmd_ArgsFrom(3);
+
+	switch (type) {
+		case 1:
+			msg = (!msg) ? "Awaiting authorization server response.." : msg;
+			break;
+		case 2:
+			if (msg)
+				Com_Error(ERR_DROP, "You cannot enter this server^n!\n\n^zReason:^7\n%s\n", msg);
+			else
+				Com_Error(ERR_DROP, "Authorization failed with 0x884 error.\n");
+			return;
+			break;
+		case 3:
+			if (msg)
+				Com_Error(ERR_FATAL, "%s\n", msg);
+			else
+				Com_Error(ERR_FATAL, "Authorization failed with 0x888 error.\n");
+			return;
+			break;
+		default:
+			msg = "Awaiting Authorization server response..";
+	}
+
+	Q_strncpyz(clc.serverMessage, msg, sizeof(clc.serverMessage));
+	Com_Printf("%s", clc.serverMessage);
 }
 
 /*
@@ -2099,6 +2158,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	// global MOTD from id
 	if ( !Q_stricmp( c, "motd" ) ) {
 		CL_MotdPacket( from );
+		return;
+	}
+
+	// Auth check
+	if (!Q_stricmp(c, "authStatus")) {
+		CL_AuthPacket(from);
 		return;
 	}
 

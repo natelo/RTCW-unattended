@@ -331,6 +331,9 @@ typedef struct {
 	// L0 - Motd
 	netadr_t motdServer;
 
+	// L0 - auth cookie
+	int authorizeCookie;
+
 	// DHM - Nerve :: Auto-update Info
 	char *autoupdateServerName;
 	netadr_t autoupdateServer;
