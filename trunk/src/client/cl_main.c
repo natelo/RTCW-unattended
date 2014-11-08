@@ -922,59 +922,36 @@ void CL_ForwardCommandToServer( const char *string ) {
 
 /*
 ===================
-L0 - CL_RequestVersion
-
-Check against auth if new version is available..
-===================
-*/
-void CL_RequestVersion(void) {
-
-	Com_Printf("Resolving %s\n", AUTHORIZE_SERVER_NAME);		 // L0 - IPv6
-	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.authorizeServer)) {
-		Com_Printf("Couldn't resolve address\n");
-		return;
-	}
-	cls.authorizeServer.port = BigShort(PORT_AUTHORIZE);
-	Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-		cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-		cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-		BigShort(cls.authorizeServer.port));
-
-	Com_sprintf(cls.versionChallenge, sizeof(cls.versionChallenge), "%i", rand());
-	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, va("getVersion %s %s", cls.versionChallenge, CODENAME));
-}
-
-/*
-===================
 CL_RequestMotd
 
 ===================
 */
 void CL_RequestMotd( void ) {
-	char info[MAX_INFO_STRING];
+	char *result;
 
 	if ( !cl_motd->integer ) {
 		return;
-	}
-	Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
-	if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer  ) ) {
-		Com_Printf( "Couldn't resolve address\n" );
+	}	
+	Com_Printf("Connecting to news server..");
+	if (!NET_StringToAdr(MOTD_SERVER_NAME, &cls.motdServer)) {
+		Com_Printf( "could not resolve address\n^nWARNING: MOTD server is unreachable!\n" );
 		return;
 	}
-	cls.updateServer.port = BigShort( PORT_UPDATE );
-	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
-				cls.updateServer.ip[0], cls.updateServer.ip[1],
-				cls.updateServer.ip[2], cls.updateServer.ip[3],
-				BigShort( cls.updateServer.port ) );
+	cls.motdServer.port = BigShort(PORT_MOTD);
+	Com_Printf( "SUCCESS\n");
+	// Leaving this for just in case..
+	Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
+			cls.motdServer.ip[0], cls.motdServer.ip[1],
+			cls.motdServer.ip[2], cls.motdServer.ip[3],
+			BigShort(cls.motdServer.port));
 
-	info[0] = 0;
-	Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", rand() );
+	// Query it now
+	result = HTTP_QueryAddres(WEB_MOTD, "");
 
-	Info_SetValueForKey( info, "challenge", cls.updateChallenge );
-	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
-	Info_SetValueForKey( info, "version", com_version->string );
-
-	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
+	// Set MOTD for newsflash..
+	if (result) {
+		Cvar_Set("cl_motdString", result);
+	}
 }
 
 /*
@@ -1020,14 +997,16 @@ void CL_RequestAuthorization( void ) {
 	int i, j, l;
 
 	if ( !cls.authorizeServer.port ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
+		Com_Printf("Connecting to authorization server..");
 		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer  ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
+			Com_Printf("could not resolve address\n^nWARNING: Authorization server is unreachable!\n");
 			return;
 		}
 
 		cls.authorizeServer.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+		Com_Printf("SUCCESS\n");
+		// Leaving this for just in case..
+		Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
 					cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
 					BigShort( cls.authorizeServer.port ) );
@@ -1036,28 +1015,25 @@ void CL_RequestAuthorization( void ) {
 		return;
 	}
 
-	if ( Cvar_VariableValue( "fs_restrict" ) ) {
-		Q_strncpyz( nums, "demo", sizeof( nums ) );
-	} else {
-		// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
-		j = 0;
-		l = strlen( cl_cdkey );
-		if ( l > 32 ) {
-			l = 32;
-		}
-		for ( i = 0 ; i < l ; i++ ) {
-			if ( ( cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9' )
-				 || ( cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z' )
-				 || ( cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z' )
-				 ) {
-				nums[j] = cl_cdkey[i];
-				j++;
-			}
-		}
-		nums[j] = 0;
+	
+	// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
+	j = 0;
+	l = strlen( cl_cdkey );
+	if ( l > 32 ) {
+		l = 32;
 	}
+	for ( i = 0 ; i < l ; i++ ) {
+		if ( ( cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9' )
+				|| ( cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z' )
+				|| ( cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z' )
+				) {
+			nums[j] = cl_cdkey[i];
+			j++;
+		}
+	}
+	nums[j] = 0;	
 
-	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %s",  nums ) );
+	Com_Printf(HTTP_QueryAddres(WEB_AUTH, nums));
 }
 
 /*
@@ -1811,31 +1787,6 @@ void CL_DisconnectPacket( netadr_t from ) {
 
 /*
 ===================
-L0 - CL_VersionPacket
-
-Check if there's newer version available
-===================
-*/
-void CL_VersionPacket(netadr_t from) {
-	char    *info;
-
-	// if not from our server, ignore it
-	if (!NET_CompareAdr(from, cls.authorizeServer)) {
-		return;
-	}
-
-	// check challenge	
-	info = Cmd_Argv(1);
-	if (strcmp(info, cls.versionChallenge) != 0) {
-		return;
-	}
-
-	if (strcmp(Cmd_Argv(2), "1") == 0)
-		Com_Error(ERR_FATAL, "New version has been released! Download it @ http://rtcwmp.com");
-}
-
-/*
-===================
 CL_MotdPacket
 
 ===================
@@ -2137,12 +2088,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	// echo request from server
-	if ( !Q_stricmp( c, "echo" ) ) {
-		NET_OutOfBandPrint( NS_CLIENT, from, "%s", Cmd_Argv( 1 ) );
-		return;
-	}
-
 	// cd check
 	if ( !Q_stricmp( c, "keyAuthorize" ) ) {
 		// we don't use these now, so dump them on the floor
@@ -2152,12 +2097,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	// global MOTD from id
 	if ( !Q_stricmp( c, "motd" ) ) {
 		CL_MotdPacket( from );
-		return;
-	}
-
-	// L0 - Update 
-	if (!Q_stricmp(c, "version")) {
-		CL_VersionPacket(from);
 		return;
 	}
 
@@ -2629,10 +2568,6 @@ void CL_StartHunkUsers( void ) {
 
 // DHM - Nerve
 void CL_CheckAutoUpdate( void ) {
-	int validServerNum = 0;
-	int i = 0, rnd = 0;
-	netadr_t temp;
-	char        *servername;
 
 	if ( !cl_autoupdate->integer ) {
 		return;
@@ -2644,47 +2579,25 @@ void CL_CheckAutoUpdate( void ) {
 	}
 
 	srand( Com_Milliseconds() );
-
-	// Find out how many update servers have valid DNS listings
-	for ( i = 0; i < MAX_AUTOUPDATE_SERVERS; i++ ) {
-		if ( NET_StringToAdr( cls.autoupdateServerNames[i], &temp ) ) {
-			validServerNum++;
-		}
+	
+	// L0 - We do not need more then one..
+	Com_Printf("Connecting to update server..");
+	if (!NET_StringToAdr(UPDATE_SERVER_NAME, &cls.autoupdateServer)) {
+		Com_Printf("could not resolve address\n^nWARNING: Update server is unreachable!\n");
 	}
-
-	// Pick a random server
-	if ( validServerNum > 1 ) {
-		rnd = rand() % validServerNum;
-	} else {
-		rnd = 0;
+	else {
+		Com_Printf("SUCCESS\n");
 	}
-
-	servername = cls.autoupdateServerNames[rnd];
-
-	Com_DPrintf( "Resolving AutoUpdate Server... " );
-	if ( !NET_StringToAdr( servername, &cls.autoupdateServer  ) ) {
-		Com_DPrintf( "Couldn't resolve first address, trying default..." );
-
-		// Fall back to the first one
-		if ( !NET_StringToAdr( cls.autoupdateServerNames[0], &cls.autoupdateServer  ) ) {
-			Com_DPrintf( "Failed to resolve any Auto-update servers.\n" );
-			autoupdateChecked = qtrue;
-			return;
-		}
-	}
-	cls.autoupdateServer.port = BigShort( PORT_SERVER );
+		
+	cls.autoupdateServer.port = BigShort( PORT_UPDATE );
 	Com_DPrintf( "%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
 				 BigShort( cls.autoupdateServer.port ) );
 
-	NET_OutOfBandPrint( NS_CLIENT, cls.autoupdateServer, "getUpdateInfo \"%s\" \"%s\"\n", Q3_VERSION, CPUSTRING );
+	HTTP_QueryAddres(WEB_UPDATE, va("\"%s\" \"%s\" \"%s\"", CODENAME, Q3_VERSION, CPUSTRING));
 
+	// Fetch MOTD..
 	CL_RequestMotd();
-
-	// L0 - Update 
-	// Hooking it here since it makes more sense that redoing it..
-	CL_RequestVersion();
-	// End
 
 	autoupdateChecked = qtrue;
 }
@@ -3062,11 +2975,8 @@ void CL_Init( void ) {
 	cl_updateavailable = Cvar_Get( "cl_updateavailable", "0", CVAR_ROM );
 	cl_updatefiles = Cvar_Get( "cl_updatefiles", "", CVAR_ROM );
 
-	Q_strncpyz( cls.autoupdateServerNames[0], AUTOUPDATE_SERVER1_NAME, MAX_QPATH );
-	Q_strncpyz( cls.autoupdateServerNames[1], AUTOUPDATE_SERVER2_NAME, MAX_QPATH );
-	Q_strncpyz( cls.autoupdateServerNames[2], AUTOUPDATE_SERVER3_NAME, MAX_QPATH );
-	Q_strncpyz( cls.autoupdateServerNames[3], AUTOUPDATE_SERVER4_NAME, MAX_QPATH );
-	Q_strncpyz( cls.autoupdateServerNames[4], AUTOUPDATE_SERVER5_NAME, MAX_QPATH );
+	// L0 - Dumb way but ok...
+	cls.autoupdateServerName = UPDATE_SERVER_NAME;	
 	// DHM - Nerve
 
 	//

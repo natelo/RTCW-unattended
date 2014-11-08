@@ -281,7 +281,6 @@ typedef struct {
 	unsigned short port;
 } serverAddress_t;
 
-#define MAX_AUTOUPDATE_SERVERS  5
 typedef struct {
 	connstate_t state;              // connection status
 	int keyCatchers;                // bit flags
@@ -329,11 +328,11 @@ typedef struct {
 
 	netadr_t authorizeServer;
 
-	// L0 - Version checking
-	char versionChallenge[MAX_TOKEN_CHARS];
+	// L0 - Motd
+	netadr_t motdServer;
 
 	// DHM - Nerve :: Auto-update Info
-	char autoupdateServerNames[MAX_AUTOUPDATE_SERVERS][MAX_QPATH];
+	char *autoupdateServerName;
 	netadr_t autoupdateServer;
 
 	// rendering info

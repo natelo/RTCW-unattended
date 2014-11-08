@@ -490,5 +490,6 @@ char *HTTP_QueryAddres(char *url, char *data) {
 	} while (l > 0);
 
 	closesocket(sock);
+
 	return out;
 }

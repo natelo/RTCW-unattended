@@ -259,28 +259,14 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 // NERVE - SMF - wolf multiplayer master servers
 #define MASTER_SERVER_NAME      "wolfmaster.s4ndmod.com"
-#define	AUTHORIZE_SERVER_NAME	"auth.rtcwmp.com"
-#define UPDATE_SERVER_NAME      "updt.rtcwmp.com" 
-
-// TTimo: allow override for easy dev/testing..
-// see cons -- update_server=myhost
-#if !defined( AUTOUPDATE_SERVER_NAME )
-  #define AUTOUPDATE_SERVER1_NAME   "uptd.rtcwmp.com"
-  #define AUTOUPDATE_SERVER2_NAME   "pub.rtcwmp.com"
-  #define AUTOUPDATE_SERVER3_NAME   "repository.rtcwmp.com"
-  #define AUTOUPDATE_SERVER4_NAME   "cdn.rtcwmp.com"
-  #define AUTOUPDATE_SERVER5_NAME   "static.rtcwmp.com"
-#else
-  #define AUTOUPDATE_SERVER1_NAME   AUTOUPDATE_SERVER_NAME
-  #define AUTOUPDATE_SERVER2_NAME   AUTOUPDATE_SERVER_NAME
-  #define AUTOUPDATE_SERVER3_NAME   AUTOUPDATE_SERVER_NAME
-  #define AUTOUPDATE_SERVER4_NAME   AUTOUPDATE_SERVER_NAME
-  #define AUTOUPDATE_SERVER5_NAME   AUTOUPDATE_SERVER_NAME
-#endif
+#define	AUTHORIZE_SERVER_NAME	"127.0.0.1"
+#define MOTD_SERVER_NAME		"127.0.0.1" 
+#define UPDATE_SERVER_NAME		"127.0.0.1"
 
 #define PORT_MASTER         27950
-#define PORT_UPDATE         27951
-#define PORT_AUTHORIZE      27952
+#define PORT_UPDATE         80
+#define PORT_AUTHORIZE      80
+#define PORT_MOTD			80
 #define PORT_SERVER         27960
 #define NUM_SERVER_PORTS    4       // broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
