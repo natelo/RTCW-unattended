@@ -2332,6 +2332,11 @@ void CL_Frame( int msec ) {
 		}
 	}
 
+	// L0 - Allow timescale only when previewing demo..
+	if (!clc.demoplaying)
+		com_timescale->value = 1;
+	// end
+
 	// save the msec before checking pause
 	cls.realFrametime = msec;
 
