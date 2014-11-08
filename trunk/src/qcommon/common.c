@@ -2276,7 +2276,7 @@ void Com_ReadCDKey( const char *filename ) {
 	char buffer[33];
 	char fbuffer[MAX_OSPATH];
 
-	sprintf( fbuffer, "%s/rtcwkey", filename );
+	sprintf( fbuffer, "%s/rtcwmpkey", filename );
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if ( !f ) {
@@ -2306,7 +2306,7 @@ void Com_AppendCDKey( const char *filename ) {
 	char buffer[33];
 	char fbuffer[MAX_OSPATH];
 
-	sprintf( fbuffer, "%s/rtcwkey", filename );
+	sprintf( fbuffer, "%s/rtcwmpkey", filename );
 
 	FS_SV_FOpenFileRead( fbuffer, &f );
 	if ( !f ) {
@@ -2338,7 +2338,7 @@ static void Com_WriteCDKey( const char *filename, const char *ikey ) {
 	char key[17];
 
 
-	sprintf( fbuffer, "%s/rtcwkey", filename );
+	sprintf( fbuffer, "%s/rtcwmpkey", filename );
 
 
 	Q_strncpyz( key, ikey, 17 );
