@@ -1641,10 +1641,8 @@ void CL_InitDownloads( void ) {
 		if ( strlen( cl_updatefiles->string ) > 4 ) {
 			Q_strncpyz( autoupdateFilename, cl_updatefiles->string, sizeof( autoupdateFilename ) );
 			Q_strncpyz( clc.downloadList, va( "@%s/%s@%s/%s", dir, cl_updatefiles->string, dir, cl_updatefiles->string ), MAX_INFO_STRING );
-			cls.state = CA_CONNECTED;
-			// L0 - Con state
-				CLCON_STATE = qtrue;
-			// End
+			cls.state = CA_CONNECTED;			
+			CLCON_STATE = qtrue;	// L0 - Con state			
 			CL_NextDownload();
 			return;
 		}
@@ -1783,24 +1781,18 @@ void CL_AuthPacket(netadr_t from) {
 
 	switch (type) {
 		case 1:
-			msg = (!msg) ? "Awaiting authorization server response.." : msg;
+			msg = (!msg) ? "Awaiting Authorization Server response.." : msg;
 			break;
 		case 2:
-			if (msg)
-				Com_Error(ERR_DROP, "You cannot enter this server^n!\n\n^zReason:^7\n%s\n", msg);
-			else
-				Com_Error(ERR_DROP, "Authorization failed with 0x884 error.\n");
+			Com_Error(ERR_DROP, "^nYou cannot enter this server\n\n^zReason:^7\n%s\n", msg);			
 			return;
 			break;
-		case 3:
-			if (msg)
-				Com_Error(ERR_FATAL, "%s\n", msg);
-			else
-				Com_Error(ERR_FATAL, "Authorization failed with 0x888 error.\n");
+		case 3:			
+			Com_Error(ERR_FATAL, "%s\n", msg);
 			return;
 			break;
 		default:
-			msg = "Awaiting Authorization server response..";
+			msg = "Awaiting Authorization Server response..";
 	}
 
 	Q_strncpyz(clc.serverMessage, msg, sizeof(clc.serverMessage));

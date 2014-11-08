@@ -143,119 +143,78 @@ void SV_GetChallenge( netadr_t from ) {
 	challenge->challenge = ((rand() << 16) ^ rand()) ^ svs.time;
 	challenge->time = svs.time;
 
-	// etp: we need to keep track of these
+	// L0 - We do not track this for 1.0 users..
 	if (!ipAuth) {
 		Q_strncpyz(challenge->guid, guid, sizeof(challenge->guid));
 		challenge->cookie = cookie;
 	}
 
-	// if they are on a lan address, send the challengeResponse immediately
+	// If server is streaming try to Auth users..
 #ifdef _DEBUG_HTTP
 	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer) {
 #else
 	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
 #endif
-		// look up the authorize server's IP
-		if (svs.authorizeAddress.type == NA_BAD)
-		{
+		//
+		// look up the authorize server..
+		//
+		if (!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD) {
 			Com_Printf("Connecting to Authorize server..");
-			if (NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress))
-			{
+
+			if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress)) 
 				Com_Printf("SUCCESS\n");
-				svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
-				Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					BigShort(svs.authorizeAddress.port));
-			}
-			else {
-				// Drop clients if auth is down
-				if (sv_serverStrict->integer) {
-					if (!ipAuth) {
-						NET_OutOfBandPrint(NS_SERVER, challenge->adr,
-							"authStatus %i 2 Server is configured as Strict and auth server failed to respond.", challenge->cookie);
-					}
-					// 1.0 reply..
-					else {
-						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Authorization server is down! Querying..\n");
-					}
-					return;
-				}
-				else {
-					Com_Printf("could not resolve address\nWARNING: Authorization server is down but server accepts unauthenticated users..\n");
-				}
-			}
+			else 
+				Com_Printf("could not resolve address\nWARNING: AUTH server is unreachable!\n");
 		}
+
 		//
 		// Timeout
 		//
-		else if (svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT) {
-			// Strict on will not allow any client that is not authenticated...
+		if (svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT) {			
+			Com_DPrintf("authorize server timed out\n");
+
+			// If it's strict, we wait as long as it's needed..
 			if (sv_serverStrict->integer) {
-				reply = HTTP_QueryAddres(WEB_AUTH, va("%s %i", guid, challenge->cookie));
+				if (ipAuth) {					
+					reply = HTTP_QueryAddres(WEB_AUTH, va("IP %i.%i.%i.%i", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
+				}
+				else {					
+					reply = HTTP_QueryAddres(WEB_AUTH, va("GUID %s %i", guid, challenge->cookie));
+				}
 
-				// YAY we got a reply..
-				if (!Q_stricmp(reply, "ok") && !challenge->printWarning) {
-					challenge->printWarning = svs.time + 2400;
-
-					if (ipAuth) {
-						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3You have been authenticated, entering..");
+				if (Q_stricmp(reply, "ok")) {					
+					if (!ipAuth) {
+						NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, (reply ? reply : ""));
 					}
 					else {
-						// FIXME: Add custom msg to client without drop..
-						//NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+						NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", (reply ? reply : "^3Awaiting Authorization Server response."));
 					}
 					return;
 				}
-
-				if (!challenge->printWarning || challenge->printWarning > svs.time) {
-					Com_Printf("NOTE: Authorize Timeout reached but Strict is on, resending..\n");
-
-					if (ipAuth) {
-						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Waiting for Auth server to respond..awaiting\n");
-					}
-					else {
-						// Will print it's own message
-						NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
-					}
-				}
-			}
-			// Else just let them in but first show warning for couple of seconds
-			else {
-				if (!challenge->printWarning || challenge->printWarning > svs.time) {
-					if (!challenge->printWarning)
-						challenge->printWarning = svs.time + 2400;
-
-					if (ipAuth) {
-						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Auth Server has timeout..entering");
-					}
-					else {
-						// FIXME: Add custom msg to client without drop..
-						//NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
-					}
-					return;
-				}
-				// Now let them in..
 			}
 		}
 		//
 		// Initial request
 		//
-		else {
-			// otherwise send their ip to the authorize server
-			Com_DPrintf("sending getIpAuthorize for %s\n", NET_AdrToString(from));
-			Com_Printf("Querying Auth server for %s\n", NET_AdrToString(from));
+		else {			
+			Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
 
-			if (ipAuth) {
-				NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Awaiting authorization..\n");
+			if (ipAuth) {				
+				reply = HTTP_QueryAddres(WEB_AUTH, va("IP %i.%i.%i.%i", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
 			}
-			else {
-				// Will print it's own message
-				NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+			else {				
+				reply = HTTP_QueryAddres(WEB_AUTH, va("GUID %s %i", guid, challenge->cookie));
 			}
 
-			HTTP_QueryAddres(WEB_AUTH, va("%s %i", guid, challenge->cookie));
-			return;
+			if (Q_stricmp(reply, "ok")) {
+				if (!ipAuth) {
+					NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, (reply ? reply : ""));
+				}
+				else {
+					NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", (reply ? reply : "^3Awaiting Authorization Server response."));
+				}
+				return;
+			}
 		}
 	}
 
