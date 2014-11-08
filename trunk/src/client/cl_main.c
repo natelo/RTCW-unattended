@@ -1755,9 +1755,9 @@ void CL_CheckForResend( void ) {
 
 /*
 ===================
-L0 
+L0 - CL_AuthPacket
 
-CL_AuthPacket
+Packet received from game servers
 ===================
 */
 void CL_AuthPacket(netadr_t from) {
