@@ -106,6 +106,8 @@ cvar_t  *cl_updatefiles;
 cvar_t	*cl_demoName;
 cvar_t	*cl_demoLast;
 cvar_t	*cl_demoDir;
+
+cvar_t	*cl_guid;
 // ~L0
 
 clientActive_t cl;
@@ -2812,6 +2814,18 @@ void CL_LoadTranslations_f( void ) {
 // -NERVE - SMF
 #endif
 
+// etp: update cl_guid
+void CL_UpdateGUID(void) {
+	if (CL_CDKeyValidate(cl_cdkey, NULL)) {
+		Cvar_Set("cl_guid",
+			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
+		);
+	}
+	else {
+		Cvar_Set("cl_guid", "NO_GUID");
+	}
+}
+
 //===========================================================================================
 
 /*
@@ -2969,6 +2983,10 @@ void CL_Init( void ) {
 	cl_demoName = Cvar_Get( "cl_demoName", "", CVAR_ARCHIVE );
 	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );
 	cl_demoDir = Cvar_Get( "cl_demoDir", "", CVAR_ARCHIVE );
+
+	// Guid
+	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
+	CL_UpdateGUID();
 	// ~L0
 
 	// DHM - Nerve :: Auto-update
@@ -3974,63 +3992,82 @@ bool CL_CDKeyValidate
 =================
 */
 qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
-	char ch;
-	byte sum;
-	char chs[3];
-	int i, len;
+	int i, j, sum = 0, keysum = 0;
+	char c;
 
-	len = strlen( key );
-	if ( len != CDKEY_LEN ) {
+	if (!key || strlen(key) != CDKEY_LEN) {
 		return qfalse;
 	}
-
-	if ( checksum && strlen( checksum ) != CDCHKSUM_LEN ) {
-		return qfalse;
-	}
-
-	sum = 0;
-	// for loop gets rid of conditional assignment warning
-	for ( i = 0; i < len; i++ ) {
-		ch = *key++;
-		if ( ch >= 'a' && ch <= 'z' ) {
-			ch -= 32;
+	for (i = 0, j = 0; i < CDKEY_LEN; i++) {
+		c = *key++;
+		if (c >= 'a' && c <= 'n') {
+			c -= 88;
 		}
-		switch ( ch ) {
-		case '2':
-		case '3':
-		case '7':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'G':
-		case 'H':
-		case 'J':
-		case 'L':
-		case 'P':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'W':
-			sum = ( sum << 1 ) ^ ch;
-			continue;
-		default:
+		else if (c >= 'p' && c <= 'x') {
+			c -= 89;
+		}
+		else if (c >= '1' && c <= '9') {
+			c -= 49;
+		}
+		else if (c >= 'A' && c <= 'N') {
+			c -= 56;
+		}
+		else if (c >= 'P' && c <= 'X') {
+			c -= 57;
+		}
+		else {
 			return qfalse;
 		}
+		// actually we could have 80bit keys but that will be annoying
+		// to optimize key lookups for i think so we use only every 2nd 
+		// possible char to bring it down to 64bits
+#if !CDKEY_LARGE // 64bit version
+		if (c & 1) {
+			return qfalse;
+		}
+		keysum ^= (c >> 1) << j;
+		if (++j > 6) {
+			j = 0;
+		}
+#else // 80bit version
+		keysum ^= c << j;
+		if (++j > 5) {
+			j = 0;
+		}
+#endif
 	}
-
-
-	sprintf( chs, "%02x", sum );
-
-	if ( checksum && !Q_stricmp( chs, checksum ) ) {
+	if (!checksum) {
 		return qtrue;
 	}
-
-	if ( !checksum ) {
-		return qtrue;
+	if (strlen(checksum) != CDCHKSUM_LEN) {
+		return qfalse;
 	}
-
-	return qfalse;
+	for (i = 0; i < CDCHKSUM_LEN; i++) {
+		c = *checksum++;
+		if (c >= 'a' && c <= 'n') {
+			c -= 88;
+		}
+		else if (c >= 'p' && c <= 'x') {
+			c -= 89;
+		}
+		else if (c >= '1' && c <= '9') {
+			c -= 49;
+		}
+		else if (c >= 'A' && c <= 'N') {
+			c -= 56;
+		}
+		else if (c >= 'P' && c <= 'X') {
+			c -= 57;
+		}
+		else {
+			return qfalse;
+		}
+		sum |= c << (i * 5);
+	}
+	if (sum != ((keysum & 0x3FF) ^ 0x27F)) {
+		return qfalse;
+	}
+	return qtrue;
 }
 
 // NERVE - SMF

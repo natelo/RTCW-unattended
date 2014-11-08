@@ -263,6 +263,9 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define MOTD_SERVER_NAME		"127.0.0.1" 
 #define UPDATE_SERVER_NAME		"127.0.0.1"
 
+// L0 - Guid..
+#define CDKEY_SALT	"]C/<qA"
+
 #define PORT_MASTER         27950
 #define PORT_UPDATE         80
 #define PORT_AUTHORIZE      80
