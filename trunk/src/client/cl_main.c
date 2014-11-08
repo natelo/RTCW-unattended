@@ -36,6 +36,12 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/stat.h>
 #endif
 
+// L0 - mysql
+#ifndef _S_HTTP
+#include "../qcommon/http.h"
+#endif
+// End
+
 cvar_t  *cl_wavefilerecord;
 cvar_t  *cl_nodelta;
 cvar_t  *cl_debugMove;

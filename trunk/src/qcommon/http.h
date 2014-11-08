@@ -29,8 +29,8 @@ Prototypes
 //
 // g_http.c
 //
-void http_Submit(char *url, char *data);
-void http_SubmitFile(char *url, char *file, qboolean wipe);
-char *http_Query(char *url, char *data);
+void HTTP_SubmitData(char *url, char *data);
+void HTTP_SubmitFile(char *url, char *file, qboolean wipe);
+char *HTTP_QueryAddres(char *url, char *data);
 
 #endif // _S_HTTP

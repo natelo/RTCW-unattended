@@ -155,7 +155,7 @@ http_Submit
 Submits data and doesn't care about any replies and simply bails out..
 ===============
 */
-void http_Submit(char *url, char *data) {
+void HTTP_SubmitData(char *url, char *data) {
 #ifdef WIN32
 	WSADATA WsaData;
 	int err;
@@ -258,7 +258,7 @@ http_SubmitFile
 Submits file to a web server
 ===============
 */
-void http_SubmitFile(char *url, char *file, qboolean wipe) {
+void HTTP_SubmitFile(char *url, char *file, qboolean wipe) {
 #ifdef WIN32
 	WSADATA WsaData;
 	int err;
@@ -374,7 +374,7 @@ Queries the web server and reads the reply..
 Note: POST field is already appanded (cmd=) and accounted for.
 ===============
 */
-char *http_Query(char *url, char *data) {
+char *HTTP_QueryAddres(char *url, char *data) {
 #ifdef WIN32
 	WSADATA WsaData;
 	int err;
