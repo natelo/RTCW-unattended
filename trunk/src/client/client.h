@@ -532,6 +532,10 @@ void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
 char *Key_KeynumToString( int keynum, qboolean bTranslate );
+// etp: cl_guid setup
+void CL_UpdateGUID(void);
+// etp: 64 or 80bit keys
+#define CDKEY_LARGE 1
 
 //
 // L0 - cl_irc.c

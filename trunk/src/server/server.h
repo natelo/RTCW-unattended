@@ -187,6 +187,11 @@ typedef struct client_s {
 	// buffer them into this queue, and hand them out to netchan as needed
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
+
+	// etp: guid - this gets forced into userinfo so client cant change it
+	char guid[GUID_LEN];
+	// etp: true if client passed auth
+	qboolean authed;
 } client_t;
 
 //=============================================================================
@@ -207,6 +212,10 @@ typedef struct {
 	int firstTime;                  // time the adr was first used, for authorize timeout checks
 	int firstPing;                  // Used for min and max ping checks
 	qboolean connected;
+	char guid[GUID_LEN];			// etp: stores guid provided by client in getChallenge
+	int cookie;						// etp: stores auth cookie provided by client in getChallenge
+	qboolean authed;				// etp: true if client passed auth
+	int printWarning;				// L0 - Prints warning for few seconds then let's them in..
 } challenge_t;
 
 
@@ -292,6 +301,13 @@ extern cvar_t  *sv_lanForceRate;
 extern cvar_t  *sv_onlyVisibleClients;
 
 extern cvar_t  *sv_showAverageBPS;          // NERVE - SMF - net debugging
+
+// L0 - New stuff
+extern cvar_t *sv_serverStreaming;	// If server is streaming or not : Note: locked but really a "poor man's" solution..
+extern cvar_t *sv_serverStrict;		// If strict it will drop clients if auth is down instead of letting them in..
+extern cvar_t *sv_minGuidAge;		// Min guid age to enter a server
+extern cvar_t *sv_maxGuidAge;		// Max guid age to enter a server
+// ~L0
 
 // Rafael gameskill
 extern cvar_t  *sv_gameskill;

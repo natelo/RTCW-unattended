@@ -876,6 +876,20 @@ void SV_Init( void ) {
 	sv_dl_maxRate = Cvar_Get( "sv_dl_maxRate", "60000", CVAR_ARCHIVE );
 #endif
 
+	// L0 - Our cvars
+#ifdef _DEBUG_HTTP
+	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_serverStrict = Cvar_Get("sv_serverStrict", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_minGuidAge = Cvar_Get("sv_minGuidAge", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_maxGuidAge = Cvar_Get("sv_maxGuidAge", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+#else
+	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_INIT | CVAR_SERVERINFO);
+	sv_serverStrict = Cvar_Get("sv_serverStrict", "1", CVAR_INIT | CVAR_SERVERINFO);
+	sv_minGuidAge = Cvar_Get("sv_minGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
+	sv_maxGuidAge = Cvar_Get("sv_maxGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
+#endif	
+	// End
+
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
 

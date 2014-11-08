@@ -30,6 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
+// L0 - HTTP
+#ifndef _S_HTTP
+#include "../qcommon/http.h"
+#endif
+// End
+
 static void SV_CloseDownload( client_t *cl );
 
 /*
@@ -55,11 +61,57 @@ void SV_GetChallenge( netadr_t from ) {
 	int oldest;
 	int oldestTime;
 	challenge_t *challenge;
+	char *guid, *c, *reply;
+	int cookie;
+	qboolean ipAuth = qfalse;
 
 	// ignore if we are in single player
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
 		return;
 	}
+
+	cookie = atoi(Cmd_Argv(1));
+	guid = Cmd_Argv(2);
+
+	// L0 - If there's no cookie then we can assume it's legit 1.0 request 
+	// tho can be spoof attack but nothing is perfect..
+	if (!cookie) {
+		if (sv_pure->integer) {
+			NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Download rtcwMP client @ rtcwmp.com to enter..\n");
+			return;
+		}
+		else {
+			cookie = 0101;
+			ipAuth = qtrue;
+		}
+	}
+
+	// etp: dont check lan clients guid. there is no auth anyways.
+	/*
+	if (!ipAuth) {
+#ifdef _DEBUG_HTTP
+		if (!Sys_IsLANAddress(from)) {
+#else
+		if (Sys_IsLANAddress(from)) {
+#endif
+			if (strlen(guid) > (GUID_LEN - 1)) {
+				return;
+			}
+		}
+		else {
+			if (strlen(guid) != (GUID_LEN - 1)) {
+				return;
+			}
+			for (c = guid; *c; c++) {
+				if (!(*c >= '0' && *c <= '9') &&
+					!(*c >= 'a' && *c <= 'f')
+					) {
+					return;
+				}
+			}
+		} 
+	} // End
+	*/
 
 	oldest = 0;
 	oldestTime = 0x7fffffff;
@@ -79,77 +131,137 @@ void SV_GetChallenge( netadr_t from ) {
 	if ( i == MAX_CHALLENGES ) {
 		// this is the first time this client has asked for a challenge
 		challenge = &svs.challenges[oldest];
-
-		challenge->challenge = ( ( rand() << 16 ) ^ rand() ) ^ svs.time;
+		
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
 		challenge->firstPing = 0;
-		challenge->time = svs.time;
 		challenge->connected = qfalse;
 		i = oldest;
 	}
 
-	// if they are on a lan address, send the challengeResponse immediately
-	if ( Sys_IsLANAddress( from ) ) {
-		challenge->pingTime = svs.time;
-		if ( sv_onlyVisibleClients->integer ) {
-			NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i %i", challenge->challenge, sv_onlyVisibleClients->integer );
-		} else {
-			NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
-		}
-		return;
+	// always generate a new challenge number, so the client cannot circumvent sv_maxping
+	challenge->challenge = ((rand() << 16) ^ rand()) ^ svs.time;
+	challenge->time = svs.time;
+
+	// etp: we need to keep track of these
+	if (!ipAuth) {
+		Q_strncpyz(challenge->guid, guid, sizeof(challenge->guid));
+		challenge->cookie = cookie;
 	}
 
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
+	// if they are on a lan address, send the challengeResponse immediately
+#ifdef _DEBUG_HTTP
+	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer) {
+#else
+	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
+#endif
+		// look up the authorize server's IP
+		if (svs.authorizeAddress.type == NA_BAD)
+		{
+			Com_Printf("Connecting to Authorize server..");
+			if (NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress))
+			{
+				Com_Printf("SUCCESS\n");
+				svs.authorizeAddress.port = BigShort(PORT_AUTHORIZE);
+				Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
 					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					BigShort( svs.authorizeAddress.port ) );
-	}
-
-	// if they have been challenging for a long time and we
-	// haven't heard anything from the authoirze server, go ahead and
-	// let them in, assuming the id server is down
-	if ( svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT ) {
-		Com_DPrintf( "authorize server timed out\n" );
-
-		challenge->pingTime = svs.time;
-		if ( sv_onlyVisibleClients->integer ) {
-			NET_OutOfBandPrint( NS_SERVER, challenge->adr,
-								"challengeResponse %i %i", challenge->challenge, sv_onlyVisibleClients->integer );
-		} else {
-			NET_OutOfBandPrint( NS_SERVER, challenge->adr,
-								"challengeResponse %i", challenge->challenge );
+					BigShort(svs.authorizeAddress.port));
+			}
+			else {
+				// Drop clients if auth is down
+				if (sv_serverStrict->integer) {
+					if (!ipAuth) {
+						NET_OutOfBandPrint(NS_SERVER, challenge->adr,
+							"authStatus %i 2 Server is configured as Strict and auth server failed to respond.", challenge->cookie);
+					}
+					// 1.0 reply..
+					else {
+						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Authorization server is down! Querying..\n");
+					}
+					return;
+				}
+				else {
+					Com_Printf("could not resolve address\nWARNING: Authorization server is down but server accepts unauthenticated users..\n");
+				}
+			}
 		}
+		//
+		// Timeout
+		//
+		else if (svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT) {
+			// Strict on will not allow any client that is not authenticated...
+			if (sv_serverStrict->integer) {
+				reply = HTTP_QueryAddres(WEB_AUTH, va("%s %i", guid, challenge->cookie));
 
-		return;
-	}
+				// YAY we got a reply..
+				if (!Q_stricmp(reply, "ok") && !challenge->printWarning) {
+					challenge->printWarning = svs.time + 2400;
 
-	// otherwise send their ip to the authorize server
-	if ( svs.authorizeAddress.type != NA_BAD ) {
-		cvar_t  *fs;
-		char game[1024];
+					if (ipAuth) {
+						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3You have been authenticated, entering..");
+					}
+					else {
+						// FIXME: Add custom msg to client without drop..
+						//NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+					}
+					return;
+				}
 
-		game[0] = 0;
-		fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-		if ( fs && fs->string[0] != 0 ) {
-			strcpy( game, fs->string );
+				if (!challenge->printWarning || challenge->printWarning > svs.time) {
+					Com_Printf("NOTE: Authorize Timeout reached but Strict is on, resending..\n");
+
+					if (ipAuth) {
+						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Waiting for Auth server to respond..awaiting\n");
+					}
+					else {
+						// Will print it's own message
+						NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+					}
+				}
+			}
+			// Else just let them in but first show warning for couple of seconds
+			else {
+				if (!challenge->printWarning || challenge->printWarning > svs.time) {
+					if (!challenge->printWarning)
+						challenge->printWarning = svs.time + 2400;
+
+					if (ipAuth) {
+						NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Auth Server has timeout..entering");
+					}
+					else {
+						// FIXME: Add custom msg to client without drop..
+						//NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+					}
+					return;
+				}
+				// Now let them in..
+			}
 		}
-		Com_DPrintf( "sending getIpAuthorize for %s\n", NET_AdrToString( from ) );
-		fs = Cvar_Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO );
+		//
+		// Initial request
+		//
+		else {
+			// otherwise send their ip to the authorize server
+			Com_DPrintf("sending getIpAuthorize for %s\n", NET_AdrToString(from));
+			Com_Printf("Querying Auth server for %s\n", NET_AdrToString(from));
 
-		// NERVE - SMF - fixed parsing on sv_allowAnonymous
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
-							"getIpAuthorize %i %i.%i.%i.%i %s %i",  svs.challenges[i].challenge,
-							from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, fs->integer );
+			if (ipAuth) {
+				NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Awaiting authorization..\n");
+			}
+			else {
+				// Will print it's own message
+				NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i", challenge->cookie);
+			}
+
+			HTTP_QueryAddres(WEB_AUTH, va("%s %i", guid, challenge->cookie));
+			return;
+		}
 	}
+
+	// Let them in
+	challenge->pingTime = svs.time;
+	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d", challenge->challenge);
 }
 
 /*
@@ -163,78 +275,71 @@ challengeResponse to it
 */
 void SV_AuthorizeIpPacket( netadr_t from ) {
 	int challenge;
-	int i;
-	char    *s;
-	char    *r;
-	char ret[1024];
+	int i, response;
+	char *reason;
+	challenge_t *challengeptr;
 
-	if ( !NET_CompareBaseAdr( from, svs.authorizeAddress ) ) {
-		Com_Printf( "SV_AuthorizeIpPacket: not from authorize server\n" );
+	if (!NET_CompareBaseAdr(from, svs.authorizeAddress)) {
+		Com_Printf("SV_AuthorizeIpPacket: not from authorize server\n");
 		return;
 	}
 
-	challenge = atoi( Cmd_Argv( 1 ) );
+	challenge = atoi(Cmd_Argv(1));
 
-	for ( i = 0 ; i < MAX_CHALLENGES ; i++ ) {
-		if ( svs.challenges[i].challenge == challenge ) {
+	for (i = 0; i < MAX_CHALLENGES; i++) {
+		if (svs.challenges[i].challenge == challenge) {
 			break;
 		}
 	}
-	if ( i == MAX_CHALLENGES ) {
-		Com_Printf( "SV_AuthorizeIpPacket: challenge not found\n" );
+	if (i == MAX_CHALLENGES) {
+		Com_Printf("SV_AuthorizeIpPacket: challenge not found\n");
 		return;
 	}
+
+	challengeptr = &svs.challenges[i];
 
 	// send a packet back to the original client
-	svs.challenges[i].pingTime = svs.time;
-	s = Cmd_Argv( 2 );
-	r = Cmd_Argv( 3 );          // reason
+	challengeptr->pingTime = svs.time;
+	response = atoi(Cmd_Argv(2));		// Response
+	reason = Cmd_ArgsFrom(3);         // Reason
 
-	if ( !Q_stricmp( s, "demo" ) ) {
-		if ( Cvar_VariableValue( "fs_restrict" ) ) {
-			// a demo client connecting to a demo server
-			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
-								"challengeResponse %i", svs.challenges[i].challenge );
-			return;
+	// Can enter..
+	if (response == 0) {
+		challengeptr->authed = qtrue;
+		if (sv_onlyVisibleClients->integer) {
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
+				"challengeResponse %d %i", challengeptr->challenge, sv_onlyVisibleClients->integer);
 		}
-		// they are a demo client trying to connect to a real server
-		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "print\nServer is not a demo server\n" );
-		// clear the challenge record so it won't timeout and let them through
-		memset( &svs.challenges[i], 0, sizeof( svs.challenges[i] ) );
-		return;
-	}
-	if ( !Q_stricmp( s, "accept" ) ) {
-		if ( sv_onlyVisibleClients->integer ) {
-			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
-								"challengeResponse %i %i", svs.challenges[i].challenge, sv_onlyVisibleClients->integer );
-		} else {
-			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr,
-								"challengeResponse %i", svs.challenges[i].challenge );
+		else {
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
+				"challengeResponse %d", challengeptr->challenge);
 		}
 		return;
 	}
-	if ( !Q_stricmp( s, "unknown" ) ) {
-		if ( !r ) {
-			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "print\nAwaiting CD key authorization\n" );
-		} else {
-			sprintf( ret, "print\n%s\n", r );
-			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, ret );
+
+	// No idea what's going on yet but auth is there
+	if (response == 1) {
+		if (!reason) {
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i 1", challengeptr->cookie);
+		}
+		else {
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i 1 %s", challengeptr->cookie, reason);
 		}
 		// clear the challenge record so it won't timeout and let them through
-		memset( &svs.challenges[i], 0, sizeof( svs.challenges[i] ) );
+		Com_Memset(challengeptr, 0, sizeof(*challengeptr));
 		return;
 	}
 
 	// authorization failed
-	if ( !r ) {
-		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "print\nSomeone is using this CD Key\n" );
-	} else {
-		sprintf( ret, "print\n%s\n", r );
-		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, ret );
+	if (response > 1) {
+		if (!reason)
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i %i", challengeptr->cookie, response);
+		else
+			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i %i %s", challengeptr->cookie, response, reason);
 	}
 
 	// clear the challenge record so it won't timeout and let them through
-	memset( &svs.challenges[i], 0, sizeof( svs.challenges[i] ) );
+	Com_Memset(challengeptr, 0, sizeof(*challengeptr));
 }
 
 /*
@@ -260,6 +365,11 @@ void SV_DirectConnect( netadr_t from ) {
 	int startIndex;
 	char        *denied;
 	int count;
+
+	// etp: auth variables
+	char guid[GUID_LEN];
+	qboolean authed;
+	// End
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
 
@@ -298,7 +408,11 @@ void SV_DirectConnect( netadr_t from ) {
 	}
 
 	// see if the challenge is valid (LAN clients don't need to challenge)
+#ifdef _DEBUG_HTTP
+	if (NET_IsLocalAddress(from)) {
+#else
 	if ( !NET_IsLocalAddress( from ) ) {
+#endif
 		int ping;
 
 		for ( i = 0 ; i < MAX_CHALLENGES ; i++ ) {
@@ -322,9 +436,6 @@ void SV_DirectConnect( netadr_t from ) {
 			ping = svs.challenges[i].firstPing;
 		}
 
-		Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
-		svs.challenges[i].connected = qtrue;
-
 		// never reject a LAN client based on ping
 		if ( !Sys_IsLANAddress( from ) ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
@@ -338,9 +449,19 @@ void SV_DirectConnect( netadr_t from ) {
 				return;
 			}
 		}
+
+		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
+		svs.challenges[i].connected = qtrue;
+		// etp: save guid supplied during challenge and auth status
+		Q_strncpyz(guid, svs.challenges[i].guid, sizeof(guid));
+		authed = svs.challenges[i].authed;
 	} else {
 		// force the "ip" info key to "localhost"
 		Info_SetValueForKey( userinfo, "ip", "localhost" );
+
+		// etp: use whatever client says its guid is
+		Q_strncpyz(guid, Info_ValueForKey(userinfo, "cl_guid"), sizeof(guid));
+		authed = qfalse;
 	}
 
 	newcl = &temp;
@@ -433,6 +554,12 @@ gotnewcl:
 	Netchan_Setup( NS_SERVER, &newcl->netchan, from, qport );
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
+
+	// etp: setup guid so game code can get it
+	newcl->authed = authed;
+	Info_SetValueForKey(userinfo, "auth", va("%i", authed));
+	Q_strncpyz(newcl->guid, guid, sizeof(newcl->guid));
+	Info_SetValueForKey(userinfo, "cl_guid", guid);
 
 	// save the userinfo
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof( newcl->userinfo ) );
@@ -1189,6 +1316,7 @@ into a more C friendly form.
 void SV_UserinfoChanged( client_t *cl ) {
 	char    *val;
 	int i;
+	int	len;	// L0 - Sanity check
 
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey( cl->userinfo, "name" ), sizeof( cl->name ) );
@@ -1235,11 +1363,23 @@ void SV_UserinfoChanged( client_t *cl ) {
 		cl->snapshotMsec = 50;
 	}
 
+	val = Info_ValueForKey(cl->userinfo, "ip");
+// L0 
+	// Some sanity checks
+	if (val[0])
+		len = strlen( val ) - strlen(val) + strlen(cl->userinfo);
+	else
+		len = strlen( val ) + 4 + strlen(cl->userinfo);
+	
+	if (len >= MAX_INFO_STRING)
+		SV_DropClient(cl, "userinfo string length exceeded");	
+// ~L0
+
 	// TTimo
 	// maintain the IP information
 	// this is set in SV_DirectConnect (directly on the server, not transmitted), may be lost when client updates it's userinfo
 	// the banning code relies on this being consistently present
-	val = Info_ValueForKey( cl->userinfo, "ip" );
+	
 	if ( !val[0] ) {
 		//Com_DPrintf("Maintain IP in userinfo for '%s'\n", cl->name);
 		if ( !NET_IsLocalAddress( cl->netchan.remoteAddress ) ) {
@@ -1250,6 +1390,9 @@ void SV_UserinfoChanged( client_t *cl ) {
 		}
 	}
 
+	// etp: force auth and guid into userinfo so client cant mess with it
+	Info_SetValueForKey(cl->userinfo, "auth", va("%i", cl->authed));
+	Info_SetValueForKey(cl->userinfo, "cl_guid", cl->guid);
 }
 
 

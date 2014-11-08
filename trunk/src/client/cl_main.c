@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/stat.h>
 #endif
 
-// L0 - mysql
+// L0 - HTTP
 #ifndef _S_HTTP
 #include "../qcommon/http.h"
 #endif
@@ -1722,7 +1722,7 @@ void CL_CheckForResend( void ) {
 		}
 
 		// L0 - Add cl_guid and challange
-		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge %s %i", cl_guid->string, cls.authorizeCookie);
+		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge %i %s", cls.authorizeCookie, cl_guid->string);
 		break;
 
 	case CA_CHALLENGING:
