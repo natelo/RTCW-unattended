@@ -73,8 +73,8 @@ void SV_GetChallenge( netadr_t from ) {
 	cookie = atoi(Cmd_Argv(1));
 	guid = Cmd_Argv(2);
 
-	// L0 - If there's no cookie then we can assume it's legit 1.0 request 
-	// tho can be spoof attack but nothing is perfect..
+	// L0 - If there's no cookie then we can assume it's a 
+	// legit 1.0 request tho can be a spoof attack but nothing is perfect..
 	if (!cookie) {
 		if (sv_pure->integer) {
 			NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Download rtcwMP client @ rtcwmp.com to enter..\n");
@@ -86,32 +86,29 @@ void SV_GetChallenge( netadr_t from ) {
 		}
 	}
 
-	// etp: dont check lan clients guid. there is no auth anyways.
-	/*
+	// Sanity checks for guid
 	if (!ipAuth) {
-#ifdef _DEBUG_HTTP
-		if (!Sys_IsLANAddress(from)) {
-#else
 		if (Sys_IsLANAddress(from)) {
-#endif
 			if (strlen(guid) > (GUID_LEN - 1)) {
+				Com_Printf("GUID string too long [ip: %i.%i.%i.%i]\n", from.ip[0], from.ip[1], from.ip[2], from.ip[3]);
 				return;
 			}
 		}
 		else {
 			if (strlen(guid) != (GUID_LEN - 1)) {
+				Com_Printf("Incorrect GUID size from %i.%i.%i.%i\n", from.ip[0], from.ip[1], from.ip[2], from.ip[3]);
 				return;
 			}
 			for (c = guid; *c; c++) {
 				if (!(*c >= '0' && *c <= '9') &&
 					!(*c >= 'a' && *c <= 'f')
 					) {
+					Com_Printf("Corrupted GUID from %i.%i.%i.%i\n", from.ip[0], from.ip[1], from.ip[2], from.ip[3]);
 					return;
 				}
 			}
 		} 
-	} // End
-	*/
+	} 
 
 	oldest = 0;
 	oldestTime = 0x7fffffff;
@@ -136,6 +133,7 @@ void SV_GetChallenge( netadr_t from ) {
 		challenge->firstTime = svs.time;
 		challenge->firstPing = 0;
 		challenge->connected = qfalse;
+		challenge->authed = qfalse;
 		i = oldest;
 	}
 
@@ -221,84 +219,6 @@ void SV_GetChallenge( netadr_t from ) {
 	// Let them in
 	challenge->pingTime = svs.time;
 	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d", challenge->challenge);
-}
-
-/*
-====================
-SV_AuthorizeIpPacket
-
-A packet has been returned from the authorize server.
-If we have a challenge adr for that ip, send the
-challengeResponse to it
-====================
-*/
-void SV_AuthorizeIpPacket( netadr_t from ) {
-	int challenge;
-	int i, response;
-	char *reason;
-	challenge_t *challengeptr;
-
-	if (!NET_CompareBaseAdr(from, svs.authorizeAddress)) {
-		Com_Printf("SV_AuthorizeIpPacket: not from authorize server\n");
-		return;
-	}
-
-	challenge = atoi(Cmd_Argv(1));
-
-	for (i = 0; i < MAX_CHALLENGES; i++) {
-		if (svs.challenges[i].challenge == challenge) {
-			break;
-		}
-	}
-	if (i == MAX_CHALLENGES) {
-		Com_Printf("SV_AuthorizeIpPacket: challenge not found\n");
-		return;
-	}
-
-	challengeptr = &svs.challenges[i];
-
-	// send a packet back to the original client
-	challengeptr->pingTime = svs.time;
-	response = atoi(Cmd_Argv(2));		// Response
-	reason = Cmd_ArgsFrom(3);         // Reason
-
-	// Can enter..
-	if (response == 0) {
-		challengeptr->authed = qtrue;
-		if (sv_onlyVisibleClients->integer) {
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
-				"challengeResponse %d %i", challengeptr->challenge, sv_onlyVisibleClients->integer);
-		}
-		else {
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr,
-				"challengeResponse %d", challengeptr->challenge);
-		}
-		return;
-	}
-
-	// No idea what's going on yet but auth is there
-	if (response == 1) {
-		if (!reason) {
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i 1", challengeptr->cookie);
-		}
-		else {
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i 1 %s", challengeptr->cookie, reason);
-		}
-		// clear the challenge record so it won't timeout and let them through
-		Com_Memset(challengeptr, 0, sizeof(*challengeptr));
-		return;
-	}
-
-	// authorization failed
-	if (response > 1) {
-		if (!reason)
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i %i", challengeptr->cookie, response);
-		else
-			NET_OutOfBandPrint(NS_SERVER, challengeptr->adr, "authStatus %i %i %s", challengeptr->cookie, response, reason);
-	}
-
-	// clear the challenge record so it won't timeout and let them through
-	Com_Memset(challengeptr, 0, sizeof(*challengeptr));
 }
 
 /*

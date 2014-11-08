@@ -215,7 +215,6 @@ typedef struct {
 	char guid[GUID_LEN];			// etp: stores guid provided by client in getChallenge
 	int cookie;						// etp: stores auth cookie provided by client in getChallenge
 	qboolean authed;				// etp: true if client passed auth
-	int printWarning;				// L0 - Prints warning for few seconds then let's them in..
 } challenge_t;
 
 
@@ -357,8 +356,6 @@ void SV_SpawnServer( char *server, qboolean killBots );
 void SV_GetChallenge( netadr_t from );
 
 void SV_DirectConnect( netadr_t from );
-
-void SV_AuthorizeIpPacket( netadr_t from );
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
