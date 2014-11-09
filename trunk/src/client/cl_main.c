@@ -932,6 +932,8 @@ L0 - Patched for HTTP
 void CL_RequestMotd( void ) {
 	char *result;
 
+	test();
+
 	if ( !cl_motd->integer ) {
 		return;
 	}
