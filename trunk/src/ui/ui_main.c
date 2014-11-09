@@ -129,7 +129,7 @@ static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
 
 static char* netnames[] = {
 	"???",
-	"UDP",
+	"IPv4",
 	"IPv6", // L0 - IPX just feels wrong..
 	NULL
 };
@@ -5995,17 +5995,20 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 			}
 			switch ( column ) {
 			case SORT_HOST:
-				if ( ping <= 0 ) {
-					return Info_ValueForKey( info, "addr" );
-				} else {
-					if ( ui_netSource.integer == AS_LOCAL ) {
-						Com_sprintf( hostname, sizeof( hostname ), "%s [%s]",
-									 Info_ValueForKey( info, "hostname" ),
-									 netnames[atoi( Info_ValueForKey( info, "nettype" ) )] );
-						return hostname;
-					} else {
-						return Info_ValueForKey( info, "hostname" );
+				if (ping <= 0) {
+					return Info_ValueForKey(info, "addr");
+				}
+				else {
+					int nettype = atoi(Info_ValueForKey(info, "nettype"));
+
+					if (nettype < 0 || nettype >= ARRAY_LEN(netnames)) {
+						nettype = 0;
 					}
+
+					Com_sprintf(hostname, sizeof(hostname), "^7[^n%s^7]  %s",
+						netnames[nettype],
+						Info_ValueForKey(info, "hostname"));
+					return hostname;
 				}
 			case SORT_MAP: return Info_ValueForKey( info, "mapname" );
 			case SORT_CLIENTS:
