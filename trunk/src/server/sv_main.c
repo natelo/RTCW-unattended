@@ -82,6 +82,10 @@ cvar_t	*sv_serverStreaming;
 cvar_t  *sv_serverStrict;
 cvar_t	*sv_minGuidAge;
 cvar_t	*sv_maxGuidAge;
+
+// -> Projects info
+cvar_t	*project_developer;
+cvar_t	*project_url;
 // End
 
 void SVC_GameCompleteStatus( netadr_t from );       // NERVE - SMF

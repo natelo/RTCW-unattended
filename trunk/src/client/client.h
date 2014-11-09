@@ -259,6 +259,10 @@ typedef struct {
 	char hostName[MAX_NAME_LENGTH];
 	char mapName[MAX_NAME_LENGTH];
 	char game[MAX_NAME_LENGTH];
+// L0 
+	char project_developer[MAX_NAME_LENGTH];
+	char project_url[MAX_NAME_LENGTH];
+// ~L0
 	int netType;
 	int gameType;
 	int clients;

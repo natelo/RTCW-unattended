@@ -3126,6 +3126,10 @@ void CL_Shutdown( void ) {
 static void CL_SetServerInfo( serverInfo_t *server, const char *info, int ping ) {
 	if ( server ) {
 		if ( info ) {
+			// L0 - print info
+			Q_strncpyz(server->project_developer, Info_ValueForKey(info, "Developer"), MAX_NAME_LENGTH);
+			Q_strncpyz(server->project_url, Info_ValueForKey(info, "Project url"), MAX_NAME_LENGTH);
+			// ~L0
 			server->clients = atoi( Info_ValueForKey( info, "clients" ) );
 			Q_strncpyz( server->hostName,Info_ValueForKey( info, "hostname" ), MAX_NAME_LENGTH );
 			Q_strncpyz( server->mapName, Info_ValueForKey( info, "mapname" ), MAX_NAME_LENGTH );

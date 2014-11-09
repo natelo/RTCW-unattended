@@ -888,6 +888,8 @@ void SV_Init( void ) {
 	sv_minGuidAge = Cvar_Get("sv_minGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
 	sv_maxGuidAge = Cvar_Get("sv_maxGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
 #endif	
+	Cvar_Get("project_developer", "Nate 'L0", CVAR_ROM | CVAR_SERVERINFO);
+	Cvar_Get("project_url", "rtcwmp.com", CVAR_ROM);
 	// End
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib

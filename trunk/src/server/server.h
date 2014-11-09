@@ -331,6 +331,9 @@ extern cvar_t *sv_serverStreaming;	// If server is streaming or not : Note: lock
 extern cvar_t *sv_serverStrict;		// If strict it will drop clients if auth is down instead of letting them in..
 extern cvar_t *sv_minGuidAge;		// Min guid age to enter a server
 extern cvar_t *sv_maxGuidAge;		// Max guid age to enter a server
+
+extern cvar_t	*project_developer;
+extern cvar_t	*project_url;
 // ~L0
 
 // Rafael gameskill
