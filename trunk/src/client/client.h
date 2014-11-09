@@ -328,6 +328,9 @@ typedef struct {
 
 	netadr_t authorizeServer;
 
+	// L0 - Client Auth
+	netadr_t clientAuthServer;
+
 	// L0 - Motd
 	netadr_t motdServer;
 

@@ -253,15 +253,26 @@ The server you attempted to join is running an incompatible version of the game.
 You or the server may be running older versions of the game. Press the auto-update\
  button if it appears on the Main Menu screen."
 
+// Comment this out for prod..
+#define _DEBUG_HTTP
+
 #define PROTOCOL_VERSION 57
 #define GAMENAME_STRING     "wolfmp"
 #define CODENAME	"SAVINGBlazkowicz"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
 
 // NERVE - SMF - wolf multiplayer master servers
 #define MASTER_SERVER_NAME      "wolfmaster.s4ndmod.com"
-#define	AUTHORIZE_SERVER_NAME	"127.0.0.1"
-#define MOTD_SERVER_NAME		"127.0.0.1" 
-#define UPDATE_SERVER_NAME		"127.0.0.1"
+#ifdef _DEBUG_HTTP
+	#define	AUTHORIZE_SERVER_NAME	"127.0.0.1"
+	#define CLIENT_AUTH_SERVER_NAME "127.0.0.1"
+	#define MOTD_SERVER_NAME		"127.0.0.1" 
+	#define UPDATE_SERVER_NAME		"127.0.0.1"
+#else
+	#define	AUTHORIZE_SERVER_NAME	"auth.rtcwmp.com"
+	#define CLIENT_AUTH_SERVER_NAME "auth.rtcwmp.com"
+	#define MOTD_SERVER_NAME		"motd.rtcwmp.com" 
+	#define UPDATE_SERVER_NAME		"updt.rtcwmp.com"
+#endif
 
 // L0 - Guid..
 #define CDKEY_SALT	"]=q.A"
@@ -269,6 +280,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define PORT_MASTER         27950
 #define PORT_UPDATE         80
 #define PORT_AUTHORIZE      80
+#define PORT_CLIENT_AUTH	80
 #define PORT_MOTD			80
 #define PORT_SERVER         27960
 #define NUM_SERVER_PORTS    4       // broadcast scan this many ports after

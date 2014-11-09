@@ -926,6 +926,7 @@ void CL_ForwardCommandToServer( const char *string ) {
 ===================
 CL_RequestMotd
 
+L0 - Patched for HTTP
 ===================
 */
 void CL_RequestMotd( void ) {
@@ -933,15 +934,18 @@ void CL_RequestMotd( void ) {
 
 	if ( !cl_motd->integer ) {
 		return;
-	}	
+	}
+
 	Com_Printf("Connecting to news server..");
 	if (!NET_StringToAdr(MOTD_SERVER_NAME, &cls.motdServer)) {
 		Com_Printf( "could not resolve address\n^nWARNING: MOTD server is unreachable!\n" );
 		return;
 	}
+	else {
+		Com_Printf("SUCCESS\n");
+	}
+	
 	cls.motdServer.port = BigShort(PORT_MOTD);
-	Com_Printf( "SUCCESS\n");
-	// Leaving this for just in case..
 	Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
 			cls.motdServer.ip[0], cls.motdServer.ip[1],
 			cls.motdServer.ip[2], cls.motdServer.ip[3],
@@ -954,88 +958,6 @@ void CL_RequestMotd( void ) {
 	if (result) {
 		Cvar_Set("cl_motdString", result);
 	}
-}
-
-/*
-===================
-CL_RequestAuthorization
-
-Authorization server protocol
------------------------------
-
-All commands are text in Q3 out of band packets (leading 0xff 0xff 0xff 0xff).
-
-Whenever the client tries to get a challenge from the server it wants to
-connect to, it also blindly fires off a packet to the authorize server:
-
-getKeyAuthorize <challenge> <cdkey>
-
-cdkey may be "demo"
-
-
-#OLD The authorize server returns a:
-#OLD
-#OLD keyAthorize <challenge> <accept | deny>
-#OLD
-#OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
-#OLD address in the last 15 minutes.
-
-
-The server sends a:
-
-getIpAuthorize <challenge> <ip>
-
-The authorize server returns a:
-
-ipAuthorize <challenge> <accept | deny | demo | unknown >
-
-A client will be accepted if a valid cdkey was sent by that ip (only) in the last 15 minutes.
-If no response is received from the authorize server after two tries, the client will be let
-in anyway.
-===================
-*/
-void CL_RequestAuthorization( void ) {
-	char nums[64];
-	int i, j, l;
-
-	if ( !cls.authorizeServer.port ) {
-		Com_Printf("Connecting to authorization server..");
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer  ) ) {
-			Com_Printf("could not resolve address\n^nWARNING: Authorization server is unreachable!\n");
-			return;
-		}
-
-		cls.authorizeServer.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf("SUCCESS\n");
-		// Leaving this for just in case..
-		Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-					cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-					cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-					BigShort( cls.authorizeServer.port ) );
-	}
-	if ( cls.authorizeServer.type == NA_BAD ) {
-		return;
-	}
-
-	
-	// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
-	j = 0;
-	l = strlen( cl_cdkey );
-	if ( l > 32 ) {
-		l = 32;
-	}
-	for ( i = 0 ; i < l ; i++ ) {
-		if ( ( cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9' )
-				|| ( cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z' )
-				|| ( cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z' )
-				) {
-			nums[j] = cl_cdkey[i];
-			j++;
-		}
-	}
-	nums[j] = 0;	
-
-	Com_Printf(HTTP_QueryAddres(WEB_AUTH, va("%s %i", nums, cls.authorizeCookie)));
 }
 
 /*
@@ -1713,12 +1635,7 @@ void CL_CheckForResend( void ) {
 		if (clc.connectPacketCount == 1) {
 			cls.authorizeCookie = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
 		} // End
-
-		// requesting a challenge
-		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
-			CL_RequestAuthorization();
-		}
-
+		
 		// L0 - Add cl_guid and challange
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge %i %s", cls.authorizeCookie, cl_guid->string);
 		break;
@@ -2625,7 +2542,9 @@ void CL_StartHunkUsers( void ) {
 	}
 }
 
-// DHM - Nerve
+/*
+	L0 - Patched to account for HTTP stuff..
+*/
 void CL_CheckAutoUpdate( void ) {
 
 	if ( !cl_autoupdate->integer ) {
@@ -2657,7 +2576,7 @@ void CL_CheckAutoUpdate( void ) {
 
 	// Fetch MOTD..
 	CL_RequestMotd();
-
+	
 	autoupdateChecked = qtrue;
 }
 
@@ -4046,85 +3965,39 @@ void CL_ShowIP_f( void ) {
 /*
 =================
 bool CL_CDKeyValidate
+
+L0 - Modified to do an actual lookup..
 =================
 */
-qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
-	int i, j, sum = 0, keysum = 0;
-	char c;
+qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {	
+	char *result;
 
-	if (!key || strlen(key) != CDKEY_LEN) {
+	if (!key || strlen(key) != CDKEY_LEN) {		
 		return qfalse;
 	}
-	for (i = 0, j = 0; i < CDKEY_LEN; i++) {
-		c = *key++;
-		if (c >= 'a' && c <= 'n') {
-			c -= 88;
-		}
-		else if (c >= 'p' && c <= 'x') {
-			c -= 89;
-		}
-		else if (c >= '1' && c <= '9') {
-			c -= 49;
-		}
-		else if (c >= 'A' && c <= 'N') {
-			c -= 56;
-		}
-		else if (c >= 'P' && c <= 'X') {
-			c -= 57;
-		}
-		else {
-			return qfalse;
-		}
-		// actually we could have 80bit keys but that will be annoying
-		// to optimize key lookups for i think so we use only every 2nd 
-		// possible char to bring it down to 64bits
-#if !CDKEY_LARGE // 64bit version
-		if (c & 1) {
-			return qfalse;
-		}
-		keysum ^= (c >> 1) << j;
-		if (++j > 6) {
-			j = 0;
-		}
-#else // 80bit version
-		keysum ^= c << j;
-		if (++j > 5) {
-			j = 0;
-		}
-#endif
+
+	Com_DPrintf("Contacting Auth Server..");
+	if (!NET_StringToAdr(CLIENT_AUTH_SERVER_NAME, &cls.clientAuthServer)) {
+		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
+		return qfalse;
 	}
-	if (!checksum) {
+	else {
+		Com_DPrintf("connection established\n");
+	}
+		
+	cls.clientAuthServer.port = BigShort(PORT_CLIENT_AUTH);
+	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", CLIENT_AUTH_SERVER_NAME,
+		cls.clientAuthServer.ip[0], cls.clientAuthServer.ip[1],
+		cls.clientAuthServer.ip[2], cls.clientAuthServer.ip[3],
+		BigShort(cls.clientAuthServer.port));
+
+	// Query it now
+	result = HTTP_QueryAddres(WEB_CLIENT_AUTH, va("%s", key));
+	
+	if (!Q_stricmp(result, "ok"))
 		return qtrue;
-	}
-	if (strlen(checksum) != CDCHKSUM_LEN) {
+	else
 		return qfalse;
-	}
-	for (i = 0; i < CDCHKSUM_LEN; i++) {
-		c = *checksum++;
-		if (c >= 'a' && c <= 'n') {
-			c -= 88;
-		}
-		else if (c >= 'p' && c <= 'x') {
-			c -= 89;
-		}
-		else if (c >= '1' && c <= '9') {
-			c -= 49;
-		}
-		else if (c >= 'A' && c <= 'N') {
-			c -= 56;
-		}
-		else if (c >= 'P' && c <= 'X') {
-			c -= 57;
-		}
-		else {
-			return qfalse;
-		}
-		sum |= c << (i * 5);
-	}
-	if (sum != ((keysum & 0x3FF) ^ 0x27F)) {
-		return qfalse;
-	}
-	return qtrue;
 }
 
 // NERVE - SMF

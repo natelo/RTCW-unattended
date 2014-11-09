@@ -12,13 +12,11 @@ Hold declarations and structures of all the HTTP related functionality..
 #include "../game/q_shared.h"
 #include "qcommon.h"
 
-// Comment this out for prod..
-#define _DEBUG_HTTP
-
 // URL Mappings
-#define WEB_MOTD MOTD_SERVER_NAME "/stats/query/motd"
-#define WEB_AUTH AUTHORIZE_SERVER_NAME "/stats/query/auth"
-#define WEB_UPDATE UPDATE_SERVER_NAME  "/stats/query/update"
+#define WEB_MOTD MOTD_SERVER_NAME				"/stats/query/motd"
+#define WEB_AUTH AUTHORIZE_SERVER_NAME			"/stats/query/auth"
+#define WEB_CLIENT_AUTH CLIENT_AUTH_SERVER_NAME "/stats/query/client"
+#define WEB_UPDATE UPDATE_SERVER_NAME			"/stats/query/update"
 
 // So if it's ported it can be set here..
 #define STATS_VERSION Q3_VERSION " auth"
