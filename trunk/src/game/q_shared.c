@@ -1381,7 +1381,15 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	strcat( s, newi );
 }
 
+// L0 (added due IPv6..)
+int Q_CountChar(const char *string, char tocount) {
+	int count;
 
-
+	for (count = 0; *string; string++) {
+		if (*string == tocount)
+			count++;
+	}
+	return count;
+}
 
 //====================================================================

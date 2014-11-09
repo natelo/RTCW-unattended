@@ -739,7 +739,7 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 	if ( f ) {
 		return FS_filelength( f );
 	}
-	return 0;
+	return -1; // L0 - ioquake bug fix
 }
 
 

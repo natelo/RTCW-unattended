@@ -111,7 +111,7 @@ char *HTTP_PostQuery(char *url, char *data) {
 		if (res != CURLE_OK)
 			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
-		out = s.ptr;
+		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
 		curl_easy_cleanup(curl);
 	}
@@ -146,7 +146,7 @@ char *HTTP_Query(char *url) {
 		if (res != CURLE_OK)
 			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
-		out = s.ptr;
+		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
 		curl_easy_cleanup(curl);
 	}

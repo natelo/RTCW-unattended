@@ -261,6 +261,9 @@ void SV_Startup( void ) {
 	svs.initialized = qtrue;
 
 	Cvar_Set( "sv_running", "1" );
+
+	// L0 - IPv6
+	NET_JoinMulticast6();
 }
 
 
@@ -898,6 +901,9 @@ void SV_Init( void ) {
 	// init the botlib here because we need the pre-compiler in the UI
 	SV_BotInitBotLib();
 
+	// L0 - ioquake banning port - Load saved bans
+	Cbuf_AddText("rehashbans\n");
+
 	// DHM - Nerve
 #ifdef UPDATE_SERVER
 	SV_Startup();
@@ -968,6 +974,10 @@ void SV_Shutdown( char *finalmsg ) {
 	}
 
 	Com_Printf( "----- Server Shutdown -----\n" );
+
+	// L0 - IPv6
+	NET_LeaveMulticast6();
+	// End
 
 	if ( svs.clients && !com_errorEntered ) {
 		SV_FinalMessage( finalmsg );

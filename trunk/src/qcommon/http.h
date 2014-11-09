@@ -13,16 +13,10 @@ Hold declarations and structures of all the HTTP related functionality..
 #include "qcommon.h"
 
 // URL Mappings
-#define WEB_MOTD MOTD_SERVER_NAME				"/stats/query/motd"
-#define WEB_AUTH AUTHORIZE_SERVER_NAME			"/stats/query/auth"
-#define WEB_CLIENT_AUTH CLIENT_AUTH_SERVER_NAME "/stats/query/client"
-#define WEB_UPDATE UPDATE_SERVER_NAME			"/stats/query/update"
-
-// So if it's ported it can be set here..
-#define STATS_VERSION Q3_VERSION " auth"
-
-// So it's little easier..
-#define _CMD(x, y) !Q_stricmp(x, y)
+#define WEB_MOTD		"http://" MOTD_SERVER_NAME "/stats/query/motd"
+#define WEB_AUTH		"http://" AUTHORIZE_SERVER_NAME	"/stats/query/auth"
+#define WEB_CLIENT_AUTH "http://" CLIENT_AUTH_SERVER_NAME "/stats/query/client"
+#define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
 
 /*
 ============

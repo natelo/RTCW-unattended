@@ -159,7 +159,7 @@ void SV_GetChallenge( netadr_t from ) {
 		if (!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD) {
 			Com_Printf("Connecting to Authorize server..");
 
-			if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress)) 
+			if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_UNSPEC))
 				Com_Printf("SUCCESS\n");
 			else 
 				Com_Printf("could not resolve address\nWARNING: AUTH server is unreachable!\n");
@@ -223,6 +223,29 @@ void SV_GetChallenge( netadr_t from ) {
 	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d", challenge->challenge);
 }
 
+// L0 - IPv6 Ban check..
+qboolean SV_IsBanned(netadr_t *from, qboolean isexception) {
+	int index;
+	serverBan_t *curban;
+
+	if (!isexception) {
+		// If this is a query for a ban, first check whether the client is excepted
+		if (SV_IsBanned(from, qtrue))
+			return qfalse;
+	}
+
+	for (index = 0; index < serverBansCount; index++) {
+		curban = &serverBans[index];
+
+		if (curban->isexception == isexception) {
+			if (NET_CompareBaseAdrMask(curban->ip, *from, curban->subnet))
+				return qtrue;
+		}
+	}
+	return qfalse;
+}
+// End
+
 /*
 ==================
 SV_DirectConnect
@@ -254,6 +277,15 @@ void SV_DirectConnect( netadr_t from ) {
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
 
+	// L0 - ioquake ipv6 banning support
+	// Check whether this client is banned.
+	if (SV_IsBanned(&from, qfalse))
+	{
+		NET_OutOfBandPrint(NS_SERVER, from, "print\n^7You are ^1Banned ^7from this server^1!\n");
+		return;
+	}
+	// End
+
 	Q_strncpyz( userinfo, Cmd_Argv( 1 ), sizeof( userinfo ) );
 
 	// DHM - Nerve :: Update Server allows any protocol to connect
@@ -266,7 +298,7 @@ void SV_DirectConnect( netadr_t from ) {
 		} else {
 			NET_OutOfBandPrint( NS_SERVER, from, "print\n[err_prot]" PROTOCOL_MISMATCH_ERROR );
 		}
-		Com_DPrintf( "    rejected connect from version %i\n", version );
+		Com_DPrintf( "rejected connect from version %i\n", version );
 		return;
 	}
 #endif

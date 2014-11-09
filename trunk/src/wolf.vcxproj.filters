@@ -170,9 +170,6 @@
     <ClCompile Include="win32\win_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="win32\win_net.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="win32\win_shared.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -195,6 +192,9 @@
       <Filter>http</Filter>
     </ClCompile>
     <ClCompile Include="qcommon\md5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="qcommon\net_ip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

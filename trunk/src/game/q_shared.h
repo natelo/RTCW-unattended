@@ -1652,6 +1652,8 @@ typedef enum {
 
 // L0 - Cpu info
 #define lengthof( a ) (sizeof( (a) ) / sizeof( (a)[0] ))
-// End
+// IPv6
+int Q_CountChar(const char *string, char tocount);
+// ~L0
 
 #endif  // __Q_SHARED_H

@@ -130,7 +130,7 @@ static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
 static char* netnames[] = {
 	"???",
 	"UDP",
-	"IPX",
+	"IPv6", // L0 - IPX just feels wrong..
 	NULL
 };
 
@@ -7794,7 +7794,6 @@ UI_StartServerRefresh
 =================
 */
 static void UI_StartServerRefresh( qboolean full ) {
-	int i;
 	char    *ptr;
 
 	qtime_t q;
@@ -7823,19 +7822,16 @@ static void UI_StartServerRefresh( qboolean full ) {
 	}
 
 	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 5000;
-	if ( ui_netSource.integer == AS_GLOBAL || ui_netSource.integer == AS_MPLAYER ) {
-		if ( ui_netSource.integer == AS_GLOBAL ) {
-			i = 0;
-		} else {
-			i = 1;
-		}
+	if (ui_netSource.integer == AS_GLOBAL) {
 
-		ptr = UI_Cvar_VariableString( "debug_protocol" );
-		if ( strlen( ptr ) ) {
-			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %s full empty\n", i, ptr ) );
-		} else {
-			trap_Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", i, (int)trap_Cvar_VariableValue( "protocol" ) ) );
+		ptr = UI_Cvar_VariableString("debug_protocol");
+		if (strlen(ptr)) {
+			trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers 0 %s full empty\n", ptr));
+		}
+		else {
+			trap_Cmd_ExecuteText(EXEC_NOW, va("globalservers 0 %d full empty\n", (int)trap_Cvar_VariableValue("protocol")));
 		}
 	}
+	// End
 }
 // -NERVE - SMF
