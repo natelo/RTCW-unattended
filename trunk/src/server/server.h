@@ -217,6 +217,26 @@ typedef struct {
 	qboolean authed;				// etp: true if client passed auth
 } challenge_t;
 
+// L0 - OpenWolf's rate fix
+typedef struct {
+	netadr_t  adr;
+	int       time;
+} receipt_t;
+
+typedef struct {
+	netadr_t	adr;
+	int			time;
+	int			count;
+	qboolean	flood;
+} floodBan_t;
+
+// MAX_INFO_RECEIPTS is the maximum number of getstatus+getinfo responses that we send
+// in a two second time period.
+#define MAX_INFO_RECEIPTS  48
+
+#define MAX_INFO_FLOOD_BANS 36
+
+// ~L0
 
 #define MAX_MASTERS 8               // max recipients for heartbeat packets
 
@@ -238,6 +258,11 @@ typedef struct {
 	netadr_t redirectAddress;               // for rcon return messages
 
 	netadr_t authorizeAddress;              // for rcon return messages
+
+	// L0 - OpenWolf rate fix dump
+	receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
+	floodBan_t		infoFloodBans[MAX_INFO_FLOOD_BANS];
+	// -L0
 } serverStatic_t;
 
 //================
