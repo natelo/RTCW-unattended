@@ -932,8 +932,6 @@ L0 - Patched for HTTP
 void CL_RequestMotd( void ) {
 	char *result;
 
-	test();
-
 	if ( !cl_motd->integer ) {
 		return;
 	}
@@ -954,7 +952,7 @@ void CL_RequestMotd( void ) {
 			BigShort(cls.motdServer.port));
 
 	// Query it now
-	result = HTTP_QueryAddres(WEB_MOTD, "");
+	result = HTTP_Query(WEB_MOTD);
 
 	// Set MOTD for newsflash..
 	if (result) {
@@ -2574,7 +2572,7 @@ void CL_CheckAutoUpdate( void ) {
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
 				 BigShort( cls.autoupdateServer.port ) );
 
-	HTTP_QueryAddres(WEB_UPDATE, va("\"%s\" \"%s\" \"%s\"", CODENAME, Q3_VERSION, CPUSTRING));
+	HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
 
 	// Fetch MOTD..
 	CL_RequestMotd();
@@ -3989,7 +3987,7 @@ int CL_HTTPKeyValidate( const char *key ) {
 
 
 	// Query it now
-	result = HTTP_QueryAddres(WEB_CLIENT_AUTH, va("%s", key));
+	result = HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
 
 	if (!Q_stricmp(result, "ok"))
 		return 2;
