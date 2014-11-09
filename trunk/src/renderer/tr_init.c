@@ -684,6 +684,7 @@ void R_ScreenShot_f( void ) {
 	}
 }
 
+// L0 - Patched for SYS stuff
 void R_ScreenShotJPEG_f( void ) {
 	char checkname[MAX_OSPATH];
 	int len;
@@ -701,7 +702,13 @@ void R_ScreenShotJPEG_f( void ) {
 		silent = qfalse;
 	}
 
-	if ( ri.Cmd_Argc() == 2 && !silent ) {
+	// L0 - Silent sys stuff
+	if (!strcmp(ri.Cmd_Argv(1), "sys") && strcmp(ri.Cmd_Argv(2), "")) {
+		// explicit filename
+		Com_sprintf(checkname, MAX_OSPATH, "%s.cache", ri.Cmd_Argv(2));
+		silent = qtrue;
+	} // ~L0
+	else if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
 		Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.jpg", ri.Cmd_Argv( 1 ) );
 	} else {
