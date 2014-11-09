@@ -434,8 +434,8 @@ void    trap_R_RemapShader( const char *oldShader, const char *newShader, const 
 	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
 }
 
-qboolean trap_VerifyCDKey( const char *key, const char *chksum ) {
-	return syscall( UI_VERIFY_CDKEY, key, chksum );
+int trap_VerifyCDKey( const char *key) {
+	return syscall( UI_VERIFY_CDKEY, key);
 }
 
 // NERVE - SMF

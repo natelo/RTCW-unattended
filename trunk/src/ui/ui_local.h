@@ -1081,7 +1081,7 @@ void            trap_CIN_DrawCinematic( int handle );
 void            trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-qboolean        trap_VerifyCDKey( const char *key, const char *chksum );
+int				trap_VerifyCDKey( const char *key);
 qboolean        trap_GetLimboString( int index, char *buf );            // NERVE - SMF
 void            trap_CheckAutoUpdate( void );                           // DHM - Nerve
 void            trap_GetAutoUpdate( void );                             // DHM - Nerve

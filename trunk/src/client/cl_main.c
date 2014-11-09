@@ -3964,13 +3964,47 @@ void CL_ShowIP_f( void ) {
 
 /*
 =================
+CL_HTTPKeyValidate
+
+L0 - UI now uses this..
+=================
+*/
+int CL_HTTPKeyValidate( const char *key ) {
+	char *result;
+
+	if (!key || strlen(key) != CDKEY_LEN) {
+		return 0;
+	}
+
+	Com_DPrintf("Contacting Auth Server..");
+	if (!NET_StringToAdr(CLIENT_AUTH_SERVER_NAME, &cls.clientAuthServer)) {
+		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
+		return 1;
+	}
+	else {
+		Com_DPrintf("connection established\n");		
+	}
+
+
+	// Query it now
+	result = HTTP_QueryAddres(WEB_CLIENT_AUTH, va("%s", key));
+
+	if (!Q_stricmp(result, "ok"))
+		return 2;
+	else if (!Q_stricmp(result, "no"))
+		return 3;
+	else
+		return 4;
+}
+
+/*
+=================
 bool CL_CDKeyValidate
 
-L0 - Modified to do an actual lookup..
+L0 - Just pings it..
 =================
 */
 qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {	
-	char *result;
 
 	if (!key || strlen(key) != CDKEY_LEN) {		
 		return qfalse;
@@ -3983,6 +4017,7 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 	}
 	else {
 		Com_DPrintf("connection established\n");
+		return qtrue;
 	}
 		
 	cls.clientAuthServer.port = BigShort(PORT_CLIENT_AUTH);
@@ -3991,13 +4026,7 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 		cls.clientAuthServer.ip[2], cls.clientAuthServer.ip[3],
 		BigShort(cls.clientAuthServer.port));
 
-	// Query it now
-	result = HTTP_QueryAddres(WEB_CLIENT_AUTH, va("%s", key));
-	
-	if (!Q_stricmp(result, "ok"))
-		return qtrue;
-	else
-		return qfalse;
+	return qtrue;
 }
 
 // NERVE - SMF

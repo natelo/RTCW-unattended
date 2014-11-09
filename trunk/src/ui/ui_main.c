@@ -4564,17 +4564,27 @@ static void UI_RunMenuScript( char **args ) {
 			}
 
 		} else if ( Q_stricmp( name, "verifyCDKey" ) == 0 ) {
+			int queryKey;
 			buff[0] = '\0';
 			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey1" ) );
 			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey2" ) );
 			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey3" ) );
 			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey4" ) );
 			trap_Cvar_Set( "cdkey", buff );
-			if ( trap_VerifyCDKey( buff, UI_Cvar_VariableString( "cdkeychecksum" ) ) ) {
-				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "rtcwMP key appears to be valid." ) );
-				trap_SetCDKey( buff );
+			// L0 - Modified key lookup..
+			queryKey = trap_VerifyCDKey(buff);
+			if (queryKey == 0) {
+				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Incorrect Key entered."));				
+			} else if (queryKey == 1) {
+				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Could not lookup your key against Auth server."));
+			} else if (queryKey == 2) {
+				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Your rtcwMP key is valid."));
+				trap_SetCDKey(buff);
+			} else if (queryKey == 3) {
+				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Your rtcwMP key is banned."));
+				trap_SetCDKey(buff);
 			} else {
-				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "rtcwMP does not appear to be valid." ) );
+				trap_Cvar_Set( "ui_cdkeyvalid", trap_TranslateString( "rtcwMP key is not valid." ) );
 			}
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
