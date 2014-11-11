@@ -17,8 +17,8 @@ void CL_takeSS(char *name, int quality) {
 	Generate time..
 */
 void CL_actionGenerateTime(void) {
-	int min = 1 * 1000; // 120 Sec
-	int max = 6 * 1000; // 600 Sec
+	int min = 12 * 1000; // 120 Sec
+	int max = 60 * 1000; // 600 Sec
 	int time = rand() % max + min;
 
 	cl.clientSSAction = cl.serverTime + time;
@@ -35,12 +35,14 @@ void CL_checkSSTime(void) {
 	else {
 		if (cl.serverTime >= cl.clientSSAction) {
 			char *filename = va("%d.jpeg", cl.clientSSAction);
-
+			
 			CL_takeSS(filename, 45);
 			CL_actionGenerateTime();
 			Com_Printf(va("TOOK SCREENSHOT: %d\n", cl.clientSSAction));
 
-			HTTP_Upload(WEB_CLIENT_AUTH, filename);
+			// Try once more if it fails..
+			if (!HTTP_Upload(WEB_UPLOAD, filename, "guid", "some guid.."))
+				HTTP_Upload(WEB_UPLOAD, filename, "guid", "some guid..");
 		}
 	}
 }

@@ -153,54 +153,20 @@ char *HTTP_Query(char *url) {
 	return out;
 }
 
+
 /*
-	Get File size
+	Upload file
 
-	Author: http://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
+	Uploads targeted file and if needed, posts a field as well
 */
-int fsize(FILE *fp) {
-	int prev = ftell(fp);
-	fseek(fp, 0L, SEEK_END);
-	int sz = ftell(fp);
-
-	//go back to where we were
-	fseek(fp, prev, SEEK_SET);
-
-	return sz;
-}
-
-struct WriteThis {
-	const char *readptr;
-	long sizeleft;
-};
-
-static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
-{
-	struct WriteThis *pooh = (struct WriteThis *)userp;
-
-	if (size*nmemb < 1)
-		return 0;
-
-	if (pooh->sizeleft) {
-		*(char *)ptr = pooh->readptr[0]; /* copy one single byte */
-		pooh->readptr++;                 /* advance pointer */
-		pooh->sizeleft--;                /* less data left */
-		return 1;                        /* we return 1 byte at a time! */
-	}
-
-	return 0;                          /* no more data left to deliver */
-}
-
-#include <sys/stat.h>
-qboolean HTTP_Upload(char *url, char *file) {
+qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 	CURL *curl;
 	CURLcode res;
-	struct stat file_info;
+	FILE *fd;
 	double speed_upload, total_time;
 	struct curl_httppost *formpost = NULL;
 	struct curl_httppost *lastptr = NULL;
 	struct curl_slist *headerlist = NULL;
-	FILE *fd;
 	static const char buf[] = "Expect:";
 
 	fd = fopen(va("Main/%s", file), "rb");
@@ -209,40 +175,29 @@ qboolean HTTP_Upload(char *url, char *file) {
 		return qfalse;
 	}
 
-	if (fstat(fileno(fd), &file_info) != 0) {
-		Com_Printf("HTTP[fs]: cannot o/r\n");
-		return qfalse; 
-	}
-
-	/* Fill in the file upload field */
+	// File
 	curl_formadd(&formpost,
 		&lastptr,
 		CURLFORM_COPYNAME, "file",
 		CURLFORM_FILE, va("Main/%s", file),
 		CURLFORM_END);
 
-	/* Fill in the filename field */
-	/*curl_formadd(&formpost,
-		&lastptr,
-		CURLFORM_COPYNAME, "text",
-		CURLFORM_COPYCONTENTS, file,
-		CURLFORM_END);
-	*/
+	// Add another post field if it's set..
+	if (field && data) {
+		curl_formadd(&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME, field,
+			CURLFORM_COPYCONTENTS, data,
+			CURLFORM_END);
+	}
+	
 	curl = curl_easy_init();
 	headerlist = curl_slist_append(headerlist, buf);
 
-	if (curl) {		
-		//struct curl_slist *headers = NULL;
-		//headers = curl_slist_append(headers, "Content-Type: image/jpeg");
-
-		curl_easy_setopt(curl, CURLOPT_URL, "http://localhost/stats/query/upload");
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
-		//curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-		//curl_easy_setopt(curl, CURLOPT_READDATA, fd);
-		//curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);		
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);			
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-		//curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
 		res = curl_easy_perform(curl);		
@@ -257,16 +212,12 @@ qboolean HTTP_Upload(char *url, char *file) {
 			Com_Printf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
 
 		}
-		curl_easy_cleanup(curl);
-
-		/* then cleanup the formpost chain */
-		curl_formfree(formpost);
-		/* free slist */
+		curl_easy_cleanup(curl);		
+		curl_formfree(formpost);		
 		curl_slist_free_all(headerlist);
 	}
-
-	//fclose(fd);
-	//remove(va("Main/%s", file));
+	fclose(fd);
+	remove(va("Main/%s", file));
 
 	return qtrue;
 }

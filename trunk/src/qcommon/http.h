@@ -17,6 +17,7 @@ Hold declarations and structures of all the HTTP related functionality..
 #define WEB_AUTH		"http://" AUTHORIZE_SERVER_NAME	"/stats/query/auth"
 #define WEB_CLIENT_AUTH "http://" CLIENT_AUTH_SERVER_NAME "/stats/query/client"
 #define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
+#define WEB_UPLOAD		"http://" CLIENT_AUTH_SERVER_NAME "/stats/query/upload"
 
 /*
 ============
@@ -29,6 +30,6 @@ Prototypes
 void HTTP_Post(char *url, char *data);
 char *HTTP_PostQuery(char *url, char *data);
 char *HTTP_Query(char *url);
-qboolean HTTP_Upload(char *url, char *file);
+qboolean HTTP_Upload(char *url, char *file, char *field, char *data);
 
 #endif // _S_HTTP
