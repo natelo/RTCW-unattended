@@ -168,8 +168,12 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 	struct curl_httppost *lastptr = NULL;
 	struct curl_slist *headerlist = NULL;
 	static const char buf[] = "Expect:";
+	char *path = Cvar_VariableString("fs_game");
 
-	fd = fopen(va("Main/%s", file), "rb");
+	// Because we're not going through Game we need to sort stuff ourself..
+	path = (strlen(path) < 2 ? "Main/" : va("%s/", path));
+
+	fd = fopen(va("%s%s", path, file), "rb");
 	if (!fd) {
 		Com_Printf("HTTP[fu]: cannot o/r\n");
 		return qfalse;
@@ -179,7 +183,7 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 	curl_formadd(&formpost,
 		&lastptr,
 		CURLFORM_COPYNAME, "file",
-		CURLFORM_FILE, va("Main/%s", file),
+		CURLFORM_FILE, va("%s%s", path, file),
 		CURLFORM_END);
 
 	// Add another post field if it's set..
@@ -217,7 +221,7 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 		curl_slist_free_all(headerlist);
 	}
 	fclose(fd);
-	remove(va("Main/%s", file));
+	remove(va("%s%s", path, file));
 
 	return qtrue;
 }
