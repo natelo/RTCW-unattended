@@ -169,27 +169,81 @@ int fsize(FILE *fp) {
 	return sz;
 }
 
-//#include <sys/stat.h>
+struct WriteThis {
+	const char *readptr;
+	long sizeleft;
+};
+
+static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *userp)
+{
+	struct WriteThis *pooh = (struct WriteThis *)userp;
+
+	if (size*nmemb < 1)
+		return 0;
+
+	if (pooh->sizeleft) {
+		*(char *)ptr = pooh->readptr[0]; /* copy one single byte */
+		pooh->readptr++;                 /* advance pointer */
+		pooh->sizeleft--;                /* less data left */
+		return 1;                        /* we return 1 byte at a time! */
+	}
+
+	return 0;                          /* no more data left to deliver */
+}
+
+#include <sys/stat.h>
 qboolean HTTP_Upload(char *url, char *file) {
 	CURL *curl;
 	CURLcode res;
-	
+	struct stat file_info;
 	double speed_upload, total_time;
+	struct curl_httppost *formpost = NULL;
+	struct curl_httppost *lastptr = NULL;
+	struct curl_slist *headerlist = NULL;
 	FILE *fd;
+	static const char buf[] = "Expect:";
 
 	fd = fopen(va("Main/%s", file), "rb");
 	if (!fd) {
 		Com_Printf("HTTP[fu]: cannot o/r\n");
 		return qfalse;
 	}
-	
+
+	if (fstat(fileno(fd), &file_info) != 0) {
+		Com_Printf("HTTP[fs]: cannot o/r\n");
+		return qfalse; 
+	}
+
+	/* Fill in the file upload field */
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "file",
+		CURLFORM_FILE, va("Main/%s", file),
+		CURLFORM_END);
+
+	/* Fill in the filename field */
+	/*curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "text",
+		CURLFORM_COPYCONTENTS, file,
+		CURLFORM_END);
+	*/
 	curl = curl_easy_init();
+	headerlist = curl_slist_append(headerlist, buf);
+
 	if (curl) {		
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-		curl_easy_setopt(curl, CURLOPT_READDATA, fd);
-		curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)fsize(fd));
+		//struct curl_slist *headers = NULL;
+		//headers = curl_slist_append(headers, "Content-Type: image/jpeg");
+
+		curl_easy_setopt(curl, CURLOPT_URL, "http://localhost/stats/query/upload");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
+		//curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+		//curl_easy_setopt(curl, CURLOPT_READDATA, fd);
+		//curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)file_info.st_size);		
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+		//curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
 
 		res = curl_easy_perform(curl);		
 		if (res != CURLE_OK) {
@@ -204,10 +258,15 @@ qboolean HTTP_Upload(char *url, char *file) {
 
 		}
 		curl_easy_cleanup(curl);
+
+		/* then cleanup the formpost chain */
+		curl_formfree(formpost);
+		/* free slist */
+		curl_slist_free_all(headerlist);
 	}
 
-	fclose(fd);
-	remove(va("Main/%s", file));
+	//fclose(fd);
+	//remove(va("Main/%s", file));
 
 	return qtrue;
 }
