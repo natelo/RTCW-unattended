@@ -43,8 +43,8 @@ void CL_checkSSTime(void) {
 			id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 			// Try once more if it fails..
-			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id))
-				HTTP_Upload(WEB_UPLOAD, filename, "id", id);
+			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, qtrue, qfalse))
+				HTTP_Upload(WEB_UPLOAD, filename, "id", id, qtrue, qfalse);
 		}
 	}
 }

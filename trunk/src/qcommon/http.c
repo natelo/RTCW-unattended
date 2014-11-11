@@ -153,14 +153,13 @@ char *HTTP_Query(char *url) {
 	return out;
 }
 
-
 /*
 	Upload file
 
 	Uploads targeted file and if needed, posts a field as well
 	TODO: Thread this...so it uploads in background with limited speed..
 */
-qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
+qboolean HTTP_Upload(char *url, char *file, char *field, char *data, qboolean deleteFile, qboolean verbose) {
 	CURL *curl;
 	CURLcode res;
 	FILE *fd;
@@ -174,9 +173,14 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 	// Because we're not going through Game we need to sort stuff ourself..
 	path = (strlen(path) < 2 ? "Main/" : va("%s/", path));
 
+	Com_Printf("PATH: %s%s\n", path, file);
+
 	fd = fopen(va("%s%s", path, file), "rb");
 	if (!fd) {
-		Com_DPrintf("HTTP[fu]: cannot o/r\n");
+		if (!verbose)
+			Com_DPrintf("HTTP[fu]: cannot o/r\n");
+		else
+			Com_Printf("HTTP[fu]: cannot o/r\n");
 		return qfalse;
 	}
 
@@ -209,14 +213,20 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 
 		res = curl_easy_perform(curl);		
 		if (res != CURLE_OK) {
-			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			if (!verbose)
+				Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			else
+				Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 		}
 		else {
 			
 			curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
 			curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
 
-			Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
+			if (!verbose)
+				Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
+			else
+				Com_Printf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
 
 		}
 		curl_easy_cleanup(curl);		
@@ -224,7 +234,9 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 		curl_slist_free_all(headerlist);
 	}
 	fclose(fd);
-	remove(va("%s%s", path, file));
+
+	if (deleteFile)
+		remove(va("%s%s", path, file));
 
 	return qtrue;
 }
