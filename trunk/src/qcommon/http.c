@@ -25,7 +25,7 @@ void init_string(struct HTTPreply *s) {
 	s->ptr = malloc(s->len + 1);
 
 	if (s->ptr == NULL) {		
-		Com_Printf("HTTP[i_s]: malloc() failed\n");
+		Com_DPrintf("HTTP[i_s]: malloc() failed\n");
 		return;
 	}
 	s->ptr[0] = '\0';
@@ -39,7 +39,7 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 	s->ptr = realloc(s->ptr, new_len + 1);
 
 	if (s->ptr == NULL) {
-		Com_Printf("HTTP[write]: realloc() failed\n");
+		Com_DPrintf("HTTP[write]: realloc() failed\n");
 		return 0;
 	}
 
@@ -66,7 +66,7 @@ void HTTP_Post(char *url, char *data) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: one way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);	
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -74,7 +74,7 @@ void HTTP_Post(char *url, char *data) {
 
 		res = curl_easy_perform(curl);
 		if (res != CURLE_OK)
-			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
 		curl_easy_cleanup(curl);
 	}
@@ -99,7 +99,7 @@ char *HTTP_PostQuery(char *url, char *data) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: two way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);		
@@ -109,7 +109,7 @@ char *HTTP_PostQuery(char *url, char *data) {
 		res = curl_easy_perform(curl);
 
 		if (res != CURLE_OK)
-			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
 		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
@@ -135,7 +135,7 @@ char *HTTP_Query(char *url) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: friends with benefits");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -144,7 +144,7 @@ char *HTTP_Query(char *url) {
 		res = curl_easy_perform(curl);
 
 		if (res != CURLE_OK)
-			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
 		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
@@ -158,6 +158,7 @@ char *HTTP_Query(char *url) {
 	Upload file
 
 	Uploads targeted file and if needed, posts a field as well
+	TODO: Thread this...so it uploads in background with limited speed..
 */
 qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 	CURL *curl;
@@ -175,7 +176,7 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 
 	fd = fopen(va("%s%s", path, file), "rb");
 	if (!fd) {
-		Com_Printf("HTTP[fu]: cannot o/r\n");
+		Com_DPrintf("HTTP[fu]: cannot o/r\n");
 		return qfalse;
 	}
 
@@ -208,14 +209,14 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 
 		res = curl_easy_perform(curl);		
 		if (res != CURLE_OK) {
-			Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 		}
 		else {
 			
 			curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
 			curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
 
-			Com_Printf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
+			Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
 
 		}
 		curl_easy_cleanup(curl);		
@@ -227,3 +228,4 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 
 	return qtrue;
 }
+
