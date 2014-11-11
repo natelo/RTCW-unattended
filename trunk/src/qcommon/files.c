@@ -1085,6 +1085,9 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 	// The searchpaths do guarantee that something will always
 	// be prepended, so we don't need to worry about "c:" or "//limbo"
 	if ( strstr( filename, ".." ) || strstr( filename, "::" ) ) {
+		if (file == NULL)
+			return qfalse;
+
 		*file = 0;
 		return -1;
 	}
@@ -1092,6 +1095,9 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 	// make sure the q3key file is only readable by the quake3.exe at initialization
 	// any other time the key should only be accessed in memory using the provided functions
 	if ( com_fullyInitialized && strstr( filename, "rtcwmpkey" ) ) {
+		if (file == NULL)
+			return qfalse;
+
 		*file = 0;
 		return -1;
 	}
@@ -2817,7 +2823,7 @@ qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
 		havepak = qfalse;
 
 		// never autodownload any of the id paks
-		if ( FS_idPak( fs_serverReferencedPakNames[i], "main" ) ) {
+		if (FS_idPak(fs_serverReferencedPakNames[i], BASEGAME)) {
 			continue;
 		}
 
