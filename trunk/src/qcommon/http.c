@@ -203,6 +203,8 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data) {
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);			
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+		// Cap upload
+		//curl_easy_setopt(curl, CURLOPT_MAX_SEND_SPEED_LARGE, 40000);
 
 		res = curl_easy_perform(curl);		
 		if (res != CURLE_OK) {
