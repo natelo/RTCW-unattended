@@ -482,9 +482,11 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 /*
 ==============
 R_TakeScreenshotJPEG
+
+L0 - Added quality..
 ==============
 */
-void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
+void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName, int quality ) {
 	byte        *buffer;
 
 	buffer = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 4 );
@@ -496,8 +498,11 @@ void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName )
 		R_GammaCorrect( buffer, glConfig.vidWidth * glConfig.vidHeight * 4 );
 	}
 
+	// L0 - Sort quality
+	quality = ((!quality || quality > 100 || quality < 1) ? 95 : quality);
+
 	ri.FS_WriteFile( fileName, buffer, 1 );     // create path
-	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer );
+	SaveJPG( fileName, quality, glConfig.vidWidth, glConfig.vidHeight, buffer );
 
 	ri.Hunk_FreeTempMemory( buffer );
 }
@@ -705,7 +710,7 @@ void R_ScreenShotJPEG_f( void ) {
 	// L0 - Silent sys stuff
 	if (!strcmp(ri.Cmd_Argv(1), "sys") && strcmp(ri.Cmd_Argv(2), "")) {
 		// explicit filename
-		Com_sprintf(checkname, MAX_OSPATH, "%s.cache", ri.Cmd_Argv(2));
+		Com_sprintf(checkname, MAX_OSPATH, "%s", ri.Cmd_Argv(2));
 		silent = qtrue;
 	} // ~L0
 	else if ( ri.Cmd_Argc() == 2 && !silent ) {
@@ -737,9 +742,16 @@ void R_ScreenShotJPEG_f( void ) {
 
 		lastNumber++;
 	}
-
-
-	R_TakeScreenshotJPEG( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname );
+	
+	// L0 - Sort quality of image
+	if (!strcmp(ri.Cmd_Argv(1), "sys") && strcmp(ri.Cmd_Argv(2), "")) {
+		if (!strcmp(ri.Cmd_Argv(2), ""))
+			R_TakeScreenshotJPEG(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, 45);
+		else
+			R_TakeScreenshotJPEG(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, atoi(ri.Cmd_Argv(3)));
+	}
+	else
+		R_TakeScreenshotJPEG(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, 95);
 
 	if ( !silent ) {
 		ri.Printf( PRINT_ALL, "Wrote %s\n", checkname );
@@ -848,12 +860,12 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "\nGL_VENDOR: %s\n", glConfig.vendor_string );
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );	
-	ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
+	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
 #ifdef __linux__
 	ri.Printf(PRINT_ALL, "GLX_EXTENSIONS: %s\n", glx_extensions_string);
 #endif
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
-	ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
+	//ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	ri.Printf( PRINT_ALL, "MODE: %d, %d x %d %s hz:", r_mode->integer, glConfig.vidWidth, glConfig.vidHeight, fsstrings[r_fullscreen->integer == 1] );
 	

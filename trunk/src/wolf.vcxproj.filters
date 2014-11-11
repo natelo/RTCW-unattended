@@ -24,6 +24,9 @@
     <Filter Include="http">
       <UniqueIdentifier>{1ee2bcb5-28b0-424a-99da-eeec4ffec548}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Control">
+      <UniqueIdentifier>{a8932b15-1dd3-4bcc-bbf0-441e6d7eff96}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\cl_cgame.c">
@@ -196,6 +199,12 @@
     </ClCompile>
     <ClCompile Include="qcommon\net_ip.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="server\sv_control.c">
+      <Filter>Control</Filter>
+    </ClCompile>
+    <ClCompile Include="client\cl_control.c">
+      <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

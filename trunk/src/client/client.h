@@ -153,6 +153,8 @@ typedef struct {
 	qboolean corruptedTranslationFile;
 	char translationVersion[MAX_STRING_TOKENS];
 	// -NERVE - SMF
+
+	int clientSSAction;				// L0 - Client actions..
 } clientActive_t;
 
 extern clientActive_t cl;
@@ -653,3 +655,9 @@ void LAN_SaveServersToCache();
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ); //int length, const byte *data );
 void CL_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
+
+// 
+// L0: cl_control.c
+//
+void CL_checkSSTime(void);
+

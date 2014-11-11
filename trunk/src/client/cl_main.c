@@ -2269,6 +2269,11 @@ void CL_Frame( int msec ) {
 		com_timescale->value = 1;
 	// end
 
+	// L0 - Custom Client Actions
+	if (cls.state == CA_ACTIVE && !clc.demoplaying) {
+		CL_checkSSTime();
+	}
+
 	// save the msec before checking pause
 	cls.realFrametime = msec;
 

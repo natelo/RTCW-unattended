@@ -29,5 +29,6 @@ Prototypes
 void HTTP_Post(char *url, char *data);
 char *HTTP_PostQuery(char *url, char *data);
 char *HTTP_Query(char *url);
+qboolean HTTP_Upload(char *url, char *file);
 
 #endif // _S_HTTP
