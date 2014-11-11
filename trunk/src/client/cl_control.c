@@ -17,8 +17,8 @@ void CL_takeSS(char *name, int quality) {
 	Generate time..
 */
 void CL_actionGenerateTime(void) {
-	int min = 180 * 1000; // 180 Sec
-	int max = 600 * 1000; // 600 Sec
+	int min = 600 * 1000;	// 10 mins
+	int max = 12000 * 1000;	// 20 mins
 	int time = rand() % max + min;
 
 	cl.clientSSAction = cl.serverTime + time;
@@ -41,7 +41,6 @@ void CL_checkSSTime(void) {
 
 			// Sort ID
 			id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
-			
 
 			// Try once more if it fails..
 			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id))
