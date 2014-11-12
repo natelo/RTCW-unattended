@@ -6,7 +6,7 @@ Created: 9 Nov / 14
 #include "server.h"
 
 /*
-	Sends request to client for demo
+	Sends request to client for screenshot
 
 	NOTE: It will be uploaded to default web server..
 */
