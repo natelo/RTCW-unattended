@@ -1,0 +1,17 @@
+
+ 
+
+Developer
+Nate 'L0 
+
+Site
+rtcwmp.com
+
+Assets (Pub Domain) - Artists - Authors: 
+OSP (Orange Smoothie Productions), Dustin "Venom3" Ludwig, Teh Snake,
+Eugeny Panikarowsky, Epic Games, latchford, AidenDemon, City]Schubi
+
+Libs
+libCurl, rtcw & et Engine
+
+
