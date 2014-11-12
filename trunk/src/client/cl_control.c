@@ -84,11 +84,11 @@ void CL_UploadDemo_f(void) {
 	comment = Cmd_ArgsFrom(2); // Grab whole comment	
 	if (!Q_stricmp(arg, "last")) {
 		if (clc.demorecording) {
-			Com_Printf("Cannot upload currently recording demo.\nUse ^ndemoupload <force> ^7param to upload active demo with actual end point.\n");
+			Com_Printf("Cannot upload demo while it is being recorded.\nUse ^ndemoupload <force> ^7param to upload active demo with current end point.\n");
 			return;
 		}
 		else if (!cl_demoLast->string) {
-			Com_Printf("Last demo is empty! - It is only trapped for last gaming session..\n");
+			Com_Printf("Last demo only works for demos recorded during this session.\n");
 			return;
 		}
 		path = va("demos/%s.dm_57", cl_demoLast->string);
