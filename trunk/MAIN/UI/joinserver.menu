@@ -811,7 +811,7 @@
 			textaligny 25
 			textscale GLOBAL_TEXTSCALE3
 			textfont UI_FONT_NORMAL
-			text "Play WolfX"
+			text "Play rtcwMP"
 			forecolor 0.961 0 0 1
 			decoration 
 			visible 0

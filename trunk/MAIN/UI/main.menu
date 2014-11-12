@@ -275,7 +275,7 @@
 
 		itemDef {
 			name window
-			text "Project @ www.rtcwx.com"
+			text "Project @ www.rtcmp.com"
 			type 0
 			style 0	
 			textstyle 6

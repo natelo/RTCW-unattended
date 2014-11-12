@@ -38,7 +38,7 @@
 
 		itemDef {
 			name default
-			text "wolfX key"
+			text "rtcwMP key"
 			type 1
 			style 0	
 			textstyle 6
@@ -57,7 +57,7 @@
 			name data
 			group grpcdkey
 			rect 0 50 454 12
-			text"Enter your wolfX key"
+			text"Enter your rtcwMP key"
 			textalign 1
 			textfont UI_FONT_NORMAL
 			textscale .25
@@ -203,7 +203,7 @@
 			name data
 			group grpcdkey
 			rect 0 120 443 12
-			text"Obtain your wolfX key on ^1rtcwx.com"
+			text"Obtain your rtcwMP key on ^1rtcwmp.com"
 			textalign ITEM_ALIGN_CENTER
 			textfont UI_FONT_NORMAL
 			textscale .25
