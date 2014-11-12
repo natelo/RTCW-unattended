@@ -2069,12 +2069,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	// cd check
-	if ( !Q_stricmp( c, "keyAuthorize" ) ) {
-		// we don't use these now, so dump them on the floor
-		return;
-	}
-
 	// global MOTD from id
 	if ( !Q_stricmp( c, "motd" ) ) {
 		CL_MotdPacket( from );

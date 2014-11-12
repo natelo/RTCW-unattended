@@ -906,6 +906,10 @@ int CL_CgameSystemCalls( int *args ) {
 		CL_TranslateString( VMA( 1 ), VMA( 2 ) );
 		return 0;
 		// - NERVE - SMF
+	// L0 - New stuff
+	case CG_REQ_SS:
+		CL_RequestedSS(args[1]);
+		return 0;
 	default:
 		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
 	}

@@ -2553,3 +2553,6 @@ void        CG_StartCamera( const char *name, qboolean startBlack );
 int         CG_LoadCamera( const char *name );
 void        CG_FreeCamera( int camNum );
 //----(SA)	end
+
+// L0 - New stuff
+void trap_ReqSS( int quality );

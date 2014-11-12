@@ -1243,6 +1243,50 @@ static void SV_DumpUser_f( void ) {
 
 
 /*
+===========
+L0 - SV_RequestSS
+
+Requests ScreenShot from client
+===========
+*/
+static void SV_RequestSS_f(void) {
+	client_t    *cl;
+	int quality = 45;
+
+	if (!com_sv_running->integer) {
+		Com_Printf("Server is not running.\n");
+		return;
+	}
+
+	if (!sv_pure->integer) {
+		Com_Printf("SS can only be requested when server is running as pure.\n");
+		return;
+	}
+
+	if (Cmd_Argc() < 2) {
+		Com_Printf("Usage: getss <slot> <optional: quality[45-100]>\n");
+		return;
+	}
+
+	if (Cmd_Argv(3)) {
+		quality = atoi(Cmd_Argv(3));
+
+		if (quality > 100)
+			quality = 100;
+		else if (quality < 45)
+			quality = 45;
+	}	
+
+	cl = SV_GetPlayerByNum();
+	if (!cl) {
+		return;
+	}
+
+	SV_SendSSRequest(cl->gentity->s.clientNum, quality);
+}
+
+
+/*
 =================
 SV_KillServer
 =================
@@ -1301,7 +1345,8 @@ void SV_AddOperatorCommands( void ) {
 		Cmd_AddCommand( "say", SV_ConSay_f );
 	}
 
-	// L0 - IPv6 - rehashbans
+// L0
+	// IPv6 - rehashbans
 	Cmd_AddCommand("rehashbans", SV_RehashBans_f);
 	Cmd_AddCommand("listbans", SV_ListBans_f);
 	Cmd_AddCommand("banaddr", SV_BanAddr_f);
@@ -1309,6 +1354,11 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand("bandel", SV_BanDel_f);
 	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
 	Cmd_AddCommand("flushbans", SV_FlushBans_f);
+
+	// Server actions
+	Cmd_AddCommand("reqss", SV_RequestSS_f);
+
+// ~L0
 }
 
 /*

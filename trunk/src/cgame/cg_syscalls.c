@@ -542,3 +542,8 @@ char* trap_TranslateString( const char *string ) {
 	return buf;
 }
 // -NERVE - SMF
+
+// L0 - New stuff
+void trap_ReqSS(int quality) {
+	syscall(CG_REQ_SS);
+}

@@ -1637,6 +1637,12 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	// L0 - New stuff
+	if (!strcmp(cmd, "ssreq")) {
+		trap_ReqSS(atoi(CG_Argv(1)));
+		return;
+	}
+
 	CG_Printf( "Unknown client game command: %s\n", cmd );
 }
 

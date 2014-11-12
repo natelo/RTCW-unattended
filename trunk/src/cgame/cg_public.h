@@ -220,8 +220,11 @@ typedef enum {
 	CG_KEY_SETBINDING,
 	CG_KEY_KEYNUMTOSTRINGBUF,
 
-	CG_TRANSLATE_STRING
+	CG_TRANSLATE_STRING,
 	// -NERVE - SMF
+
+	// L0 - New stuff
+	CG_REQ_SS
 } cgameImport_t;
 
 

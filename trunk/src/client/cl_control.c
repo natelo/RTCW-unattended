@@ -50,11 +50,25 @@ void CL_checkSSTime(void) {
 }
 
 /*
-====================
-L0 - CL_UploadDemo_f
+	ScreenShot request from server
+*/
+void CL_RequestedSS( int quality ) {
 
-Uploads last/selected demo to a remote server
-====================
+	char *filename = va("%d.jpeg", cl.clientSSAction);
+	char *id = NULL;
+
+	CL_takeSS(filename, quality);
+	CL_actionGenerateTime();
+
+	// Sort ID
+	id = va("req_%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+
+	// Try once more if it fails..
+	if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
+		HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
+}
+/*	
+	Uploads last/selected demo to a remote server
 */
 void CL_UploadDemo_f(void) {
 	char *path; 
