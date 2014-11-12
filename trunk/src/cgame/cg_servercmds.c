@@ -1316,15 +1316,7 @@ void CG_VoiceChat( int mode ) {
 	origin[2] = atoi( CG_Argv( 7 ) );
 
 	cmd = CG_Argv( 4 );
-
-	if ( cg_noTaunt.integer != 0 ) {
-		if ( !strcmp( cmd, VOICECHAT_KILLINSULT )  || !strcmp( cmd, VOICECHAT_TAUNT ) || \
-			 !strcmp( cmd, VOICECHAT_DEATHINSULT ) || !strcmp( cmd, VOICECHAT_KILLGAUNTLET ) ||	\
-			 !strcmp( cmd, VOICECHAT_PRAISE ) ) {
-			return;
-		}
-	}
-
+	
 	CG_VoiceChatLocal( mode, voiceOnly, clientNum, color, cmd, origin );
 }
 // -NERVE - SMF
