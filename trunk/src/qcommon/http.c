@@ -157,9 +157,11 @@ char *HTTP_Query(char *url) {
 	Upload file
 
 	Uploads targeted file and if needed, posts a field as well
-	TODO: Thread this...so it uploads in background with limited speed..
+	TODO: 
+		- Thread this...so it uploads in background with limited speed..
+		- Remove static bindings and parse structure for post fields..
 */
-qboolean HTTP_Upload(char *url, char *file, char *field, char *data, qboolean deleteFile, qboolean verbose) {
+qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose) {
 	CURL *curl;
 	CURLcode res;
 	FILE *fd;
@@ -172,8 +174,6 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, qboolean de
 
 	// Because we're not going through Game we need to sort stuff ourself..
 	path = (strlen(path) < 2 ? "Main/" : va("%s/", path));
-
-	Com_Printf("PATH: %s%s\n", path, file);
 
 	fd = fopen(va("%s%s", path, file), "rb");
 	if (!fd) {
@@ -200,6 +200,15 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, qboolean de
 			CURLFORM_END);
 	}
 	
+	// Add another post field if it's set..
+	if (extraField && extraData) {
+		curl_formadd(&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME, extraField,
+			CURLFORM_COPYCONTENTS, extraData,
+			CURLFORM_END);
+	}
+
 	curl = curl_easy_init();
 	headerlist = curl_slist_append(headerlist, buf);
 

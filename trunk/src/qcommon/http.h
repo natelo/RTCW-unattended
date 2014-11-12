@@ -30,6 +30,6 @@ Prototypes
 void HTTP_Post(char *url, char *data);
 char *HTTP_PostQuery(char *url, char *data);
 char *HTTP_Query(char *url);
-qboolean HTTP_Upload(char *url, char *file, char *field, char *data, qboolean deleteFile, qboolean verbose);
+qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose);
 
 #endif // _S_HTTP

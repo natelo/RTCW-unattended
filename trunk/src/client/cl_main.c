@@ -300,22 +300,6 @@ static const char *MonthAbbrev[] = {
 
 /*
 ====================
-L0 - CL_UploadDemo_f
-
-Uploads last demo to server
-====================
-*/
-void CL_UploadDemo_f(void) {
-	// Try once more if it fails..
-	char *path = va("demos/%s.dm_57", cl_demoLast->string);
-	char *id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
-
-	if (!HTTP_Upload(WEB_UPLOAD, path, "demo", id, qfalse, qtrue))
-		HTTP_Upload(WEB_UPLOAD, path, "demo", id, qfalse, qtrue);
-}
-
-/*
-====================
 CL_Record_f
 
 record <demoname>
@@ -3045,7 +3029,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand("say_irc", CL_OW_IRCSay);
 
 	// Uploading
-	Cmd_AddCommand("uploaddemo", CL_UploadDemo_f);
+	Cmd_AddCommand("demoupload", CL_UploadDemo_f);
 // ~L0
 
 	// Ridah, startup-caching system

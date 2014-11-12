@@ -43,8 +43,48 @@ void CL_checkSSTime(void) {
 			id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 			// Try once more if it fails..
-			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, qtrue, qfalse))
-				HTTP_Upload(WEB_UPLOAD, filename, "id", id, qtrue, qfalse);
+			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
+				HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
 		}
 	}
+}
+
+/*
+====================
+L0 - CL_UploadDemo_f
+
+Uploads last/selected demo to a remote server
+====================
+*/
+void CL_UploadDemo_f(void) {
+	char *path; 
+	char *id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+	char *arg, *comment = NULL;
+
+	if (clc.demorecording) {
+		Com_Printf("You need to end the demo recording before you can upload it.\n");
+		return;
+	}
+
+	if (Cmd_Argc() < 2) {
+		Com_Printf("demoupload <last/full name>\n");
+		return;
+	}
+
+	arg = Cmd_Argv(1);
+	comment = Cmd_ArgsFrom(2); // Grab whole comment
+	if (!Q_stricmp(arg, "last")) {
+		if (!cl_demoName) {
+			Com_Printf("Last demo is empty! - It is only trapped for last gaming session..\n");
+			return;
+		}
+		path = va("demos/%s.dm_57", cl_demoLast->string);
+	}
+	else {
+		path = va("demos/%s.dm_57", arg);
+	}	
+
+	// Try once more if it fails..
+	if (!HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue))
+		HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
 }

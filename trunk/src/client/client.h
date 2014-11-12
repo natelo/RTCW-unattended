@@ -660,4 +660,4 @@ qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
 // L0: cl_control.c
 //
 void CL_checkSSTime(void);
-
+void CL_UploadDemo_f(void);
