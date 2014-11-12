@@ -106,6 +106,7 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
+cvar_t	*cl_uilaa;
 // ~L0
 
 clientActive_t cl;
@@ -2970,6 +2971,9 @@ void CL_Init( void ) {
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
 	CL_UpdateGUID();
+
+	// Auth check
+	cl_uilaa = Cvar_Get("cl_uilaa", "", CVAR_ROM);
 	// ~L0
 
 	// DHM - Nerve :: Auto-update
@@ -4040,10 +4044,11 @@ CL_HTTPKeyValidate
 L0 - UI now uses this..
 =================
 */
-int CL_HTTPKeyValidate( const char *key ) {
+int CL_HTTPKeyValidate(const char *key) {
 	char *result;
 
 	if (!key || strlen(key) != CDKEY_LEN) {
+		Cvar_Set("cl_uilaa", "");
 		return 0;
 	}
 
@@ -4053,19 +4058,24 @@ int CL_HTTPKeyValidate( const char *key ) {
 		return 1;
 	}
 	else {
-		Com_DPrintf("connection established\n");		
+		Com_DPrintf("connection established\n");
 	}
-
 
 	// Query it now
 	result = HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
 
-	if (!Q_stricmp(result, "ok"))
+	if (!Q_stricmp(result, "ok")) {
+		Cvar_Set("cl_uilaa", "y1");
 		return 2;
-	else if (!Q_stricmp(result, "no"))
+	}
+	else if (!Q_stricmp(result, "no")) {
+		Cvar_Set("cl_uilaa", "");
 		return 3;
-	else
+	}
+	else {
+		Cvar_Set("cl_uilaa", "");
 		return 4;
+	}
 }
 
 /*
