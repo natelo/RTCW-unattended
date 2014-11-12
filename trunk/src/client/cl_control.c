@@ -87,14 +87,14 @@ void CL_UploadDemo_f(void) {
 			Com_Printf("Cannot upload currently recording demo.\nUse ^ndemoupload <force> ^7param to upload active demo with actual end point.\n");
 			return;
 		}
-		else if (!cl_demoName) {
+		else if (!cl_demoLast->string) {
 			Com_Printf("Last demo is empty! - It is only trapped for last gaming session..\n");
 			return;
 		}
 		path = va("demos/%s.dm_57", cl_demoLast->string);
 	}
 	else if (!Q_stricmp(arg, "force")) {
-		if (!cl_demoName) {
+		if (!cl_demoLast->string) {
 			Com_Printf("There are no active demos for this session.\n");
 			return;
 		}

@@ -30,7 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 #include <limits.h>
-#include <time.h>
 
 #ifdef __linux__
 #include <sys/stat.h>
@@ -103,9 +102,8 @@ cvar_t  *cl_updatefiles;
 // DHM - Nerve
 
 // L0 - New stuff
-cvar_t	*cl_demoName;
+cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
-cvar_t	*cl_demoDir;
 
 cvar_t	*cl_guid;
 // ~L0
@@ -291,13 +289,6 @@ void CL_DemoFilename( int number, char *fileName ) {
 				 , a, b, c, d );
 }
 
-static const char *MonthAbbrev[] = {
-	"Jan", "Feb", "Mar",
-	"Apr", "May", "Jun",
-	"Jul", "Aug", "Sep",
-	"Oct", "Nov", "Dec"
-};
-
 /*
 ====================
 CL_Record_f
@@ -316,9 +307,7 @@ void CL_Record_f( void ) {
 	int len;
 	entityState_t   *ent;
 	entityState_t nullstate;
-	char        *s;
-	qtime_t q;
-	Com_RealTime(&q);
+	char *s;
 
 	if ( Cmd_Argc() > 2 ) {
 		Com_Printf( "record <demoname>\n" );
@@ -334,26 +323,32 @@ void CL_Record_f( void ) {
 		Com_Printf( "You must be in a level to record.\n" );
 		return;
 	}
-
+	
 	if (Cmd_Argc() == 2) {
-		s = Cmd_Argv( 1 );
-		Q_strncpyz(demoName, va("%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], s, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+		s = Cmd_Argv(1);
+		s = ((strlen(cl_demoPrefix->string) > 0) ? va("%s_%s", cl_demoPrefix->string, s) : s);
+		Cvar_Set("cl_demoLast", s);
+
+		Q_strncpyz(demoName, s, sizeof(demoName));
 		Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
 	}
 	else {
-		// L0 - Check if prefix is set..
-		if (strlen(cl_demoName->string) > 0) {
-			Q_strncpyz(demoName, va("%i/%s/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], cl_demoName->string, q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
+		int number;
+
+		// scan for a free demo name
+		for (number = 0; number <= 9999; number++) {
+			CL_DemoFilename(number, demoName);
+			Q_strncpyz(demoName, ((strlen(cl_demoPrefix->string) > 0) ? va("%s_%s", cl_demoPrefix->string, demoName) : demoName), sizeof(demoName));
+			Cvar_Set("cl_demoLast", demoName);
+
 			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
-		}
-		else {
-			Q_strncpyz(demoName, va("%i/%s/%i_%i.%i.%i", 1900 + q.tm_year, MonthAbbrev[q.tm_mon], q.tm_mday, q.tm_hour, q.tm_min, q.tm_sec), sizeof(demoName));
-			Com_sprintf(name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION);
+
+			len = FS_ReadFile(name, NULL);
+			if (len <= 0) {
+				break;  // file doesn't exist
+			}
 		}
 	}
-
-	// L0 - Store last demo..
-	Cvar_Set( "cl_demoLast", demoName );
 
 	// open the demo file
 
@@ -600,9 +595,6 @@ void CL_PlayDemo_f( void ) {
 	// Check if client wants last demo..
 	if (!Q_stricmp(arg, "last"))
 		arg = cl_demoLast->string;
-	// Check if client set preview for folder..
-	if (strlen(cl_demoDir->string) > 1)
-		arg = va("%s%s", cl_demoDir, arg);
 // ~L0
 	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
@@ -2972,9 +2964,8 @@ void CL_Init( void ) {
 	// -NERVE - SMF
 
 	// L0 - New Stuff
-	cl_demoName = Cvar_Get( "cl_demoName", "", CVAR_ARCHIVE );
-	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );
-	cl_demoDir = Cvar_Get( "cl_demoDir", "", CVAR_ARCHIVE );
+	cl_demoPrefix = Cvar_Get( "cl_demoPrefix", "", CVAR_ARCHIVE );
+	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );	// ROM so it's cleared every run..
 
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
