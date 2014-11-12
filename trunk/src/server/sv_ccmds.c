@@ -1257,14 +1257,14 @@ static void SV_RequestSS_f(void) {
 		Com_Printf("Server is not running.\n");
 		return;
 	}
-
+	/*
 	if (!sv_pure->integer) {
 		Com_Printf("SS can only be requested when server is running as pure.\n");
 		return;
 	}
-
+	*/
 	if (Cmd_Argc() < 2) {
-		Com_Printf("Usage: getss <slot> <optional: quality[45-100]>\n");
+		Com_Printf("Usage: reqss <slot> <optional: quality[45-100]>\n");
 		return;
 	}
 

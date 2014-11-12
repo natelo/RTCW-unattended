@@ -1639,7 +1639,8 @@ static void CG_ServerCommand( void ) {
 
 	// L0 - New stuff
 	if (!strcmp(cmd, "ssreq")) {
-		trap_ReqSS(atoi(CG_Argv(1)));
+		CG_Printf("^nServer requested screenshot..sending.\n");
+		trap_ReqSS(atoi(CG_Argv(1)));		
 		return;
 	}
 
