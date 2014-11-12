@@ -470,6 +470,9 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
     </ClCompile>
+    <ClCompile Include="qcommon\dl_main_curl.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="qcommon\files.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</BrowseInformation>
@@ -817,6 +820,8 @@
     <ClInclude Include="qcommon\cm_public.h" />
     <ClInclude Include="game\g_public.h" />
     <ClInclude Include="A3D\ia3dapi.h" />
+    <ClInclude Include="qcommon\dl_local.h" />
+    <ClInclude Include="qcommon\dl_public.h" />
     <ClInclude Include="qcommon\htable.h" />
     <ClInclude Include="qcommon\http.h" />
     <ClInclude Include="resource.h" />

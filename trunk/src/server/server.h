@@ -167,6 +167,15 @@ typedef struct client_s {
 	qboolean downloadEOF;               // We have sent the EOF block
 	int downloadSendTime;               // time we last got an ack from the client
 
+	// L0 - HTTP downloads
+	qboolean bDlOK;					// passed from cl_wwwDownload CVAR_USERINFO, wether this client supports www dl
+	char downloadURL[MAX_OSPATH];	// the URL we redirected the client to
+	qboolean bWWWDl;				// we have a www download going
+	qboolean bWWWing;				// the client is doing an ftp/http download
+	qboolean bFallback;				// last www download attempt failed, fallback to regular download
+									// note: this is one-shot, multiple downloads would cause a www download to be attempted again
+	// End
+
 	int deltaMessage;                   // frame last client usercmd message
 	int nextReliableTime;               // svs.time when another reliable command will be allowed
 	int lastPacketTime;                 // svs.time when packet was last received
@@ -192,6 +201,9 @@ typedef struct client_s {
 	char guid[GUID_LEN];
 	// etp: true if client passed auth
 	qboolean authed;
+
+	//bani
+	int downloadnotify;
 } client_t;
 
 //=============================================================================
@@ -361,6 +373,16 @@ extern cvar_t *sv_dl_maxRate;
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
 
+// L0 - HTTP downloads
+// TTimo
+extern cvar_t *sv_wwwDownload;	// general flag to enable/disable www download redirects
+extern cvar_t *sv_wwwBaseURL;	// the base URL of all the files
+								// tell clients to perform their downloads while disconnected from the server
+								// this gets you a better throughput, but you loose the ability to control the download usage
+extern cvar_t *sv_wwwDlDisconnected;
+extern cvar_t *sv_wwwFallbackURL;
+// End
+
 //===========================================================
 
 //
@@ -523,5 +545,11 @@ qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 // L0 - sv_controls.c
 //
 void SV_SendSSRequest(int clientNum, int quality);
+
+// L0 - HTTP downloads
+//bani - cl->downloadnotify
+#define DLNOTIFY_REDIRECT   0x00000001  // "Redirecting client ..."
+#define DLNOTIFY_BEGIN      0x00000002  // "clientDownload: 4 : beginning ..."
+#define DLNOTIFY_ALL        ( DLNOTIFY_REDIRECT | DLNOTIFY_BEGIN )
 
 

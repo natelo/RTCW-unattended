@@ -107,6 +107,8 @@ cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
 cvar_t	*cl_uilaa;
+
+cvar_t  *cl_wwwDownload;
 // ~L0
 
 clientActive_t cl;
@@ -794,6 +796,20 @@ void CL_ClearState( void ) {
 	memset( &cl, 0, sizeof( cl ) );
 }
 
+// L0 - HTTP downloads
+/*
+=====================
+CL_ClearStaticDownload
+Clear download information that we keep in cls (disconnected download support)
+=====================
+*/
+void CL_ClearStaticDownload(void) {
+	assert(!cls.bWWWDlDisconnected); // reset before calling
+	cls.downloadRestart = qfalse;
+	cls.downloadTempName[0] = '\0';
+	cls.downloadName[0] = '\0';
+	cls.originalDownloadName[0] = '\0';
+}
 
 /*
 =====================
@@ -817,15 +833,18 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_StopRecord_f();
 	}
 
-	if ( clc.download ) {
-		FS_FCloseFile( clc.download );
-		clc.download = 0;
-	}
-	*clc.downloadTempName = *clc.downloadName = 0;
-	Cvar_Set( "cl_downloadName", "" );
+	// L0 - HTTP Downloads	
+	if (!cls.bWWWDlDisconnected) {
+		if (clc.download) {
+			FS_FCloseFile(clc.download);
+			clc.download = 0;
+		}
+		*cls.downloadTempName = *cls.downloadName = 0;
+		Cvar_Set("cl_downloadName", "");
 
-	autoupdateStarted = qfalse;
-	autoupdateFilename[0] = '\0';
+		autoupdateStarted = qfalse;
+		autoupdateFilename[0] = '\0';
+	} // End
 
 	if ( clc.demofile ) {
 		FS_FCloseFile( clc.demofile );
@@ -855,13 +874,20 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// wipe the client connection
 	memset( &clc, 0, sizeof( clc ) );
 
-	// L0 - Fix
+	// L0 - HTTP Downloads
+	if (!cls.bWWWDlDisconnected) {
+		CL_ClearStaticDownload();
+	} // End
+
+	// L0 - HTTP downloads (came with but not part of it)
+	//cls.state = CA_DISCONNECTED;
+
+	// show_bug.cgi?id=589
+	// don't try a restart if uivm is NULL, as we might be in the middle of a restart already
 	if (uivm && cls.state > CA_DISCONNECTED) {
 		// restart the UI
-		cls.state = CA_DISCONNECTED;
-		// L0 - Con state
-		CLCON_STATE = qfalse;
-		// End
+		cls.state = CA_DISCONNECTED;		
+		CLCON_STATE = qfalse;	// L0 - Con state
 
 		// shutdown the UI
 		CL_ShutdownUI();
@@ -871,9 +897,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	}
 	else {
 		cls.state = CA_DISCONNECTED;
-		// L0 - Con state
 		CLCON_STATE = qfalse;
-		// End
 	} // End
 
 	// allow cheats locally
@@ -1436,27 +1460,58 @@ void CL_DownloadsComplete( void ) {
 			Sys_Chmod( fn, S_IXUSR );
 #endif
 #endif
+			// L0 - HTTP downloads
+			// will either exit with a successful process spawn, or will Com_Error ERR_DROP
+			// so we need to clear the disconnected download data if needed
+			if (cls.bWWWDlDisconnected) {
+				cls.bWWWDlDisconnected = qfalse;
+				CL_ClearStaticDownload();
+			} // End
+
 			Sys_StartProcess( fn, qtrue );
 		}
 
 		autoupdateStarted = qfalse;
-		CL_Disconnect( qtrue );
+		
+		// L0 - HTTP downloads
+		//CL_Disconnect( qtrue );
+		if (!cls.bWWWDlDisconnected) {
+			CL_Disconnect(qtrue);
+		}
+		// we can reset that now
+		cls.bWWWDlDisconnected = qfalse;
+		CL_ClearStaticDownload();
+		// End
+
 		return;
 	}
 
 	// if we downloaded files we need to restart the file system
-	if ( clc.downloadRestart ) {
-		clc.downloadRestart = qfalse;
+	if ( cls.downloadRestart ) {
+		cls.downloadRestart = qfalse;
 
 		FS_Restart( clc.checksumFeed ); // We possibly downloaded a pak, restart the file system to load it
 
 		// inform the server so we get new gamestate info
-		CL_AddReliableCommand( "donedl" );
+		// L0 - HTTP downloads
+		if (!cls.bWWWDlDisconnected) {
+			// inform the server so we get new gamestate info
+			CL_AddReliableCommand("donedl");
+		}
+		// we can reset that now
+		cls.bWWWDlDisconnected = qfalse;
+		CL_ClearStaticDownload();
+		// End
 
 		// by sending the donedl command we request a new gamestate
 		// so we don't want to load stuff yet
 		return;
 	}
+
+	// L0 - HTTP downloads
+	// TTimo: I wonder if that happens - it should not but I suspect it could happen if a download fails in the middle or is aborted
+	assert(!cls.bWWWDlDisconnected);
+	// End
 
 	// let the client game init and load data
 	cls.state = CA_LOADING;
@@ -1505,8 +1560,8 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
 				 "Remotename: %s\n"
 				 "****************************\n", localName, remoteName );
 
-	Q_strncpyz( clc.downloadName, localName, sizeof( clc.downloadName ) );
-	Com_sprintf( clc.downloadTempName, sizeof( clc.downloadTempName ), "%s.tmp", localName );
+	Q_strncpyz(cls.downloadName, localName, sizeof(cls.downloadName));
+	Com_sprintf(cls.downloadTempName, sizeof(cls.downloadTempName), "%s.tmp", localName);
 
 	// Set so UI gets access to it
 	Cvar_Set( "cl_downloadName", remoteName );
@@ -1558,7 +1613,7 @@ void CL_NextDownload( void ) {
 		}
 		CL_BeginDownload( localName, remoteName );
 
-		clc.downloadRestart = qtrue;
+		cls.downloadRestart = qtrue;
 
 		// move over the rest
 		memmove( clc.downloadList, s, strlen( s ) + 1 );
@@ -1582,6 +1637,15 @@ void CL_InitDownloads( void ) {
 	char missingfiles[1024];
 	char *dir = FS_ShiftStr( AUTOUPDATE_DIR, AUTOUPDATE_DIR_SHIFT );
 
+	// L0 - HTTP downloads
+	// TTimo
+	// init some of the www dl data
+	clc.bWWWDl = qfalse;
+	clc.bWWWDlAborting = qfalse;
+	cls.bWWWDlDisconnected = qfalse;
+	CL_ClearStaticDownload();
+	// End
+
 	if ( autoupdateStarted && NET_CompareAdr( cls.autoupdateServer, clc.serverAddress ) ) {
 		if ( strlen( cl_updatefiles->string ) > 4 ) {
 			Q_strncpyz( autoupdateFilename, cl_updatefiles->string, sizeof( autoupdateFilename ) );
@@ -1599,6 +1663,11 @@ void CL_InitDownloads( void ) {
 		} else {
 			Cvar_Set( "com_missingFiles", "" );
 		}
+
+		// L0 - HTTP downloads (came with but not part of it
+		// reset the redirect checksum tracking
+		clc.redirectedList[0] = '\0';
+		// End
 
 		if ( cl_allowDownload->integer && FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ), qtrue ) ) {
 			// this gets printed to UI, i18n
@@ -1771,11 +1840,20 @@ void CL_DisconnectPacket( netadr_t from ) {
 		return;
 	}
 
-	// drop the connection
-	message = CL_TranslateStringBuf( "Server disconnected for unknown reason\n" );
-	Com_Printf( message );
-	Cvar_Set( "com_errorMessage", message );
-	CL_Disconnect( qtrue );
+	// L0 - HTTP downloads	
+	// if we are doing a disconnected download, leave the 'connecting' screen on with the progress information
+	if (!cls.bWWWDlDisconnected) {
+		// drop the connection
+		message = "Server disconnected for unknown reason";
+		Com_Printf(message);
+		Cvar_Set("com_errorMessage", message);
+		CL_Disconnect(qtrue);
+	}
+	else {
+		CL_Disconnect(qfalse);
+		Cvar_Set("ui_connecting", "1");
+		Cvar_Set("ui_dl_running", "1");
+	} // End
 }
 
 /*
@@ -2212,6 +2290,118 @@ void CL_CheckUserinfo( void ) {
 	}
 }
 
+/**************************** L0 - HTTP downloads ******************************/
+/*
+==================
+CL_WWWDownload
+==================
+*/
+void CL_WWWDownload(void) {
+	char *to_ospath;
+	dlStatus_t ret;
+	static qboolean bAbort = qfalse;
+
+	if (clc.bWWWDlAborting) {
+		if (!bAbort) {
+			Com_DPrintf("CL_WWWDownload: WWWDlAborting\n");
+			bAbort = qtrue;
+		}
+		return;
+	}
+	if (bAbort) {
+		Com_DPrintf("CL_WWWDownload: WWWDlAborting done\n");
+		bAbort = qfalse;
+	}
+
+	ret = DL_DownloadLoop();
+
+	if (ret == DL_CONTINUE) {
+		return;
+	}
+
+	if (ret == DL_DONE) {
+		// taken from CL_ParseDownload
+		// we work with OS paths
+		clc.download = 0;
+		to_ospath = FS_BuildOSPath(Cvar_VariableString("fs_homepath"), cls.originalDownloadName, "");
+		to_ospath[strlen(to_ospath) - 1] = '\0';
+		if (rename(cls.downloadTempName, to_ospath)) {
+			FS_CopyFile(cls.downloadTempName, to_ospath);
+			remove(cls.downloadTempName);
+		}
+		*cls.downloadTempName = *cls.downloadName = 0;
+		Cvar_Set("cl_downloadName", "");
+		if (cls.bWWWDlDisconnected) {
+			// for an auto-update in disconnected mode, we'll be spawning the setup in CL_DownloadsComplete
+			if (!autoupdateStarted) {
+				// reconnect to the server, which might send us to a new disconnected download
+				Cbuf_ExecuteText(EXEC_APPEND, "reconnect\n");
+			}
+		}
+		else {
+			CL_AddReliableCommand("wwwdl done");
+			// tracking potential web redirects leading us to wrong checksum - only works in connected mode
+			if (strlen(clc.redirectedList) + strlen(cls.originalDownloadName) + 1 >= sizeof(clc.redirectedList)) {
+				// just to be safe
+				Com_Printf("ERROR: redirectedList overflow (%s)\n", clc.redirectedList);
+			}
+			else {
+				strcat(clc.redirectedList, "@");
+				strcat(clc.redirectedList, cls.originalDownloadName);
+			}
+		}
+	}
+	else
+	{
+		if (cls.bWWWDlDisconnected) {
+			// in a connected download, we'd tell the server about failure and wait for a reply
+			// but in this case we can't get anything from server
+			// if we just reconnect it's likely we'll get the same disconnected download message, and error out again
+			// this may happen for a regular dl or an auto update
+			const char *error = va("Download failure while getting '%s'\n", cls.downloadName); // get the msg before clearing structs
+			cls.bWWWDlDisconnected = qfalse; // need clearing structs before ERR_DROP, or it goes into endless reload
+			CL_ClearStaticDownload();
+			Com_Error(ERR_DROP, error);
+		}
+		else {
+			// see CL_ParseDownload, same abort strategy
+			Com_Printf("Download failure while getting '%s'\n", cls.downloadName);
+			CL_AddReliableCommand("wwwdl fail");
+			clc.bWWWDlAborting = qtrue;
+		}
+		return;
+	}
+
+	clc.bWWWDl = qfalse;
+	CL_NextDownload();
+}
+
+/*
+==================
+CL_WWWBadChecksum
+
+FS code calls this when doing FS_ComparePaks
+we can detect files that we got from a www dl redirect with a wrong checksum
+this indicates that the redirect setup is broken, and next dl attempt should NOT redirect
+==================
+*/
+qboolean CL_WWWBadChecksum(const char *pakname) {
+	if (strstr(clc.redirectedList, va("@%s", pakname))) {
+		Com_Printf("WARNING: file %s obtained through download redirect has wrong checksum\n", pakname);
+		Com_Printf("         this likely means the server configuration is broken\n");
+		if (strlen(clc.badChecksumList) + strlen(pakname) + 1 >= sizeof(clc.badChecksumList)) {
+			Com_Printf("ERROR: badChecksumList overflowed (%s)\n", clc.badChecksumList);
+			return qfalse;
+		}
+		strcat(clc.badChecksumList, "@");
+		strcat(clc.badChecksumList, pakname);
+		Com_DPrintf("bad checksums: %s\n", clc.badChecksumList);
+		return qtrue;
+	}
+	return qfalse;
+}
+/**************************** L0 - End HTTP downloads ******************************/
+
 /*
 ==================
 CL_Frame
@@ -2279,6 +2469,12 @@ void CL_Frame( int msec ) {
 	// if we haven't gotten a packet in a long time,
 	// drop the connection
 	CL_CheckTimeout();
+
+	// L0 - HTTP Downloads
+	// wwwdl download may survive a server disconnect
+	if ((cls.state == CA_CONNECTED && clc.bWWWDl) || cls.bWWWDlDisconnected) {
+		CL_WWWDownload();
+	}
 
 	// send intentions now
 	CL_SendCmd();
@@ -2608,6 +2804,11 @@ void CL_GetAutoUpdate( void ) {
 	// starting to load a map so we get out of full screen ui mode
 	Cvar_Set( "r_uiFullScreen", "0" );
 
+	// L0 - HTTP downloads
+	Cvar_Set("cl_allowDownload", "1"); // general flag
+	Cvar_Set("cl_wwwDownload", "1"); // ftp/http support
+	// End
+
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
 
@@ -2876,6 +3077,9 @@ void CL_Init( void ) {
 	cl_showMouseRate = Cvar_Get( "cl_showmouserate", "0", 0 );
 
 	cl_allowDownload = Cvar_Get( "cl_allowDownload", "0", CVAR_ARCHIVE );
+	// L0 - HTTP downloads
+	cl_wwwDownload = Cvar_Get("cl_wwwDownload", "1", CVAR_USERINFO | CVAR_ARCHIVE);
+	// End
 
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started

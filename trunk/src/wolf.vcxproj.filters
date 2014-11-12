@@ -27,6 +27,9 @@
     <Filter Include="Control">
       <UniqueIdentifier>{a8932b15-1dd3-4bcc-bbf0-441e6d7eff96}</UniqueIdentifier>
     </Filter>
+    <Filter Include="downloads">
+      <UniqueIdentifier>{0b655dd8-08c6-4ad1-923c-c37a0b7fb0e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="client\cl_cgame.c">
@@ -206,6 +209,9 @@
     <ClCompile Include="client\cl_control.c">
       <Filter>Control</Filter>
     </ClCompile>
+    <ClCompile Include="qcommon\dl_main_curl.c">
+      <Filter>downloads</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A3D\a3dWrapperdp.h">
@@ -312,6 +318,12 @@
     </ClInclude>
     <ClInclude Include="qcommon\http.h">
       <Filter>http</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\dl_local.h">
+      <Filter>downloads</Filter>
+    </ClInclude>
+    <ClInclude Include="qcommon\dl_public.h">
+      <Filter>downloads</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -893,7 +893,13 @@ void SV_Init( void ) {
 #endif	
 	Cvar_Get("project_developer", "Nate 'L0", CVAR_ROM | CVAR_SERVERINFO);
 	Cvar_Get("project_url", "rtcwmp.com", CVAR_ROM);
-	// End
+
+	// HTTP downloads
+	sv_wwwDownload = Cvar_Get("sv_wwwDownload", "0", CVAR_ARCHIVE);
+	sv_wwwBaseURL = Cvar_Get("sv_wwwBaseURL", "", CVAR_ARCHIVE);
+	sv_wwwDlDisconnected = Cvar_Get("sv_wwwDlDisconnected", "0", CVAR_ARCHIVE);
+	sv_wwwFallbackURL = Cvar_Get("sv_wwwFallbackURL", "", CVAR_ARCHIVE);
+	// ~L0
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();

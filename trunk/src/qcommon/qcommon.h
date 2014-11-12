@@ -722,7 +722,15 @@ char *FS_ShiftStr( const char *string, int shift );
 
 void FS_CopyFile( char *fromOSPath, char *toOSPath );
 
-qboolean FS_VerifyPak( const char *pak );
+// L0 - (fixed and declared for) HTTP downloads 
+int FS_CreatePath(const char *OSPath_);
+// End
+
+qboolean FS_VerifyPak(const char *pak);
+
+// L0 - HTTP downloads
+#include "dl_public.h"
+// End
 
 /*
 ==============================================================
@@ -914,6 +922,7 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
+void CL_ClearStaticDownload(void); // L0 - HTTP downloads
 void CL_Disconnect( qboolean showMainMenu );
 void CL_Shutdown( void );
 void CL_Frame( int msec );
