@@ -179,8 +179,8 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 	if (!fd) {
 		if (!verbose)
 			Com_DPrintf("HTTP[fu]: cannot o/r\n");
-		else
-			Com_Printf("HTTP[fu]: cannot o/r\n");
+		else			
+			Com_Printf("Error [file not found] occured while trying to upload the file!\n");
 		return qfalse;
 	}
 
@@ -224,8 +224,8 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 		if (res != CURLE_OK) {
 			if (!verbose)
 				Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
-			else
-				Com_Printf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			else				
+				Com_Printf("Error [handle failed] occured while trying to upload the file!\n");
 		}
 		else {
 			
@@ -235,7 +235,7 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 			if (!verbose)
 				Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
 			else
-				Com_Printf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
+				Com_Printf("Speed: ^n%.3f ^7bytes/sec during ^n%.3f ^7seconds\n", speed_upload, total_time);
 
 		}
 		curl_easy_cleanup(curl);		
