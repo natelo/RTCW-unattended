@@ -1872,7 +1872,7 @@ Normal keyboard characters, already shifted / capslocked / etc
 */
 void CL_CharEvent( int key ) {
 	// the console key should never be used as a char
-	if ( key == '`' || key == '~' ) {
+	if ( key == (unsigned char) '`' || key == (unsigned char) '~' || key == (unsigned char) '¬' ) {
 		return;
 	}
 
@@ -1881,6 +1881,8 @@ void CL_CharEvent( int key ) {
 		Field_CharEvent( &g_consoleField, key );
 	} else if ( cls.keyCatchers & KEYCATCH_UI )   {
 		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+	} else if (cls.keyCatchers & KEYCATCH_CGAME)   {	// L0 - Pass to cgame as well..
+		VM_Call(cgvm, CG_KEY_EVENT, key | K_CHAR_FLAG, qtrue);
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE )   {
 		Field_CharEvent( &chatField, key );
 	} else if ( cls.state == CA_DISCONNECTED )   {
