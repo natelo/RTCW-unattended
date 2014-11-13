@@ -537,7 +537,7 @@ cvarTable_t cvarTable[] = {
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
 
-	{ &demo_wallhack, "demo_wallhack", "0", CVAR_CHEAT }
+	{ &demo_wallhack, "demo_wallhack", "0", CVAR_ROM }
 	// -OSPx
 };
 int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
