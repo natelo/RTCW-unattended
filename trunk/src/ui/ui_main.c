@@ -7282,7 +7282,6 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 	menuDef_t *menu = Menus_FindByName( "Connect" );
 
-
 	if ( !overlay && menu ) {
 		Menu_Paint( menu, qtrue );
 	}
@@ -7379,7 +7378,6 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	default:
 		return;
 	}
-
 
 	if ( Q_stricmp( cstate.servername,"localhost" ) ) {
 		Text_PaintCenter( centerPoint, yStart + 80, scale, colorWhite, s, 0 );

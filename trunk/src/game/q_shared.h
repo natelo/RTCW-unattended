@@ -1536,7 +1536,7 @@ typedef enum {
 //
 // FYI - Rationality:
 // - Only time this is set to true is in SCR_DrawScreenField (case at CA_CONNECTED) in cl_scrn.c
-// - Additionally - It gets set as false in cl_disconnect (cl_main.c) thus it's always off if not stated otherwise
+// - Additionally: It gets set as false in cl_disconnect (cl_main.c) thus it's always off if not stated otherwise
 qboolean CLIENT_IS_CONNECTED;
 
 // font support
