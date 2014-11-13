@@ -84,15 +84,6 @@ static struct {
 	qboolean started;
 } bloom;
 
-// L0 - This is basically a hack at this point..
-#ifndef ID_INLINE
-#ifdef _WIN32
-#define ID_INLINE __inline
-#else
-#define ID_INLINE inline
-#endif
-#endif
-
 static void ID_INLINE R_Bloom_Quad(int width, int height, float texX, float texY, float texWidth, float texHeight) {
 	int x = 0;
 	int y = 0;
@@ -181,6 +172,8 @@ void R_InitBloomTextures(void)
 {
 	if (!r_bloom->integer)
 		return;
+	if (r_rmse->integer)	// this breaks bloom
+		return;
 	memset(&bloom, 0, sizeof(bloom));
 	R_Bloom_InitTextures();
 }
@@ -204,11 +197,9 @@ static void R_Bloom_DrawEffect(void)
 R_Bloom_GeneratexDiamonds
 =================
 */
-static void R_Bloom_WarsowEffect(void)
-{
+static void R_Bloom_WarsowEffect(void) {
 	int		i, j, k;
 	float	intensity, scale, *diamond;
-
 
 	qglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	//Take the backup texture and downscale it
@@ -319,6 +310,11 @@ void R_BloomScreen(void)
 {
 	if (!r_bloom->integer)
 		return;
+	if (r_rmse->integer) { // this breaks bloom
+		ri.Cvar_Set("r_bloom", "0");
+		Com_Printf(S_COLOR_YELLOW "WARNING: 'r_rmse' is not set to 0, bloom effect disabled\n");
+		return;
+	}	
 	if (backEnd.doneBloom)
 		return;
 	if (!backEnd.doneSurfaces)
@@ -333,7 +329,6 @@ void R_BloomScreen(void)
 		if (!bloom.started)
 			return;
 	}
-
 	if (!backEnd.projection2D)
 		RB_SetGL2D();
 #if 0

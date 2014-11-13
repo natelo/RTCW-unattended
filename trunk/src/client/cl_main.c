@@ -616,9 +616,6 @@ void CL_PlayDemo_f( void ) {
 	Con_Close();
 
 	cls.state = CA_CONNECTED;
-	// L0 - Con state
-	CLCON_STATE = qtrue;
-	// End
 	clc.demoplaying = qtrue;
 
 	if ( Cvar_VariableValue( "cl_wavefilerecord" ) ) {
@@ -758,9 +755,6 @@ void CL_MapLoading( void ) {
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
 		cls.state = CA_CONNECTED;       // so the connect screen is drawn
-		// L0 - Con state
-		CLCON_STATE = qtrue;
-		// End
 		memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
 		memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
 		memset( &cl.gameState, 0, sizeof( cl.gameState ) );
@@ -865,8 +859,6 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_WritePacket();
 		CL_WritePacket();
 		CL_WritePacket();
-		// L0 - Con state
-		CLCON_STATE = qfalse;
 	}
 
 	CL_ClearState();
@@ -878,16 +870,12 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	if (!cls.bWWWDlDisconnected) {
 		CL_ClearStaticDownload();
 	} // End
-
-	// L0 - HTTP downloads (came with but not part of it)
-	//cls.state = CA_DISCONNECTED;
-
+	
 	// show_bug.cgi?id=589
 	// don't try a restart if uivm is NULL, as we might be in the middle of a restart already
 	if (uivm && cls.state > CA_DISCONNECTED) {
 		// restart the UI
-		cls.state = CA_DISCONNECTED;		
-		CLCON_STATE = qfalse;	// L0 - Con state
+		cls.state = CA_DISCONNECTED;
 
 		// shutdown the UI
 		CL_ShutdownUI();
@@ -897,7 +885,6 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	}
 	else {
 		cls.state = CA_DISCONNECTED;
-		CLCON_STATE = qfalse;
 	} // End
 
 	// allow cheats locally
@@ -905,6 +892,8 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;
+
+	CLCON_STATE = qfalse;
 }
 
 
@@ -1136,10 +1125,7 @@ void CL_Connect_f( void ) {
 	if (!NET_StringToAdr(cls.servername, &clc.serverAddress, family)) {
 		Com_Printf( "Bad server address\n" );
 		cls.state = CA_DISCONNECTED;
-		// L0 - Con state
-		CLCON_STATE = qfalse;
-		Cvar_Set("ui_connecting", "0"); // Set this as well.
-		// End
+		Cvar_Set("ui_connecting", "0"); // Set this as well.	
 		return;
 	}
 	if ( clc.serverAddress.port == 0 ) {
@@ -1650,8 +1636,7 @@ void CL_InitDownloads( void ) {
 		if ( strlen( cl_updatefiles->string ) > 4 ) {
 			Q_strncpyz( autoupdateFilename, cl_updatefiles->string, sizeof( autoupdateFilename ) );
 			Q_strncpyz( clc.downloadList, va( "@%s/%s@%s/%s", dir, cl_updatefiles->string, dir, cl_updatefiles->string ), MAX_INFO_STRING );
-			cls.state = CA_CONNECTED;			
-			CLCON_STATE = qtrue;	// L0 - Con state			
+			cls.state = CA_CONNECTED;		
 			CL_NextDownload();
 			return;
 		}
@@ -1676,9 +1661,6 @@ void CL_InitDownloads( void ) {
 			if ( *clc.downloadList ) {
 				// if autodownloading is not enabled on the server
 				cls.state = CA_CONNECTED;
-				// L0 - Con state
-				CLCON_STATE = qtrue;
-				// End
 				CL_NextDownload();
 				return;
 			}
@@ -2114,9 +2096,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 		Netchan_Setup( NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
 		cls.state = CA_CONNECTED;
-		// L0 - Con state
-		CLCON_STATE = qtrue;
-		// End
 		clc.lastPacketSentTime = -9999;     // send first packet immediately
 		return;
 	}
@@ -2423,9 +2402,6 @@ void CL_Frame( int msec ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
 		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
-		// L0 - Con state
-		CLCON_STATE = qfalse;
-		// End
 	}
 
 	// if recording an avi, lock to a fixed fps
@@ -2829,9 +2805,6 @@ void CL_GetAutoUpdate( void ) {
 	if ( cls.autoupdateServer.type == NA_BAD ) {
 		Com_Printf( "Bad server address\n" );
 		cls.state = CA_DISCONNECTED;
-		// L0 - Con state
-		CLCON_STATE = qfalse;
-		// End
 		return;
 	}
 

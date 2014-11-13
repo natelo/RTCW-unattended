@@ -579,7 +579,6 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	// nuke user info
 	SV_SetUserinfo( drop - svs.clients, "" );
 
-
 	// if this was the last client on the server, send a heartbeat
 	// to the master so it is known the server is empty
 	// send a heartbeat now so the master will get up to date info

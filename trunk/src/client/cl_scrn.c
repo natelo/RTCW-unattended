@@ -455,7 +455,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		Com_DPrintf( "draw screen without UI loaded\n" );
 		return;
 	}
-
+	
 	// if the menu is going to cover the entire screen, we
 	// don't need to render anything under it
 	if ( !VM_Call( uivm, UI_IS_FULLSCREEN ) ) {
@@ -469,11 +469,12 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_DISCONNECTED:
 			// force menu up
 			S_StopAllSounds();
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );			
 			break;
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
+			CLCON_STATE = qtrue;
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
 			VM_Call( uivm, UI_REFRESH, cls.realtime );
