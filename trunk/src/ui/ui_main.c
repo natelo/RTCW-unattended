@@ -7204,7 +7204,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 		s = downloadName;
 	}
 
-	s = (strlen(s) > 40) ? "Downloading from HTTP repository" : s;
+	s = (strlen(s) > 40) ? "Downloading from Web repository" : s;
 
 	Text_Paint( 260, yStart + 210, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 
@@ -7275,8 +7275,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	uiClientState_t cstate;
 	char info[MAX_INFO_VALUE];
 	char text[256];
-	float centerPoint, yStart, scale;
-	vec4_t color = { 0.3f, 0.3f, 0.3f, 0.8f };
+	float centerPoint, yStart, scale;	
 
 	char downloadName[MAX_INFO_VALUE];
 
@@ -7339,10 +7338,11 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 			// if out of temp buffer room OR end of string OR it is time to linebreak & we've found a space
 			if ( ( index >= 58 ) || ( i == ( len - 1 ) ) || ( neednewline && s[i] == ' ' ) ) {
+				vec4_t bg_color = { 0.1f, 0.1f, 0.1f, 0.6f }; // L0 - More transparent bg & changed text to red..
 				ps[index + 1] = '\0';
 
-				DC->fillRect( 0, yPrint - 17, 640, 22, color );
-				Text_PaintCenter( centerPoint, yPrint, scale, colorYellow, ps, 0 );
+				DC->fillRect( 0, yPrint - 17, 640, 22, bg_color );				
+				Text_PaintCenter( centerPoint, yPrint, scale, colorRed, ps, 0 );
 
 				neednewline = qfalse;
 				yPrint += 22;       // next line
