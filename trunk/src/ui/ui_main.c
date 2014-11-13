@@ -7204,7 +7204,7 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 		s = downloadName;
 	}
 
-	s = (strlen(s) > 40) ? va("Downloading .. (%d%%)", downloadName, downloadCount * 100 / downloadSize) : s;
+	s = ( (strlen(s) > 40) ? va("Downloading .. (%d%%)", (downloadCount * 100 / downloadSize)) : s );
 
 	Text_Paint( 260, yStart + 210, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 
