@@ -954,7 +954,7 @@ void CL_RequestMotd( void ) {
 	}
 
 	Com_Printf("Connecting to news server..");
-	if (!NET_StringToAdr(MOTD_SERVER_NAME, &cls.motdServer, NA_UNSPEC)) {
+	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.motdServer, NA_UNSPEC)) {
 		Com_Printf( "could not resolve address\n^nWARNING: MOTD server is unreachable!\n" );
 		return;
 	}
@@ -962,15 +962,15 @@ void CL_RequestMotd( void ) {
 		Com_Printf("SUCCESS\n");
 	}
 	
-	cls.motdServer.port = BigShort(PORT_MOTD);
-	Com_DPrintf( "%s resolved to %i.%i.%i.%i:%i\n", MOTD_SERVER_NAME,
+	cls.motdServer.port = BigShort(PORT_AUTHORIZE);
+	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 			cls.motdServer.ip[0], cls.motdServer.ip[1],
 			cls.motdServer.ip[2], cls.motdServer.ip[3],
 			BigShort(cls.motdServer.port));
 
 	// L0 - IPv6
-	Com_DPrintf("%s resolved to %s\n", MASTER_SERVER_NAME,
-		NET_AdrToStringwPort(cls.updateServer));
+	Com_DPrintf("%s resolved to %s\n", AUTHORIZE_SERVER_NAME,
+		NET_AdrToStringwPort(cls.motdServer));
 	// End
 
 	// Query it now
@@ -4258,7 +4258,7 @@ int CL_HTTPKeyValidate(const char *key) {
 	}
 
 	Com_DPrintf("Contacting Auth Server..");
-	if (!NET_StringToAdr(CLIENT_AUTH_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
+	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
 		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
 		return 1;
 	}
@@ -4297,7 +4297,7 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 	}
 
 	Com_DPrintf("Contacting Auth Server..");
-	if (!NET_StringToAdr(CLIENT_AUTH_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
+	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
 		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
 		return qfalse;
 	}
@@ -4306,8 +4306,8 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 		return qtrue;
 	}
 		
-	cls.clientAuthServer.port = BigShort(PORT_CLIENT_AUTH);
-	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", CLIENT_AUTH_SERVER_NAME,
+	cls.clientAuthServer.port = BigShort(PORT_AUTHORIZE);
+	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
 		cls.clientAuthServer.ip[0], cls.clientAuthServer.ip[1],
 		cls.clientAuthServer.ip[2], cls.clientAuthServer.ip[3],
 		BigShort(cls.clientAuthServer.port));

@@ -90,7 +90,7 @@ void HTTP_Post(char *url, char *data) {
 char *HTTP_PostQuery(char *url, char *data) {
 	CURL *curl;
 	CURLcode res;
-	char *out;
+	char *out = NULL;
 
 	curl = curl_easy_init();
 	if (curl) {
@@ -126,7 +126,7 @@ char *HTTP_PostQuery(char *url, char *data) {
 char *HTTP_Query(char *url) {
 	CURL *curl;
 	CURLcode res;
-	char *out;
+	char *out = NULL;
 
 	curl = curl_easy_init();
 	if (curl) {
