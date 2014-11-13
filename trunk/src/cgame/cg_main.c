@@ -309,7 +309,7 @@ vmCvar_t cg_coloredCrosshairNames;
 vmCvar_t vp_drawnames;
 vmCvar_t cg_drawNames;
 
-vmCvar_t cg_wallhack;
+vmCvar_t demo_wallhack;
 // -OSPx
 
 typedef struct {
@@ -537,7 +537,7 @@ cvarTable_t cvarTable[] = {
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
 
-	{ &cg_wallhack, "cg_wallhack", "0", CVAR_CHEAT }
+	{ &demo_wallhack, "demo_wallhack", "0", CVAR_CHEAT }
 	// -OSPx
 };
 int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );

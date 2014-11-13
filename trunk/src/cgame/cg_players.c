@@ -2936,7 +2936,7 @@ void CG_Player( centity_t *cent ) {
 	lightorigin[2] += 31 + (float)cg_drawFPGun.integer;
 
 	// L0 - Keeping this in for demo preview..
-	if (cg_wallhack.integer && cg.demoPlayback)
+	if (demo_wallhack.integer && cg.demoPlayback)
 	{
 		if (cent->currentState.number != cg.snap->ps.clientNum)
 			renderfx = RF_DEPTHHACK;

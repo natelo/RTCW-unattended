@@ -1840,7 +1840,7 @@ extern vmCvar_t cg_coloredCrosshairNames;
 extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
 
-extern vmCvar_t cg_wallhack;
+extern vmCvar_t demo_wallhack;
 // -OSPx
 
 //
