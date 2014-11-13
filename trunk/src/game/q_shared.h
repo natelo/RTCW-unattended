@@ -1530,9 +1530,14 @@ typedef enum {
 	CA_CINEMATIC        // playing a cinematic or a static pic, not connected to a server
 } connstate_t;
 
-// L0 - Client state so it can be globaly used..
-qboolean CLCON_STATE;
-// End
+// L0 
+// Tracks client state (for renderer: mainly to fix Bloom bug)
+// This header is tied all over the code so you can use it anywhere you want to..
+//
+// FYI - Rationality:
+// - Only time this is set to true is in SCR_DrawScreenField (case at CA_CONNECTED) in cl_scrn.c
+// - Additionally - It gets set as false in cl_disconnect (cl_main.c) thus it's always off if not stated otherwise
+qboolean CLIENT_IS_CONNECTED;
 
 // font support
 

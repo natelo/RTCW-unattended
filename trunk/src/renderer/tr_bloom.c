@@ -320,7 +320,7 @@ void R_BloomScreen(void)
 	if (!backEnd.doneSurfaces)
 		return;
 	//  L0 - Bloom bug fix..
-	if (!CLCON_STATE)
+	if (!CLIENT_IS_CONNECTED)
 		return;
 	// End
 	backEnd.doneBloom = qtrue;

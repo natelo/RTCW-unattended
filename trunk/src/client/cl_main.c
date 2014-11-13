@@ -893,7 +893,8 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;
 
-	CLCON_STATE = qfalse;
+	// L0 - Set this to off as well
+	CLIENT_IS_CONNECTED = qfalse;
 }
 
 

@@ -474,7 +474,8 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		case CA_CONNECTING:
 		case CA_CHALLENGING:
 		case CA_CONNECTED:
-			CLCON_STATE = qtrue;
+			// L0 - Set this on..
+			CLIENT_IS_CONNECTED = qtrue;
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
 			VM_Call( uivm, UI_REFRESH, cls.realtime );
