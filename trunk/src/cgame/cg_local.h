@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define POWERUP_BLINKS      5
 
+#define STATS_FADE_TIME     200.0f // OSPx - stats
 #define POWERUP_BLINK_TIME  1000
 #define FADE_TIME           200
 #define PULSE_TIME          200
@@ -110,6 +111,83 @@ If you have questions concerning this license or the applicable additional terms
 #define LIMBO_3D_W  420
 #define LIMBO_3D_H  312
 // -NERVE - SMF
+
+// OSPx - Stats
+#define MAX_WINDOW_COUNT        10
+#define MAX_WINDOW_LINES        64
+
+#define MAX_STRINGS             80
+#define MAX_STRING_POOL_LENGTH  128
+
+#define WINDOW_FONTWIDTH    8       // For non-true-type: width to scale from
+#define WINDOW_FONTHEIGHT   8       // For non-true-type: height to scale from
+
+#define WID_NONE            0x00    // General window
+
+#define WFX_TEXTSIZING      0x01    // Size the window based on text/font setting
+#define WFX_FLASH           0x02    // Alternate between bg and b2 every half second
+#define WFX_TRUETYPE        0x04    // Use truetype fonts for text
+// These need to be last
+#define WFX_FADEIN          0x10    // Fade the window in (and back out when closing)
+#define WFX_SCROLLUP        0x20    // Scroll window up from the bottom (and back down when closing)
+#define WFX_SCROLLDOWN      0x40    // Scroll window down from the top (and back up when closing)
+#define WFX_SCROLLLEFT      0x80    // Scroll window in from the left (and back right when closing)
+#define WFX_SCROLLRIGHT     0x100   // Scroll window in from the right (and back left when closing)
+
+#define WSTATE_COMPLETE     0x00    // Window is up with startup effects complete
+#define WSTATE_START        0x01    // Window is "initializing" w/effects
+#define WSTATE_SHUTDOWN     0x02    // Window is shutting down with effects
+#define WSTATE_OFF          0x04    // Window is completely shutdown
+
+typedef struct {
+	vec4_t colorBorder;         // Window border color
+	vec4_t colorBackground;     // Window fill color
+	vec4_t colorBackground2;    // Window fill color2 (for flashing)
+	int curX;                   // Scrolling X position
+	int curY;                   // Scrolling Y position
+	int effects;                // Window effects
+	int flashMidpoint;          // Flashing transition point (in ms)
+	int flashPeriod;            // Background flashing period (in ms)
+	int fontHeight;             // For non-truetype font drawing
+	float fontScaleX;           // Font scale factor
+	float fontScaleY;           // Font scale factor
+	int fontWidth;              // For non-truetype font drawing
+	float h;                    // Height
+	int id;                     // Window ID for special handling (i.e. stats, motd, etc.)
+	qboolean inuse;             // Activity flag
+	int lineCount;              // Number of lines to display
+	int lineHeight[MAX_WINDOW_LINES];   // Height property for each line
+	char *lineText[MAX_WINDOW_LINES];   // Text info
+	float m_x;                  // Mouse X position
+	float m_y;                  // Mouse Y position
+	int mvInfo;                 // lower 8 = player id, 9 = is_selected
+	int targetTime;             // Time to complete any defined effect
+	int state;                  // Current state of the window
+	int time;                   // Current window time
+	float w;                    // Width
+	float x;                    // Target x-coordinate
+	// negative values will align the window from the right minus the (window width + offset(x))
+	float y;                    // Target y-coordinate
+	// negative values will align the window from the bottom minus the (window height + offset(y))
+} cg_window_t;
+
+typedef struct {
+	qboolean fActive;
+	char str[MAX_STRING_POOL_LENGTH];
+} cg_string_t;
+
+typedef struct {
+	int activeWindows[MAX_WINDOW_COUNT];                // List of active windows
+	int numActiveWindows;                               // Number of active windows in use
+	cg_window_t window[MAX_WINDOW_COUNT];           // Static allocation of all windows
+} cg_windowHandler_t;
+
+typedef enum {
+	SHOW_OFF,
+	SHOW_SHUTDOWN,
+	SHOW_ON
+} showView_t;
+// -OSPx
 
 //=================================================
 
@@ -1028,10 +1106,14 @@ typedef struct {
 
 	// Reinforcements 
 	vec4_t reinforcementColor;
+
+	// Windows
+	cg_string_t aStringPool[MAX_STRINGS];	
+	cg_window_t *windowCurrent;
+	cg_windowHandler_t winHandler;
 // -OSPx
 
-	pmoveExt_t pmext;
-
+	pmoveExt_t pmext;	
 } cg_t;
 
 #define NUM_FUNNEL_SPRITES  21
@@ -2312,6 +2394,17 @@ void CG_AddToNotify( const char *str );
 void CG_Respawn( void );
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 
+//
+// OSPx -  cg_window.c
+//
+qboolean CG_addString(cg_window_t *w, char *buf);
+void CG_printWindow(char *str);
+void CG_removeStrings(cg_window_t *w);
+cg_window_t *CG_windowAlloc(int fx, int startupLength);
+void CG_windowDraw(void);
+void CG_windowFree(cg_window_t *w);
+void CG_windowInit(void);
+void CG_windowNormalizeOnText(cg_window_t *w);
 
 //===============================================
 

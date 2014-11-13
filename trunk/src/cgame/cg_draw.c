@@ -3740,6 +3740,9 @@ static void CG_Draw2D( void ) {
 	// OSPx - Announcer
 	CG_DrawAnnouncer();
 
+	// OSPx - window updates
+	CG_windowDraw();
+
 	// Ridah, draw flash blends now
 	CG_DrawFlashBlend();
 }
