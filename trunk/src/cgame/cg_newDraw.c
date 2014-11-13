@@ -1660,25 +1660,6 @@ qboolean CG_OwnerDrawVisible( int flags ) {
 		return !( cg_currentSelectedPlayer.integer == numSortedTeamPlayers );
 	}
 
-	if ( flags & CG_SHOW_OTHERTEAMHASFLAG ) {
-		return CG_OtherTeamHasFlag();
-	}
-
-	if ( flags & CG_SHOW_YOURTEAMHASENEMYFLAG ) {
-		return CG_YourTeamHasFlag();
-	}
-
-#ifdef MISSIONPACK
-	if ( flags & ( CG_SHOW_BLUE_TEAM_HAS_REDFLAG | CG_SHOW_RED_TEAM_HAS_BLUEFLAG ) ) {
-		if ( flags & CG_SHOW_BLUE_TEAM_HAS_REDFLAG && ( cgs.redflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_RED ) ) {
-			return qtrue;
-		} else if ( flags & CG_SHOW_RED_TEAM_HAS_BLUEFLAG && ( cgs.blueflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_BLUE ) ) {
-			return qtrue;
-		}
-		return qfalse;
-	}
-#endif  // #ifdef MISSIONPACK
-
 	if ( flags & CG_SHOW_ANYTEAMGAME ) {
 		if ( cgs.gametype >= GT_TEAM ) {
 			return qtrue;
@@ -1690,40 +1671,6 @@ qboolean CG_OwnerDrawVisible( int flags ) {
 			return qtrue;
 		}
 	}
-
-#ifdef MISSIONPACK
-	if ( flags & CG_SHOW_HARVESTER ) {
-		if ( cgs.gametype == GT_HARVESTER ) {
-			return qtrue;
-		} else {
-			return qfalse;
-		}
-	}
-
-	if ( flags & CG_SHOW_ONEFLAG ) {
-		if ( cgs.gametype == GT_1FCTF ) {
-			return qtrue;
-		} else {
-			return qfalse;
-		}
-	}
-
-#endif  // #ifdef MISSIONPACK
-	if ( flags & CG_SHOW_CTF ) {
-		if ( cgs.gametype == GT_CTF ) {
-			return qtrue;
-		}
-	}
-
-#ifdef MISSIONPACK
-	if ( flags & CG_SHOW_OBELISK ) {
-		if ( cgs.gametype == GT_OBELISK ) {
-			return qtrue;
-		} else {
-			return qfalse;
-		}
-	}
-#endif  // #ifdef MISSIONPACK
 
 	if ( flags & CG_SHOW_HEALTHCRITICAL ) {
 		if ( cg.snap->ps.stats[STAT_HEALTH] < 25 ) {
@@ -2371,12 +2318,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case CG_PLAYER_WEAPON_ICON2D:
 		CG_DrawPlayerWeaponIcon( &rect, ownerDrawFlags & CG_SHOW_HIGHLIGHTED, align );
 		break;
-	case CG_PLAYER_ARMOR_ICON:
-		CG_DrawPlayerArmorIcon( &rect, ownerDrawFlags & CG_SHOW_2DONLY );
-		break;
-	case CG_PLAYER_ARMOR_ICON2D:
-		CG_DrawPlayerArmorIcon( &rect, qtrue );
-		break;
 	case CG_PLAYER_ARMOR_VALUE:
 		CG_DrawPlayerArmorValue( &rect, scale, color, shader, textStyle );
 		break;
@@ -2459,40 +2400,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		break;
 	case CG_BLUE_SCORE:
 		CG_DrawBlueScore( &rect, scale, color, shader, textStyle );
-		break;
-	case CG_RED_NAME:
-		CG_DrawRedName( &rect, scale, color, textStyle );
-		break;
-	case CG_BLUE_NAME:
-		CG_DrawBlueName( &rect, scale, color, textStyle );
-		break;
-	case CG_BLUE_FLAGHEAD:
-		CG_DrawBlueFlagHead( &rect );
-		break;
-	case CG_BLUE_FLAGSTATUS:
-		CG_DrawBlueFlagStatus( &rect, shader );
-		break;
-	case CG_BLUE_FLAGNAME:
-		CG_DrawBlueFlagName( &rect, scale, color, textStyle );
-		break;
-	case CG_RED_FLAGHEAD:
-		CG_DrawRedFlagHead( &rect );
-		break;
-	case CG_RED_FLAGSTATUS:
-		CG_DrawRedFlagStatus( &rect, shader );
-		break;
-	case CG_RED_FLAGNAME:
-		CG_DrawRedFlagName( &rect, scale, color, textStyle );
-		break;
-	case CG_HARVESTER_SKULLS:
-		CG_HarvesterSkulls( &rect, scale, color, qfalse, textStyle );
-		break;
-	case CG_HARVESTER_SKULLS2D:
-		CG_HarvesterSkulls( &rect, scale, color, qtrue, textStyle );
-		break;
-	case CG_ONEFLAG_STATUS:
-		CG_OneFlagStatus( &rect );
-		break;
+		break;	
 	case CG_PLAYER_LOCATION:
 		CG_DrawPlayerLocation( &rect, scale, color, textStyle );
 		break;
@@ -2513,12 +2421,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		break;
 	case CG_PLAYER_STATUS:
 		CG_DrawPlayerStatus( &rect );
-		break;
-	case CG_PLAYER_HASFLAG:
-		CG_DrawPlayerHasFlag( &rect, qfalse );
-		break;
-	case CG_PLAYER_HASFLAG2D:
-		CG_DrawPlayerHasFlag( &rect, qtrue );
 		break;
 	case CG_AREA_SYSTEMCHAT:
 		CG_DrawAreaSystemChat( &rect, scale, color, shader );
