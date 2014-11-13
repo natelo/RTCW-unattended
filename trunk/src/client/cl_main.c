@@ -3794,11 +3794,12 @@ CL_GlobalServers_f
 // L0 - ipv6 - rewritten most of the bottom functions...
 void CL_GlobalServers_f(void) {
 	netadr_t    to;
-	int         count, i, masterNum;
+	int         count, i;
 	char        command[1024], *masteraddress;
+	int masterNum = atoi(Cmd_Argv(1));
 	int protocol = atoi(Cmd_Argv(2)); // Do this right away, otherwise weird things happen when you use the ingame "Get New Servers" button.
 
-	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 4)
+	if ((count = Cmd_Argc()) < 3 || masterNum < 0 || masterNum > 4)
 	{
 		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", masterNum > 4);
 		return;
