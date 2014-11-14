@@ -298,7 +298,6 @@ void CG_DemoClick(int key) {
 		cg.revertToDefaultKeys = qtrue;
 		return;
 	case K_TAB:
-	case K_BACKSPACE:	
 		if (cgs.demoControlInfo.show != SHOW_ON) {
 			cgs.demoControlInfo.show = SHOW_ON;
 			CG_createControlsWindow();
@@ -316,26 +315,28 @@ void CG_DemoClick(int key) {
 			cg.demoControlsWindow = NULL;
 			trap_Cvar_Set("demo_controlsWindow", "0");
 		}
-		return;
+		return;		
 	case K_SHIFT:
-	case K_CTRL:	
+		if (demo_infoWindow.integer)
+			trap_Cvar_Set("demo_infoWindow", "0");
+		else
+			trap_Cvar_Set("demo_infoWindow", "1");
+		return;
+	case K_CTRL:
+		if (demo_showTimein.integer)
+			trap_Cvar_Set("demo_showTimein", "0");
+		else
+			trap_Cvar_Set("demo_showTimein", "1");
+		return;
 	case K_MOUSE1:
 		CG_zoomViewSet_f();
 		return;
 	case K_MOUSE2:
 		CG_zoomViewRevert_f();
 		return;
-	case K_MOUSE3:	
+	case K_ENTER:	
 		trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));
-		return;
-	case K_MOUSE4:	
-	case K_INS:
-	case K_KP_PGUP:
-	case K_DEL:
-	case K_KP_PGDN:	
-	case K_ENTER:
-		trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));
-		return;
+		return;	
 	case K_UPARROW:
 		if (milli > cgs.thirdpersonUpdate) {
 			float range = cg_thirdPersonRange.value;
@@ -376,10 +377,6 @@ void CG_DemoClick(int key) {
 			trap_Cvar_Set("cg_thirdPersonAngle", va("%f", angle));
 		}
 		return;
-
-	case K_KP_5:
-	case K_KP_INS:
-
 	// Timescale controls
 	case K_SPACE:
 		trap_Cvar_Set("timescale", "1");
@@ -457,23 +454,16 @@ void CG_DemoClick(int key) {
 			cgs.noVoice = 0;
 		}
 		return;
-	case K_F5:
-	case K_F6:
-	case K_F7:
-	case K_F8:		
-	case K_F9:		
+	case K_MOUSE3:
+		if (!cgs.freezeDemo) {
+			cgs.freezeDemo = qtrue;
+			trap_Cvar_Set("cl_freezeDemo", "1");
+		}
+		else {
+			cgs.freezeDemo = qfalse;
+			trap_Cvar_Set("cl_freezeDemo", "0");
+		}
 		return;
-	case K_F10:		
-		return;
-	case K_F11:
-		if (demo_infoWindow.integer)
-			trap_Cvar_Set("demo_infoWindow", "0");
-		else
-			trap_Cvar_Set("demo_infoWindow", "1");
-		return;
-	case K_F12:	
-		return;
-
 		break;
 		}
 	}
@@ -490,24 +480,24 @@ typedef struct {
 } helpCmd_reference_t;
 
 static const helpCmd_reference_t helpInfo[] = {
-		{ "BACKSPACE",  "Show/Hide This Window" },
-		{ "F9",			"Show/Hide Upload Helper" },
-		{ "F10",		""}, // TIMER CONTROL .. TODO
-		{ "F11",		"Show/Hide Info Window" },
-		{ "F12",		"Enable/Disable Pop-ups" },
+		{ "TAB",		"Show/Hide This Window" },
+		{ "SHIFT",		"Show/Hide Status Window" },
+		{ "CTRL",		"Show/Hide Start Timer"}, 
 		{ " ",			" "},
 		{ "F1",			"Toggle Wallhack" },
 		{ "F2",			"Toggle ShowNormals" },
 		{ "F3",			"Show/Hide Chats" },
 		{ "F4",			"Show/Hide Voice chats" },
 		{ " ", " " },
-		{ "ENTER",		"Toggle third person view" },		
+		{ "MOUSE 1",	"Zoom IN FOV" },
+		{ "MOUSE 2",	"Zoom OUT FOV" },
+		{ "MOUSE 3",	"Toggle Demo Freeze"},
+		{ " ", " " },			
 		{ "NUM ARROWS",	"TimeScale Slow/Fast"},
 		{ "SPACE",		"Timescale reset" },
 		{ "SCROLL",		"Timescale Slow/Fast" },
-		{ "MOUSE 1",	"Zoom IN FOV"},
-		{ "MOUSE 2",	"Zoom OUT FOV"},
-		{ "MOUSE 3",	"Toggle third person view"},
+		{ " ", " " },		
+		{ "ENTER",		"Toggle third person view"},
 		{ "ARROWS",		"Third person rotation" }
 };
 
@@ -535,9 +525,9 @@ void CG_createControlsWindow(void) {
 			sw->id = WID_DEMOCONTROLS;
 			sw->fontScaleX = 0.7f;
 			sw->fontScaleY = 0.8f;
-			sw->x = -50;
+			sw->x = -10;
 			sw->y = -36;
-			sw->flashMidpoint = sw->flashPeriod * 0.85f;
+			sw->flashMidpoint = sw->flashPeriod * 0.7f;
 			memcpy(&sw->colorBackground2, colorGeneralFill, sizeof(vec4_t));
 
 			// Pump stuff in it now

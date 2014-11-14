@@ -1743,7 +1743,8 @@ typedef struct {
 	qboolean showNormals;
 	qboolean wallhack;
 	int noChat;
-	int noVoice;	
+	int noVoice;
+	qboolean freezeDemo;
 } cgs_t;
 
 //==============================================================================
