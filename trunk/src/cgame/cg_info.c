@@ -293,10 +293,7 @@ void CG_DemoClick(int key) {
 	int milli = trap_Milliseconds();
 	
 	switch (key)
-	{
-	case K_ESCAPE:
-		Com_Error(ERR_DROP, "Demo stopped.");		
-		return;
+	{	
 	case K_TAB:
 		if (cgs.demoControlInfo.show != SHOW_ON) {
 			cgs.demoControlInfo.show = SHOW_ON;

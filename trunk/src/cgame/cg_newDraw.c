@@ -2608,7 +2608,6 @@ void CG_KeyEvent( int key, qboolean down ) {
 		CG_DemoClick(key);
 		return;
 	}
-
 	
 	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || ( cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == qfalse ) ) {
 		CG_EventHandling( CGAME_EVENT_NONE, qfalse );
