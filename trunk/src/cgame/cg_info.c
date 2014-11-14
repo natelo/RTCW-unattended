@@ -298,7 +298,7 @@ void CG_DemoClick(int key) {
 		cg.revertToDefaultKeys = qtrue;
 		return;
 	case K_TAB:
-	case K_BACKSPACE:
+	case K_BACKSPACE:	
 		if (cgs.demoControlInfo.show != SHOW_ON) {
 			cgs.demoControlInfo.show = SHOW_ON;
 			CG_createControlsWindow();
@@ -317,15 +317,6 @@ void CG_DemoClick(int key) {
 			trap_Cvar_Set("demo_controlsWindow", "0");
 		}
 		return;
-	case K_F11:
-		trap_SendConsoleCommand("screenshotJPEG");
-		return;
-	case K_F12:
-		if (demo_infoWindow.integer)
-			trap_Cvar_Set("demo_infoWindow", "0");
-		else
-			trap_Cvar_Set("demo_infoWindow", "1");
-		return;
 	case K_SHIFT:
 	case K_CTRL:	
 	case K_MOUSE1:
@@ -334,13 +325,14 @@ void CG_DemoClick(int key) {
 	case K_MOUSE2:
 		CG_zoomViewRevert_f();
 		return;
-	case K_MOUSE3:		
+	case K_MOUSE3:	
+		trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));
+		return;
 	case K_MOUSE4:	
 	case K_INS:
 	case K_KP_PGUP:
 	case K_DEL:
-	case K_KP_PGDN:
-	
+	case K_KP_PGDN:	
 	case K_ENTER:
 		trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));
 		return;
@@ -442,18 +434,8 @@ void CG_DemoClick(int key) {
 		}
 		return;
 	case K_F3:
-		if (cgs.noChat) {
+		if (!cgs.noChat) {
 			cgs.noChat = 1;
-			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("^nShowing Team chats only");
-		}
-		else if (cgs.noChat == 1) {
-			cgs.noChat = 2;
-			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("^nShowing Global chats only");
-		}
-		else if (cgs.noChat == 2) {
-			cgs.noChat = 3;
 			cgs.demoPopUpInfo.show = SHOW_ON;
 			CG_createDemoPopUpWindow("All chats are ^nDISABLED");
 		}
@@ -462,17 +444,52 @@ void CG_DemoClick(int key) {
 			cgs.demoPopUpInfo.show = SHOW_ON;
 			CG_createDemoPopUpWindow("All chats are ^nENABLED\n");
 		}
+		return;
 	case K_F4:
-		if (cgs.noVoice) {
+		if (!cgs.noVoice) {
 			cgs.noVoice = 1;
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nDISABLED");
 		}
 		else if (cgs.noVoice == 1) {
-			cgs.noVoice = 2;
-		}
-		else {
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nENABLED");
 			cgs.noVoice = 0;
 		}
+		return;
 	case K_F5:
+	case K_F6:
+	case K_F7:
+	case K_F8:		
+	case K_F9:
+		if (cgs.demoNotifyInfo.show == SHOW_ON) {
+			trap_Cvar_Set("demo_notifyWindow", "0");
+			CG_closeNotifyWindow();
+		}
+		else {
+			trap_Cvar_Set("demo_notifyWindow", "1");
+			CG_createNotifyWindow("You can upload this demo by typing in console ^n/demoupload last <optional: comment>");
+		}
+		return;
+	case K_F10:		
+		return;
+	case K_F11:
+		if (demo_infoWindow.integer)
+			trap_Cvar_Set("demo_infoWindow", "0");
+		else
+			trap_Cvar_Set("demo_infoWindow", "1");
+		return;
+	case K_F12:
+		if (cgs.demoPopUpInfo.show == SHOW_ON) {
+			trap_Cvar_Set("demo_popupWindow", "0");				
+			CG_createDemoPopUpWindow("POPUPS are ^nDISABLED");
+		}
+		else {
+			trap_Cvar_Set("demo_popupWindow", "1");	
+			CG_createDemoPopUpWindow("POPUPS are ^nENABLED");
+		}
+		return;
+
 		break;
 		}
 	}
@@ -489,19 +506,27 @@ typedef struct {
 } helpCmd_reference_t;
 
 static const helpCmd_reference_t helpInfo[] = {
-		{ "BACKSPACE",	"Show/Hide this Window" },
-		{ "F12",		"Show/Hide Info Window"},
+		{ "BACKSPACE", "Show/Hide This Window" },
+		{ "F9",			"Show/Hide Upload Helper" },
+		{ "F10",		""}, // TIMER CONTROL .. TODO
+		{ "F11",		"Show/Hide Info Window" },
+		{ "F12",		"Enable/Disable Pop-ups" },
+		{ " ",			" "},
 		{ "F1",			"Toggle Wallhack" },
-		{ "ENTER",		"Third person view" },
+		{ "F2",			"Toggle ShowNormals" },
+		{ "F3",			"Show/Hide Chats" },
+		{ "F4",			"Show/Hide Voice chats" },
+		{ " ", " " },
+		{ "ENTER",		"Toggle third person view" },
 		{ "ARROWS",		"Third person rotation" },
-		{ "NUM Arrow",	"TimeScale Slow/Fast"},
+		{ "NUM ARROWS",	"TimeScale Slow/Fast"},
 		{ "SPACE",		"Timescale reset" },
 		{ "SCROLL",		"Timescale Slow/Fast" },
-		{ "F8",			"Upload this demo" },
-		{ "F5",			"Record Avi @ 15 FPS"},
-		{ "F6",			"Record Avi @ 30 FPS" },
-		{ "F7",			"Record Avi @ 40 FPS" },
-		{ "F8",			"Record Avi @ 60 FPS" }
+		{ "MOUSE 1",	"Zoom IN FOV"},
+		{ "MOUSE 2",	"Zoom OUT FOV"},
+		{ "MOUSE 3",	"Toggle third person view"}
+		
+		
 };
 
 void CG_createControlsWindow(void) {
@@ -547,5 +572,29 @@ void CG_createControlsWindow(void) {
 				}
 			}
 		}
+	}
+}
+
+/*
+Basic info and not even a window..
+
+NOTE: Ugly inlines :|
+*/
+void CG_demoView(void) {
+
+	if (cg.demoPlayback && demo_infoWindow.integer) {
+		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.4f };
+		vec4_t colorBorderFill = { 0.1f, 0.1f, 0.1f, 0.8f };
+		char *s = va("^nWallhack: ^7%s ^n| Timescale: ^7%.1f", (cgs.wallhack ? "On" : "Off"), cg_timescale.value);
+		char *ts = (cg_timescale.value != 1.0 ? "Space: Default" : "Fst/Slw: Scroll");
+		int w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		char *s2 = (cgs.wallhack ? va("^nToggle: F1     | %s", ts) : va("^nToggle: F1      | %s", ts));
+		int w2 = CG_DrawStrlen(s) * (TINYCHAR_WIDTH - 1);
+
+		CG_FillRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, colorGeneralFill);
+		CG_DrawRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, 1, colorBorderFill);
+
+		CG_DrawStringExt(42, 400, s, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(42, 420, s2, colorWhite, qfalse, qtrue, TINYCHAR_WIDTH - 1, TINYCHAR_HEIGHT - 1, 0);
 	}
 }

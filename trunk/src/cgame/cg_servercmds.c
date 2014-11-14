@@ -1144,6 +1144,10 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 		return;
 	}
 */
+	// OSPx - Not in demo if disabled
+	if (cg.demoPlayback && cgs.noVoice) {
+		return;
+	}
 
 	if ( !cg_noVoiceChats.integer ) {
 		trap_S_StartLocalSound( vchat->snd, CHAN_VOICE );
@@ -1180,8 +1184,8 @@ void CG_PlayVoiceChat( bufferedVoiceChat_t *vchat ) {
 			CG_ShowResponseHead();
 		}
 #endif
-	}
-	if ( !vchat->voiceOnly && !cg_noVoiceText.integer ) {
+	}													// OSPx - Not in demo
+	if ( !vchat->voiceOnly && !cg_noVoiceText.integer || (cg.demoPlayback && !cgs.noVoice) ) {
 		CG_AddToTeamChat( vchat->message );
 		CG_Printf( va( "[skipnotify]: %s\n", vchat->message ) ); // JPW NERVE
 	}
@@ -1486,6 +1490,11 @@ static void CG_ServerCommand( void ) {
 			return;
 		}
 
+		// OSPx - Not in demo if it's off..
+		if (cg.demoPlayback && cgs.noChat) {
+			return;
+		}
+
 		if ( atoi( CG_Argv( 2 ) ) ) {
 			s = CG_LocalizeServerCommand( CG_Argv( 1 ) );
 		} else {
@@ -1517,6 +1526,11 @@ static void CG_ServerCommand( void ) {
 			s = CG_LocalizeServerCommand( CG_Argv( 1 ) );
 		} else {
 			s = CG_Argv( 1 );
+		}
+
+		// OSPx - Not in demo if it's off..
+		if (cg.demoPlayback && cgs.noChat) {
+			return;
 		}
 
 		// OSPx - No voice prints
@@ -1554,6 +1568,11 @@ static void CG_ServerCommand( void ) {
 		if (cg_noVoice.integer == 2 || cg_noVoice.integer == 3)
 			return;
 
+		// OSPx - Not in demo if it's off..
+		if (cg.demoPlayback && cgs.noVoice) {
+			return;
+		}
+
 		CG_VoiceChat( SAY_TEAM );           // NERVE - SMF - enabled support
 		return;
 	}
@@ -1562,6 +1581,11 @@ static void CG_ServerCommand( void ) {
 		// OSPx - No voice prints
 		if (cg_noVoice.integer)
 			return;
+
+		// OSPx - Not in demo if it's off..
+		if (cg.demoPlayback && cgs.noVoice) {
+			return;
+		}
 
 		CG_VoiceChat( SAY_TELL );           // NERVE - SMF - enabled support
 		return;

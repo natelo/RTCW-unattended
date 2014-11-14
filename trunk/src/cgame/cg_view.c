@@ -2119,5 +2119,15 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if (cg.demoPlayback && !cg.revertToDefaultKeys) {
 		trap_Key_SetCatcher(KEYCATCH_CGAME);
 	}
+
+	// OSPx - Count time..
+	if (!cg.timeCounter) {
+		cg.timeCounter = cg.time + 1000;
+		cg.timein++;
+	}
+	else if (cg.timeCounter < cg.time) {
+		cg.timeCounter = cg.time + 1000;
+		cg.timein++;
+	}
 }
 
