@@ -1039,6 +1039,7 @@ static void CG_DrawUpperRight( void ) {
 		y = CG_DrawRespawnTimer(y);
 	}
 
+	// OSPx - Time Counter
 	CG_startCounter();
 }
 

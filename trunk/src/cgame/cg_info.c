@@ -437,23 +437,23 @@ void CG_DemoClick(int key) {
 		if (!cgs.noChat) {
 			cgs.noChat = 1;
 			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("All chats are ^nDISABLED");
+			CG_createDemoPopUpWindow("All chats are ^nDISABLED", 2);
 		}
 		else {
 			cgs.noChat = 0;
 			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("All chats are ^nENABLED\n");
+			CG_createDemoPopUpWindow("All chats are ^nENABLED\n", 2);
 		}
 		return;
 	case K_F4:
 		if (!cgs.noVoice) {
 			cgs.noVoice = 1;
 			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nDISABLED");
+			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nDISABLED", 2);
 		}
 		else if (cgs.noVoice == 1) {
 			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nENABLED");
+			CG_createDemoPopUpWindow("All ^3VOICE ^7chats are ^nENABLED", 2);
 			cgs.noVoice = 0;
 		}
 		return;
@@ -461,15 +461,7 @@ void CG_DemoClick(int key) {
 	case K_F6:
 	case K_F7:
 	case K_F8:		
-	case K_F9:
-		if (cgs.demoNotifyInfo.show == SHOW_ON) {
-			trap_Cvar_Set("demo_notifyWindow", "0");
-			CG_closeNotifyWindow();
-		}
-		else {
-			trap_Cvar_Set("demo_notifyWindow", "1");
-			CG_createNotifyWindow("You can upload this demo by typing in console ^n/demoupload last <optional: comment>");
-		}
+	case K_F9:		
 		return;
 	case K_F10:		
 		return;
@@ -479,15 +471,7 @@ void CG_DemoClick(int key) {
 		else
 			trap_Cvar_Set("demo_infoWindow", "1");
 		return;
-	case K_F12:
-		if (cgs.demoPopUpInfo.show == SHOW_ON) {
-			trap_Cvar_Set("demo_popupWindow", "0");				
-			CG_createDemoPopUpWindow("POPUPS are ^nDISABLED");
-		}
-		else {
-			trap_Cvar_Set("demo_popupWindow", "1");	
-			CG_createDemoPopUpWindow("POPUPS are ^nENABLED");
-		}
+	case K_F12:	
 		return;
 
 		break;
@@ -506,7 +490,7 @@ typedef struct {
 } helpCmd_reference_t;
 
 static const helpCmd_reference_t helpInfo[] = {
-		{ "BACKSPACE", "Show/Hide This Window" },
+		{ "BACKSPACE",  "Show/Hide This Window" },
 		{ "F9",			"Show/Hide Upload Helper" },
 		{ "F10",		""}, // TIMER CONTROL .. TODO
 		{ "F11",		"Show/Hide Info Window" },
@@ -517,16 +501,14 @@ static const helpCmd_reference_t helpInfo[] = {
 		{ "F3",			"Show/Hide Chats" },
 		{ "F4",			"Show/Hide Voice chats" },
 		{ " ", " " },
-		{ "ENTER",		"Toggle third person view" },
-		{ "ARROWS",		"Third person rotation" },
+		{ "ENTER",		"Toggle third person view" },		
 		{ "NUM ARROWS",	"TimeScale Slow/Fast"},
 		{ "SPACE",		"Timescale reset" },
 		{ "SCROLL",		"Timescale Slow/Fast" },
 		{ "MOUSE 1",	"Zoom IN FOV"},
 		{ "MOUSE 2",	"Zoom OUT FOV"},
-		{ "MOUSE 3",	"Toggle third person view"}
-		
-		
+		{ "MOUSE 3",	"Toggle third person view"},
+		{ "ARROWS",		"Third person rotation" }
 };
 
 void CG_createControlsWindow(void) {

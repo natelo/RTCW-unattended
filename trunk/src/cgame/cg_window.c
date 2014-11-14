@@ -62,7 +62,7 @@ void CG_closeDemoPopWindow(void) {
 /*
 	Pops up for few seconds
 */
-void CG_createDemoPopUpWindow( char *str) {
+void CG_createDemoPopUpWindow( char *str, int sec) {
 
 	if (!demo_popupWindow.integer) {
 		return;
@@ -90,7 +90,7 @@ void CG_createDemoPopUpWindow( char *str) {
 		memcpy(&sw->colorBackground2, colorGeneralFill, sizeof(vec4_t));
 
 		// Mark it so it can fade away..
-		cgs.demoPopUpInfo.requestTime = cg.time + 3000;
+		cgs.demoPopUpInfo.requestTime = cg.time + (sec * 1000);
 
 		cg.windowCurrent = sw;
 		CG_printWindow((char*)str);
@@ -117,57 +117,6 @@ void CG_destroyDemoPopUpWindow(void) {
 	}
 }
 
-/*
-	Closes notify window
-*/
-void CG_closeNotifyWindow(void) {
-	if (cgs.demoNotifyInfo.show == SHOW_ON) {
-		if (cg.time < cgs.demoNotifyInfo.fadeTime) {
-			cgs.demoNotifyInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoNotifyInfo.fadeTime;
-		}
-		else {
-			cgs.demoNotifyInfo.fadeTime = cg.time + STATS_FADE_TIME;
-		}
-		CG_windowFree(cg.demoNotifyWindow);
-		cg.demoNotifyWindow = NULL;
-	}
-}
-
-/*
-	Sticky notification info
-*/
-void CG_createNotifyWindow( char *str ) {
-
-	if (!demo_notifyWindow.integer) {
-		return;
-	}
-	else {
-		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.8f };
-		cg_window_t *sw = CG_windowAlloc(WFX_TEXTSIZING | WFX_FADEIN | WFX_SCROLLUP, 120);
-		
-		// Close any existing..
-		CG_closeNotifyWindow();
-
-		cg.demoNotifyWindow = sw;
-		if (sw == NULL) {
-			return;
-		}
-
-		// Window specific
-		sw->id = WID_DEMONOTIFY;
-		sw->fontScaleX = 1 * 0.7f;
-		sw->fontScaleY = 1 * 0.8f;
-		sw->x = -10;
-		sw->y = 470;
-		sw->flashPeriod = 1500;
-		sw->flashMidpoint = sw->flashPeriod * 0.7f;
-		memcpy(&sw->colorBackground2, colorGeneralFill, sizeof(vec4_t));
-
-		cg.windowCurrent = sw;
-		CG_printWindow((char*)str);
-	}
-}
-
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 //
@@ -187,7 +136,6 @@ void CG_windowInit( void ) {
 	
 	cg.demoControlsWindow = NULL;
 	cg.demoPopupWindow = NULL;
-	cg.demoNotifyWindow = NULL;
 }
 
 // Window stuct "constructor" with some common defaults
@@ -305,8 +253,10 @@ void CG_windowDraw( void ) {
 			CG_createControlsWindow();
 		}
 
-		if (demo_notifyWindow.integer && cg.demoPlayback) {			
-			CG_createNotifyWindow("You can upload this demo by typing in console ^n/demoupload last <optional: comment>");
+		if (demo_popupWindow.integer && cg.demoPlayback && !cg.advertisementDone && !demo_noAdvertisement.integer) {
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("Upload this demo: ^n/demoupload last <comment>", 10);
+			cg.advertisementDone = qtrue;
 		}
 		// ~OSPx
 		return;
@@ -447,12 +397,6 @@ void CG_windowDraw( void ) {
 // OSPx 
 	// Track this..
 	CG_destroyDemoPopUpWindow();
-
-	// Notify..
-	if (demo_notifyWindow.integer && cg.demoPlayback) {
-		cgs.demoNotifyInfo.show = SHOW_ON;
-		CG_createNotifyWindow("You can upload this demo by typing in console ^n/demoupload last <optional: comment>");
-	}
 // ~OSPx
 
 	if ( fCleanup ) {

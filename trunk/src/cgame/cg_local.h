@@ -125,7 +125,6 @@ If you have questions concerning this license or the applicable additional terms
 #define WID_NONE            0x00    // General window
 #define WID_DEMOCONTROLS	0x01    // Demo Controls
 #define WID_DEMOPOPUP		0x02	// Demo Pop ups
-#define WID_DEMONOTIFY		0x03	// Sticky notification
 
 #define WFX_TEXTSIZING      0x01    // Size the window based on text/font setting
 #define WFX_FLASH           0x02    // Alternate between bg and b2 every half second
@@ -202,12 +201,6 @@ typedef struct {
 	int show;
 	int requestTime;
 } demoPopupInfo_t;
-
-typedef struct {
-	int fadeTime;
-	int show;
-}
-demoNotifyInfo_t;
 
 #define DEMO_THIRDPERSONUPDATE  0
 #define DEMO_RANGEDELTA         6
@@ -1136,10 +1129,10 @@ typedef struct {
 	cg_windowHandler_t winHandler;
 	cg_window_t *demoControlsWindow;
 	cg_window_t *demoPopupWindow;
-	cg_window_t *demoNotifyWindow;
 
 	// Demo
 	qboolean revertToDefaultKeys;
+	qboolean advertisementDone;
 // -OSPx
 
 	pmoveExt_t pmext;	
@@ -1745,8 +1738,7 @@ typedef struct {
 
 	// OSPx - Demo
 	demoControlInfo_t demoControlInfo;
-	demoPopupInfo_t demoPopUpInfo;	
-	demoNotifyInfo_t demoNotifyInfo;
+	demoPopupInfo_t demoPopUpInfo;
 	int thirdpersonUpdate;
 	qboolean showNormals;
 	qboolean wallhack;
@@ -1966,6 +1958,7 @@ extern vmCvar_t demo_controlsWindow;
 extern vmCvar_t demo_popupWindow;
 extern vmCvar_t demo_notifyWindow;
 extern vmCvar_t demo_showTimein;
+extern vmCvar_t	demo_noAdvertisement;
 // -OSPx
 
 //
@@ -2443,9 +2436,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 //
 // OSPx -  cg_window.c
 //
-void CG_createDemoPopUpWindow(char *str);
-void CG_closeNotifyWindow(void);
-void CG_createNotifyWindow(char *str);
+void CG_createDemoPopUpWindow(char *str, int sec);
 qboolean CG_addString(cg_window_t *w, char *buf);
 void CG_printWindow(char *str);
 void CG_removeStrings(cg_window_t *w);

@@ -312,8 +312,8 @@ vmCvar_t cg_drawNames;
 vmCvar_t demo_infoWindow;
 vmCvar_t demo_controlsWindow;
 vmCvar_t demo_popupWindow;
-vmCvar_t demo_notifyWindow;
 vmCvar_t demo_showTimein;
+vmCvar_t demo_noAdvertisement;
 // -OSPx
 
 typedef struct {
@@ -544,8 +544,8 @@ cvarTable_t cvarTable[] = {
 	{ &demo_infoWindow, "demo_infoWindow", "1", CVAR_ARCHIVE },
 	{ &demo_controlsWindow, "demo_controlsWindow", "1", CVAR_ARCHIVE},
 	{ &demo_popupWindow, "demo_popupWindow", "1", CVAR_ARCHIVE },
-	{ &demo_notifyWindow, "demo_notifyWindow", "1", CVAR_ARCHIVE },
 	{ &demo_showTimein, "demo_showTimein", "1", CVAR_ARCHIVE },
+	{ &demo_noAdvertisement, "demo_noAdvertisement", "0", CVAR_ARCHIVE }
 	// -OSPx
 };
 int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );

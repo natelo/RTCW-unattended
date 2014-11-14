@@ -2551,7 +2551,6 @@ void CG_EventHandling( int type ) {
 		//CG_ShowTeamMenu();
 	} else if ( type == CGAME_EVENT_SCOREBOARD ) {
 	}
-
 }
 
 void CG_KeyEvent( int key, qboolean down ) {
