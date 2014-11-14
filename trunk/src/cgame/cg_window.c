@@ -271,7 +271,7 @@ void CG_windowDraw( void ) {
 	CG_demoView();
 
 	if ( cg.winHandler.numActiveWindows == 0 ) {		
-		if (demo_controlsWindow.integer) {
+		if (demo_controlsWindow.integer && cg.demoPlayback) {
 			cgs.demoControlInfo.show = SHOW_ON;
 			CG_createControlsWindow();
 		}
