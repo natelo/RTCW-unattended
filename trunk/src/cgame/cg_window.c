@@ -255,7 +255,7 @@ void CG_windowDraw( void ) {
 
 		if (demo_popupWindow.integer && cg.demoPlayback && !cg.advertisementDone && !demo_noAdvertisement.integer) {
 			cgs.demoPopUpInfo.show = SHOW_ON;
-			CG_createDemoPopUpWindow("Upload this demo: ^n/demoupload last <comment>", 10);
+			CG_createDemoPopUpWindow("Upload this demo: ^n/demoupload current <optional: comment>", 10);
 			cg.advertisementDone = qtrue;
 		}
 		// ~OSPx

@@ -74,6 +74,7 @@ void CL_UploadDemo_f(void) {
 	char *path; 
 	char *id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 	char *arg, *comment = NULL;
+	char extension[32];
 
 	if (Cmd_Argc() < 2) {
 		Com_Printf("demoupload ^n<last/full name>\n");
@@ -82,7 +83,7 @@ void CL_UploadDemo_f(void) {
 
 	arg = Cmd_Argv(1);
 	comment = Cmd_ArgsFrom(2); // Grab whole comment	
-	if (!Q_stricmp(arg, "last")) {
+	if (!Q_stricmp(arg, "last") || !Q_stricmp(arg, "current")) {
 		if (clc.demorecording) {
 			Com_Printf("Cannot upload demo while it is being recorded.\nUse ^ndemoupload <force> ^7param to upload active demo with current end point.\n");
 			return;
@@ -91,14 +92,22 @@ void CL_UploadDemo_f(void) {
 			Com_Printf("Last demo only works for demos recorded during this session.\n");
 			return;
 		}
-		path = va("demos/%s.dm_57", cl_demoLast->string);
+		Com_sprintf(extension, sizeof(extension), ".dm_%d", PROTOCOL_VERSION);
+		if (!Q_stricmp(cl_demoLast->string + strlen(cl_demoLast->string) - strlen(extension), extension))
+			path = va("demos/%s", cl_demoLast->string);
+		else
+			path = va("demos/%s.dm_57", cl_demoLast->string);
 	}
 	else if (!Q_stricmp(arg, "force")) {
 		if (!cl_demoLast->string) {
 			Com_Printf("There are no active demos for this session.\n");
 			return;
 		}
-		path = va("demos/%s.dm_57", cl_demoLast->string);
+		Com_sprintf(extension, sizeof(extension), ".dm_%d", PROTOCOL_VERSION);
+		if (!Q_stricmp(cl_demoLast->string + strlen(cl_demoLast->string) - strlen(extension), extension))
+			path = va("demos/%s", cl_demoLast->string);
+		else
+			path = va("demos/%s.dm_57", cl_demoLast->string);
 	}
 	else {
 		path = va("demos/%s.dm_57", arg);

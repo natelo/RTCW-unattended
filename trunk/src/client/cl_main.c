@@ -602,8 +602,12 @@ void CL_PlayDemo_f( void ) {
 	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
 		Com_sprintf( name, sizeof( name ), "demos/%s", arg );
+		// L0 - Save it
+		Cvar_Set("cl_demoLast", arg);
 	} else {
 		Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", arg, PROTOCOL_VERSION );
+		// L0 - Save it
+		Cvar_Set("cl_demoLast", arg);
 	}
 
 	FS_FOpenFileRead( name, &clc.demofile, qtrue );
