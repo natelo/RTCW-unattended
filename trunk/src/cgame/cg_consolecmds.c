@@ -112,7 +112,7 @@ static void CG_ScoresDown_f( void ) {
 	}
 }
 
-static void CG_ScoresUp_f( void ) {
+void CG_ScoresUp_f( void ) {
 	if ( cg.showScores ) {
 		cg.showScores = qfalse;
 		cg.scoreFadeTime = cg.time;
