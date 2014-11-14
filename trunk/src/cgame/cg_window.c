@@ -43,25 +43,27 @@ If you have questions concerning this license or the applicable additional terms
 extern pmove_t cg_pmove;        // cg_predict.c
 extern displayContextDef_t cgDC;// L0 - Makes more sense here..	
 
-void CG_demoAviFPSDraw(void) {
-	//qboolean fKeyDown = cgs.fKeyPressed[K_F1] | cgs.fKeyPressed[K_F2] | cgs.fKeyPressed[K_F3] | cgs.fKeyPressed[K_F4] | cgs.fKeyPressed[K_F5];
+/*
+	Basic info and not even a window..
 
-	if (cg.demoPlayback) {
-		CG_DrawStringExt(42, 425,
-			((1 > 0) ? va("^3Record AVI @ ^7%d^2fps", 10) : "^1Stop AVI Recording"),
-			colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT - 2, 0);
-	}
-}
+	NOTE: Ugly inlines :|
+*/
+void CG_demoView(void) {
 
-void CG_demoTimescaleDraw(void) {
-	if (cg.demoPlayback ) {
-		char *s = va("^3TimeScale: ^7%.1f", cg_timescale.value);
+	if (cg.demoPlayback && demo_infoWindow.integer) {
+		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.4f };
+		vec4_t colorBorderFill = { 0.1f, 0.1f, 0.1f, 0.8f };
+		char *s = va("^nWallhack: ^7%s ^n| Timescale: ^7%.1f", (demo_wallhack.integer ? "On" : "Off"), cg_timescale.value);
+		char *ts = (cg_timescale.value != 1.0 ? "Space: Default" : "Fst/Slw: Scroll");
 		int w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
+		char *s2 = (demo_wallhack.integer ? va("^nToggle: F1     | %s", ts) : va("^nToggle: F1      | %s", ts));
+		int w2 = CG_DrawStrlen(s) * (TINYCHAR_WIDTH - 1);
 
-		CG_FillRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, colorDkGreen);
-		CG_DrawRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, 1, colorMdYellow);
+		CG_FillRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, colorGeneralFill);
+		CG_DrawRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, 1, colorBorderFill);
 
 		CG_DrawStringExt(42, 400, s, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(42, 420, s2, colorWhite, qfalse, qtrue, TINYCHAR_WIDTH - 1, TINYCHAR_HEIGHT - 1, 0);
 	}
 }
 
@@ -82,21 +84,14 @@ void CG_windowInit( void ) {
 	for ( i = 0; i < MAX_WINDOW_COUNT; i++ ) {
 		cg.winHandler.window[i].inuse = qfalse;
 	}
-
-	/*
-	cg.msgWstatsWindow = NULL;
-	cg.msgWtopshotsWindow = NULL;
-	cg.msgClientStatsWindow = NULL;
-	cg.statsWindow = NULL;
-	cg.topshotsWindow = NULL;
-	cg.clientStatsWindow = NULL;
-	*/
+	
+	cg.controlsWindow = NULL;
 }
 
 
 // Window stuct "constructor" with some common defaults
 void CG_windowReset( cg_window_t *w, int fx, int startupLength ) {
-	// L0 - Made it more darker to match wolfX
+	// L0 - Made it more darker 
 	vec4_t colorGeneralBorder = { 0.4f, 0.4f, 0.4f, 0.5f };
 	vec4_t colorGeneralFill   = { 0.1f, 0.1f, 0.1f, 0.8f };
 
@@ -200,10 +195,13 @@ void CG_windowDraw( void ) {
 	vec4_t *bg;
 	vec4_t textColor, borderColor, bgColor;
 
-	if ( cg.winHandler.numActiveWindows == 0 ) {
-		// Draw these for demoplayback no matter what
-		CG_demoAviFPSDraw();
-		CG_demoTimescaleDraw();
+	CG_demoView();
+
+	if ( cg.winHandler.numActiveWindows == 0 ) {		
+		if (demo_controlsWindow.integer) {
+			cgs.demoControlInfo.show = SHOW_ON;
+			CG_createControlsWindow();
+		}
 		return;
 	}
 
@@ -338,10 +336,6 @@ void CG_windowDraw( void ) {
 			}
 		}
 	}
-
-	// Extra rate info
-	CG_demoAviFPSDraw();
-	CG_demoTimescaleDraw();
 
 	if ( fCleanup ) {
 		CG_windowCleanup();

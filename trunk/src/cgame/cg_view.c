@@ -2114,5 +2114,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	DEBUGTIME
+
+	// OSPx - Demo keys.. (mass spam but..) FIXME
+	if (cg.demoPlayback && !cg.revertToDefaultKeys) {
+		trap_Key_SetCatcher(KEYCATCH_CGAME);
+	}
 }
 

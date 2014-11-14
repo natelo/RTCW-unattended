@@ -2560,6 +2560,12 @@ void CG_KeyEvent( int key, qboolean down ) {
 		return;
 	}
 
+	// L0 - Demo.. - Note that Escape always bails out..
+	if (cg.demoPlayback && key != K_ESCAPE && !cg.revertToDefaultKeys)  {
+		CG_DemoClick(key);
+		return;
+	}
+
 	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || ( cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == qfalse ) ) {
 		CG_EventHandling( CGAME_EVENT_NONE );
 		trap_Key_SetCatcher( 0 );

@@ -1308,7 +1308,7 @@ static void CG_DrawDisconnect( void ) {
 	int w;          // bk010215 - FIXME char message[1024];
 
 	// OSPx - Fix for "connection interrupted" when user is previewing demo with timescale lower than 0.5...
-	if (cg.demoPlayback && cg_timescale.value != 1.0f) {
+	if (cg.demoPlayback) {
 		return;
 	}
 
@@ -1351,6 +1351,11 @@ static void CG_DrawLagometer( void ) {
 	float ax, ay, aw, ah, mid, range;
 	int color;
 	float vscale;
+
+	// OSPx - Bail out in demo..
+	if (cg.demoPlayback) {
+		return;
+	}
 
 	if ( !cg_lagometer.integer || cgs.localServer ) {
 //	if(0) {
@@ -2451,6 +2456,12 @@ static void CG_DrawSpectatorMessage( void ) {
 	if ( !( cg.snap->ps.pm_flags & PMF_LIMBO || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) ) {
 		return;
 	}
+
+	// OSPx - Never during demo..
+	if (cg.demoPlayback) {
+		return;
+	}
+
 
 	trap_Cvar_VariableStringBuffer( "ui_limboMode", buf, sizeof( buf ) );
 	if ( atoi( buf ) ) {

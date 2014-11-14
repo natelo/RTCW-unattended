@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
-
+#include "../ui/keycodes.h"	// OSPx - Demo commands
 
 #define POWERUP_BLINKS      5
 
@@ -123,6 +123,7 @@ If you have questions concerning this license or the applicable additional terms
 #define WINDOW_FONTHEIGHT   8       // For non-true-type: height to scale from
 
 #define WID_NONE            0x00    // General window
+#define WID_CONTROLS		0x01    // Controls
 
 #define WFX_TEXTSIZING      0x01    // Size the window based on text/font setting
 #define WFX_FLASH           0x02    // Alternate between bg and b2 every half second
@@ -187,6 +188,17 @@ typedef enum {
 	SHOW_SHUTDOWN,
 	SHOW_ON
 } showView_t;
+
+typedef struct {	
+	int fadeTime;
+	int show;
+	int requestTime;
+} demoControlInfo_t;
+
+#define DEMO_THIRDPERSONUPDATE  0
+#define DEMO_RANGEDELTA         6
+#define DEMO_ANGLEDELTA         4
+
 // -OSPx
 
 //=================================================
@@ -513,7 +525,7 @@ typedef struct localEntity_s {
 	struct localEntity_s    *prev, *next;
 	leType_t leType;
 	int leFlags;
-
+	
 	int startTime;
 	int endTime;
 	int fadeInTime;
@@ -558,7 +570,6 @@ typedef struct localEntity_s {
 
 //======================================================================
 
-
 typedef struct {
 	int client;
 	int score;
@@ -579,7 +590,6 @@ typedef struct {
 	int respawnsLeft;                   // NERVE - SMF
 } score_t;
 
-
 typedef enum {
 	ACC_BELT_LEFT,  // belt left (lower)
 	ACC_BELT_RIGHT, // belt right (lower)
@@ -596,9 +606,6 @@ typedef enum {
 } accType_t;
 
 #define ACC_NUM_MOUTH 3 // matches the above count
-
-
-
 
 // each client has an associated clientInfo_t
 // that contains media references necessary to present the
@@ -677,8 +684,6 @@ typedef struct {
 	gender_t gender;                // from model
 	// -NERVE - SMF
 } clientInfo_t;
-
-
 
 typedef enum {
 	W_PART_1,
@@ -1111,6 +1116,10 @@ typedef struct {
 	cg_string_t aStringPool[MAX_STRINGS];	
 	cg_window_t *windowCurrent;
 	cg_windowHandler_t winHandler;
+	cg_window_t *controlsWindow;
+
+	// Demo
+	qboolean revertToDefaultKeys;
 // -OSPx
 
 	pmoveExt_t pmext;	
@@ -1713,6 +1722,10 @@ typedef struct {
 	int complaintClient;        // DHM - Nerve
 	int complaintEndTime;       // DHM - Nerve
 	float smokeWindDir; // JPW NERVE for smoke puffs & wind (arty, airstrikes, bullet impacts)
+
+	// OSPx - Demo
+	demoControlInfo_t demoControlInfo;
+	int thirdpersonUpdate;
 } cgs_t;
 
 //==============================================================================
@@ -1923,6 +1936,8 @@ extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
 
 extern vmCvar_t demo_wallhack;
+extern vmCvar_t demo_infoWindow;
+extern vmCvar_t demo_controlsWindow;
 // -OSPx
 
 //
@@ -2362,6 +2377,8 @@ void CG_LoadingString( const char *s );
 void CG_LoadingItem( int itemNum );
 void CG_LoadingClient( int clientNum );
 void CG_DrawInformation( void );
+void CG_DemoClick(int key);
+void CG_createControlsWindow(void);
 
 //
 // cg_scoreboard.c
