@@ -2560,7 +2560,7 @@ void CG_KeyEvent( int key, qboolean down ) {
 	}
 
 	// L0 - Demo.. - Note that Escape always bails out..
-	if (cg.demoPlayback && key != K_ESCAPE && !cg.revertToDefaultKeys)  {
+	if (cg.demoPlayback)  {
 		CG_DemoClick(key);
 		return;
 	}

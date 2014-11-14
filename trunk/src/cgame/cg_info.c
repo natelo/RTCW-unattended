@@ -291,11 +291,11 @@ void CG_DrawInformation(void) {
 extern void CG_createControlsWindow(void);
 void CG_DemoClick(int key) {
 	int milli = trap_Milliseconds();
-
+	
 	switch (key)
 	{
 	case K_ESCAPE:
-		cg.revertToDefaultKeys = qtrue;
+		Com_Error(ERR_DROP, "Demo stopped.");		
 		return;
 	case K_TAB:
 		if (cgs.demoControlInfo.show != SHOW_ON) {
