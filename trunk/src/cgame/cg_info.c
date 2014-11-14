@@ -294,157 +294,187 @@ void CG_DemoClick(int key) {
 
 	switch (key)
 	{
-		case K_ESCAPE:				
-			cg.revertToDefaultKeys = qtrue;
-			return;
-		case K_TAB:		
-			//CG_ScoresDown_f();
+	case K_ESCAPE:
+		cg.revertToDefaultKeys = qtrue;
 		return;
-		case K_BACKSPACE:
-			if (cgs.demoControlInfo.show != SHOW_ON) {
-				cgs.demoControlInfo.show = SHOW_ON;
-				CG_createControlsWindow();
-				trap_Cvar_Set("demo_controlsWindow", "1");
+	case K_TAB:
+	case K_BACKSPACE:
+		if (cgs.demoControlInfo.show != SHOW_ON) {
+			cgs.demoControlInfo.show = SHOW_ON;
+			CG_createControlsWindow();
+			trap_Cvar_Set("demo_controlsWindow", "1");
+		}
+		else {
+			cgs.demoControlInfo.show = SHOW_SHUTDOWN;
+			if (cg.time < cgs.demoControlInfo.fadeTime) {
+				cgs.demoControlInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoControlInfo.fadeTime;
 			}
 			else {
-				cgs.demoControlInfo.show = SHOW_SHUTDOWN;
-				if (cg.time < cgs.demoControlInfo.fadeTime) {
-					cgs.demoControlInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoControlInfo.fadeTime;
-				}
-				else {
-					cgs.demoControlInfo.fadeTime = cg.time + STATS_FADE_TIME;
-				}
-				CG_windowFree(cg.controlsWindow);
-				cg.controlsWindow = NULL;
-				trap_Cvar_Set("demo_controlsWindow", "0");
+				cgs.demoControlInfo.fadeTime = cg.time + STATS_FADE_TIME;
 			}
+			CG_windowFree(cg.demoControlsWindow);
+			cg.demoControlsWindow = NULL;
+			trap_Cvar_Set("demo_controlsWindow", "0");
+		}
+		return;
+	case K_F11:
+		trap_SendConsoleCommand("screenshotJPEG");
+		return;
+	case K_F12:
+		if (demo_infoWindow.integer)
+			trap_Cvar_Set("demo_infoWindow", "0");
+		else
+			trap_Cvar_Set("demo_infoWindow", "1");
+		return;
+	case K_SHIFT:
+	case K_CTRL:	
+	case K_MOUSE1:
+		CG_zoomViewSet_f();
+		return;
+	case K_MOUSE2:
+		CG_zoomViewRevert_f();
+		return;
+	case K_MOUSE3:		
+	case K_MOUSE4:	
+	case K_INS:
+	case K_KP_PGUP:
+	case K_DEL:
+	case K_KP_PGDN:
+	
+	case K_ENTER:
+		trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));
+		return;
+	case K_UPARROW:
+		if (milli > cgs.thirdpersonUpdate) {
+			float range = cg_thirdPersonRange.value;
 
-			return;
-		case K_F11:		
-				trap_SendConsoleCommand("screenshotJPEG");
-			return;
-		case K_F12:
-			if (demo_infoWindow.integer)
-				trap_Cvar_Set("demo_infoWindow", "0");
-			else
-				trap_Cvar_Set("demo_infoWindow", "1");
-			return;
-		case K_SHIFT:
-		case K_CTRL:
-		case K_MOUSE4:
-		case K_MOUSE1:
-		case K_MOUSE2:		
-		case K_INS:
-		case K_KP_PGUP:		
-		case K_DEL:
-		case K_KP_PGDN:		
-		case K_MOUSE3:		
-		case K_ENTER:		
-			trap_Cvar_Set("cg_thirdperson", ((cg_thirdPerson.integer == 0) ? "1" : "0"));	
-			return;
-		case K_UPARROW:			
-			if (milli > cgs.thirdpersonUpdate) {
-				float range = cg_thirdPersonRange.value;
+			cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
+			range -= ((range >= 4 * DEMO_RANGEDELTA) ? DEMO_RANGEDELTA : (range - DEMO_RANGEDELTA));
+			trap_Cvar_Set("cg_thirdPersonRange", va("%f", range));
+		}
+		return;
+	case K_DOWNARROW:
+		if (milli > cgs.thirdpersonUpdate) {
+			float range = cg_thirdPersonRange.value;
 
-				cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
-				range -= ((range >= 4 * DEMO_RANGEDELTA) ? DEMO_RANGEDELTA : (range - DEMO_RANGEDELTA));
-				trap_Cvar_Set("cg_thirdPersonRange", va("%f", range));
-			}			
-			return;
-		case K_DOWNARROW:			
-			if (milli > cgs.thirdpersonUpdate) {
-				float range = cg_thirdPersonRange.value;
+			cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
+			range += ((range >= 120 * DEMO_RANGEDELTA) ? 0 : DEMO_RANGEDELTA);
+			trap_Cvar_Set("cg_thirdPersonRange", va("%f", range));
+		}
+		return;
+	case K_RIGHTARROW:
+		if (milli > cgs.thirdpersonUpdate) {
+			float angle = cg_thirdPersonAngle.value - DEMO_ANGLEDELTA;
 
-				cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
-				range += ((range >= 120 * DEMO_RANGEDELTA) ? 0 : DEMO_RANGEDELTA);
-				trap_Cvar_Set("cg_thirdPersonRange", va("%f", range));
-			}			
-			return;
-		case K_RIGHTARROW:			
-			if (milli > cgs.thirdpersonUpdate) {
-				float angle = cg_thirdPersonAngle.value - DEMO_ANGLEDELTA;
-
-				cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
-				if (angle < 0) {
-					angle += 360.0f;
-				}
-				trap_Cvar_Set("cg_thirdPersonAngle", va("%f", angle));
-			}			
-			return;
-		case K_LEFTARROW:			
-			if (milli > cgs.thirdpersonUpdate) {
-				float angle = cg_thirdPersonAngle.value + DEMO_ANGLEDELTA;
-
-				cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
-				if (angle >= 360.0f) {
-					angle -= 360.0f;
-				}
-				trap_Cvar_Set("cg_thirdPersonAngle", va("%f", angle));
-			}			
-			return;
-
-			// Timescale controls
-		case K_KP_5:
-		case K_KP_INS:
-		case K_SPACE:		
-			trap_Cvar_Set("timescale", "1");
-			return;
-		case K_KP_DOWNARROW:		
-			//if (!down) 
-			{
-				float tscale = cg_timescale.value;
-
-				if (tscale <= 1.1f) {
-					if (tscale > 0.1f) {
-						tscale -= 0.1f;
-					}
-				}
-				else { tscale -= 1.0; }
-				trap_Cvar_Set("timescale", va("%f", tscale));
-				//cgs.timescaleUpdate = cg.time + (int)(1000.0f * tscale);
+			cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
+			if (angle < 0) {
+				angle += 360.0f;
 			}
-			return;
-		case K_MWHEELDOWN:
-			//CG_ZoomOut_f();
-			if (cg_timescale.value > 0.1f) {
-				trap_Cvar_Set("timescale", va("%f", cg_timescale.value - 0.1f));
-				//cgs.timescaleUpdate = cg.time + (int)(1000.0f * cg_timescale.value - 0.1f);
-			}	
-			return;
-		case K_MWHEELUP:
-			//CG_ZoomIn_f();
-			trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 0.5f));
-			return;
-	      
-		case K_KP_LEFTARROW:
-			if (cg_timescale.value > 0.1f) {
-				trap_Cvar_Set("timescale", va("%f", cg_timescale.value - 0.1f));
-				//cgs.timescaleUpdate = cg.time + (int)(1000.0f * cg_timescale.value - 0.1f);
+			trap_Cvar_Set("cg_thirdPersonAngle", va("%f", angle));
+		}
+		return;
+	case K_LEFTARROW:
+		if (milli > cgs.thirdpersonUpdate) {
+			float angle = cg_thirdPersonAngle.value + DEMO_ANGLEDELTA;
+
+			cgs.thirdpersonUpdate = milli + DEMO_THIRDPERSONUPDATE;
+			if (angle >= 360.0f) {
+				angle -= 360.0f;
 			}
-			return;
-		case K_KP_UPARROW:		
-				trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 1.0f));
-				//cgs.timescaleUpdate = cg.time + (int)(1000.0f * cg_timescale.value + 1.0f);		
-			return;
-		case K_KP_RIGHTARROW:
-			/*
-			if (!down) {
-				trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 0.1f));
-				cgs.timescaleUpdate = cg.time + (int)(1000.0f * cg_timescale.value + 0.1f);
+			trap_Cvar_Set("cg_thirdPersonAngle", va("%f", angle));
+		}
+		return;
+
+	case K_KP_5:
+	case K_KP_INS:
+
+	// Timescale controls
+	case K_SPACE:
+		trap_Cvar_Set("timescale", "1");
+		return;
+	case K_KP_UPARROW:
+		trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 1.0f));
+		return;
+	case K_KP_DOWNARROW:
+	{
+		float tscale = cg_timescale.value;
+
+		if (tscale <= 1.1f) {
+			if (tscale > 0.1f) {
+				tscale -= 0.1f;
 			}
+		}
+		else { tscale -= 1.0; }
+		trap_Cvar_Set("timescale", va("%f", tscale));
+	}
+		return;
+	case K_KP_RIGHTARROW:
+		trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 0.1f));
+		return;
+	case K_KP_LEFTARROW:
+		if (cg_timescale.value > 0.1f) {
+			trap_Cvar_Set("timescale", va("%f", cg_timescale.value - 0.1f));
+		}
+		return;
+	case K_MWHEELDOWN:
+		if (cg_timescale.value > 0.1f) {
+			trap_Cvar_Set("timescale", va("%f", cg_timescale.value - 0.1f));
 			return;
-			*/
-			// AVI recording controls
-		case K_F1:
-			if (demo_wallhack.integer)
-				trap_Cvar_Set("demo_wallhack", "0");
-			else
-				trap_Cvar_Set("demo_wallhack", "1");
-		case K_F2:		
-		case K_F3:		
-		case K_F4:		
-		case K_F5:
-			break;
+	case K_MWHEELUP:
+		trap_Cvar_Set("timescale", va("%f", cg_timescale.value + 0.5f));
+		return;
+
+	// Hacks
+	case K_F1:
+		if (cgs.wallhack)
+			cgs.wallhack = qfalse;
+		else
+			cgs.wallhack = qtrue;
+		return;
+	case K_F2:
+		if (cgs.showNormals) {
+			trap_Cvar_Set("r_showNormals", "0");
+			cgs.showNormals = qfalse;
+		}
+		else {
+			trap_Cvar_Set("r_showNormals", "1");
+			cgs.showNormals = qtrue;
+		}
+		return;
+	case K_F3:
+		if (cgs.noChat) {
+			cgs.noChat = 1;
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("^nShowing Team chats only");
+		}
+		else if (cgs.noChat == 1) {
+			cgs.noChat = 2;
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("^nShowing Global chats only");
+		}
+		else if (cgs.noChat == 2) {
+			cgs.noChat = 3;
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("All chats are ^nDISABLED");
+		}
+		else {
+			cgs.noChat = 0;
+			cgs.demoPopUpInfo.show = SHOW_ON;
+			CG_createDemoPopUpWindow("All chats are ^nENABLED\n");
+		}
+	case K_F4:
+		if (cgs.noVoice) {
+			cgs.noVoice = 1;
+		}
+		else if (cgs.noVoice == 1) {
+			cgs.noVoice = 2;
+		}
+		else {
+			cgs.noVoice = 0;
+		}
+	case K_F5:
+		break;
+		}
 	}
 }
 
@@ -459,13 +489,19 @@ typedef struct {
 } helpCmd_reference_t;
 
 static const helpCmd_reference_t helpInfo[] = {
-		{ "BACKSPACE",	"Closes this window" },
+		{ "BACKSPACE",	"Show/Hide this Window" },
 		{ "F12",		"Show/Hide Info Window"},
 		{ "F1",			"Toggle Wallhack" },
 		{ "ENTER",		"Third person view" },
 		{ "ARROWS",		"Third person rotation" },
+		{ "NUM Arrow",	"TimeScale Slow/Fast"},
 		{ "SPACE",		"Timescale reset" },
-		{ "SCROLL",		"Timescale Slow/Fast" }
+		{ "SCROLL",		"Timescale Slow/Fast" },
+		{ "F8",			"Upload this demo" },
+		{ "F5",			"Record Avi @ 15 FPS"},
+		{ "F6",			"Record Avi @ 30 FPS" },
+		{ "F7",			"Record Avi @ 40 FPS" },
+		{ "F8",			"Record Avi @ 60 FPS" }
 };
 
 void CG_createControlsWindow(void) {
@@ -473,28 +509,28 @@ void CG_createControlsWindow(void) {
 		return;
 	}
 	else {		
-		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.4f };
+		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.8f };
 		int i, \
 			aHelp = ARRAY_LEN(helpInfo);
 		const helpCmd_reference_t *hCM;		
 
 		if (aHelp != 0) {
-			cg_window_t *sw = CG_windowAlloc(WFX_TEXTSIZING | WFX_FADEIN | WFX_FLASH, 500);
+			cg_window_t *sw = CG_windowAlloc(WFX_TEXTSIZING | WFX_FADEIN | WFX_FLASH | WFX_SCROLLRIGHT, 500);
 			float diff = cg.fadeTime - trap_Milliseconds();
 			char *str;
 
-			cg.controlsWindow = sw;
+			cg.demoControlsWindow = sw;
 			if (sw == NULL) {
 				return;
 			}
 
 			// Window specific
-			sw->id = WID_CONTROLS;
+			sw->id = WID_DEMOCONTROLS;
 			sw->fontScaleX = 0.7f;
-			sw->fontScaleY = 0.7f;
-			sw->x = 360;
+			sw->fontScaleY = 0.8f;
+			sw->x = -50;
 			sw->y = -36;
-			sw->flashMidpoint = sw->flashPeriod * 0.1f;
+			sw->flashMidpoint = sw->flashPeriod * 0.85f;
 			memcpy(&sw->colorBackground2, colorGeneralFill, sizeof(vec4_t));
 
 			// Pump stuff in it now

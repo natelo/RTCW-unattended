@@ -53,10 +53,10 @@ void CG_demoView(void) {
 	if (cg.demoPlayback && demo_infoWindow.integer) {
 		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.4f };
 		vec4_t colorBorderFill = { 0.1f, 0.1f, 0.1f, 0.8f };
-		char *s = va("^nWallhack: ^7%s ^n| Timescale: ^7%.1f", (demo_wallhack.integer ? "On" : "Off"), cg_timescale.value);
+		char *s = va("^nWallhack: ^7%s ^n| Timescale: ^7%.1f", (cgs.wallhack ? "On" : "Off"), cg_timescale.value);
 		char *ts = (cg_timescale.value != 1.0 ? "Space: Default" : "Fst/Slw: Scroll");
 		int w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
-		char *s2 = (demo_wallhack.integer ? va("^nToggle: F1     | %s", ts) : va("^nToggle: F1      | %s", ts));
+		char *s2 = (cgs.wallhack ? va("^nToggle: F1     | %s", ts) : va("^nToggle: F1      | %s", ts));
 		int w2 = CG_DrawStrlen(s) * (TINYCHAR_WIDTH - 1);
 
 		CG_FillRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, colorGeneralFill);
@@ -64,6 +64,80 @@ void CG_demoView(void) {
 
 		CG_DrawStringExt(42, 400, s, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 		CG_DrawStringExt(42, 420, s2, colorWhite, qfalse, qtrue, TINYCHAR_WIDTH - 1, TINYCHAR_HEIGHT - 1, 0);
+	}
+}
+
+/*
+	Closes any existing window
+*/
+void CG_closeDemoPopWindow(void) {	
+	if (cgs.demoPopUpInfo.show == SHOW_ON) {
+		if (cg.time < cgs.demoPopUpInfo.fadeTime) {
+			cgs.demoPopUpInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoPopUpInfo.fadeTime;
+		}
+		else {
+			cgs.demoPopUpInfo.fadeTime = cg.time + STATS_FADE_TIME;
+		}
+		CG_windowFree(cg.demoPopupWindow);
+		cg.demoPopupWindow = NULL;
+	}
+}
+
+/*
+	Pops up for few seconds
+*/
+void CG_createDemoPopUpWindow( char *str) {
+
+	if (!demo_popupWindow.integer) {
+		return;
+	}
+	else {
+		vec4_t colorGeneralFill = { 0.1f, 0.1f, 0.1f, 0.8f };
+		cg_window_t *sw = CG_windowAlloc(WFX_TEXTSIZING | WFX_FADEIN | WFX_SCROLLUP, 120);
+
+		// Close any existing..
+		CG_closeDemoPopWindow();
+
+		cg.demoPopupWindow = sw;
+		if (sw == NULL) {
+			return;
+		}
+
+		// Window specific
+		sw->id = WID_DEMOPOPUP;
+		sw->fontScaleX = 1 * 0.7f;
+		sw->fontScaleY = 1 * 0.8f;
+		sw->x = 0;
+		sw->y = 470;
+		sw->flashPeriod = 1500;
+		sw->flashMidpoint = sw->flashPeriod * 0.7f;
+		memcpy(&sw->colorBackground2, colorGeneralFill, sizeof(vec4_t));
+
+		// Mark it so it can fade away..
+		cgs.demoPopUpInfo.requestTime = cg.time + 3000;
+
+		cg.windowCurrent = sw;
+		CG_printWindow((char*)str);
+	}
+}
+
+/*
+	Destroys pop up window 
+*/
+void CG_destroyDemoPopUpWindow(void) {
+	if (!cg.demoPlayback) {
+		return;
+	}
+
+	if (cgs.demoPopUpInfo.show == SHOW_ON && cg.time > cgs.demoPopUpInfo.requestTime) {
+		if (cg.time < cgs.demoPopUpInfo.fadeTime) {
+			cgs.demoPopUpInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoPopUpInfo.fadeTime;
+		}
+		else {
+			cgs.demoPopUpInfo.fadeTime = cg.time + STATS_FADE_TIME;
+		}
+		CG_windowFree(cg.demoPopupWindow);
+		cg.demoPopupWindow = NULL;
 	}
 }
 
@@ -75,7 +149,6 @@ void CG_demoView(void) {
 //////////////////////////////////////////////
 //////////////////////////////////////////////
 
-
 // Windowing system setup
 void CG_windowInit( void ) {
 	int i;
@@ -85,9 +158,9 @@ void CG_windowInit( void ) {
 		cg.winHandler.window[i].inuse = qfalse;
 	}
 	
-	cg.controlsWindow = NULL;
+	cg.demoControlsWindow = NULL;
+	cg.demoPopupWindow = NULL;
 }
-
 
 // Window stuct "constructor" with some common defaults
 void CG_windowReset( cg_window_t *w, int fx, int startupLength ) {
@@ -336,6 +409,9 @@ void CG_windowDraw( void ) {
 			}
 		}
 	}
+
+	// OSPx - Track this..
+	CG_destroyDemoPopUpWindow();
 
 	if ( fCleanup ) {
 		CG_windowCleanup();

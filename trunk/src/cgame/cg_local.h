@@ -123,7 +123,8 @@ If you have questions concerning this license or the applicable additional terms
 #define WINDOW_FONTHEIGHT   8       // For non-true-type: height to scale from
 
 #define WID_NONE            0x00    // General window
-#define WID_CONTROLS		0x01    // Controls
+#define WID_DEMOCONTROLS	0x01    // Demo Controls
+#define WID_DEMOPOPUP		0x02	// Demo Pop ups
 
 #define WFX_TEXTSIZING      0x01    // Size the window based on text/font setting
 #define WFX_FLASH           0x02    // Alternate between bg and b2 every half second
@@ -194,6 +195,12 @@ typedef struct {
 	int show;
 	int requestTime;
 } demoControlInfo_t;
+
+typedef struct {
+	int fadeTime;
+	int show;
+	int requestTime;
+} demoPopupInfo_t;
 
 #define DEMO_THIRDPERSONUPDATE  0
 #define DEMO_RANGEDELTA         6
@@ -1116,7 +1123,8 @@ typedef struct {
 	cg_string_t aStringPool[MAX_STRINGS];	
 	cg_window_t *windowCurrent;
 	cg_windowHandler_t winHandler;
-	cg_window_t *controlsWindow;
+	cg_window_t *demoControlsWindow;
+	cg_window_t *demoPopupWindow;
 
 	// Demo
 	qboolean revertToDefaultKeys;
@@ -1725,7 +1733,12 @@ typedef struct {
 
 	// OSPx - Demo
 	demoControlInfo_t demoControlInfo;
+	demoPopupInfo_t demoPopUpInfo;	
 	int thirdpersonUpdate;
+	qboolean showNormals;
+	qboolean wallhack;
+	int noChat;
+	int noVoice;
 } cgs_t;
 
 //==============================================================================
@@ -1935,9 +1948,9 @@ extern vmCvar_t cg_coloredCrosshairNames;
 extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
 
-extern vmCvar_t demo_wallhack;
 extern vmCvar_t demo_infoWindow;
 extern vmCvar_t demo_controlsWindow;
+extern vmCvar_t demo_popupWindow;
 // -OSPx
 
 //
@@ -2414,6 +2427,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 //
 // OSPx -  cg_window.c
 //
+void CG_createDemoPopUpWindow(char *str);
 qboolean CG_addString(cg_window_t *w, char *buf);
 void CG_printWindow(char *str);
 void CG_removeStrings(cg_window_t *w);
