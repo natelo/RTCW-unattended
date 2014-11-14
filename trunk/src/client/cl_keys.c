@@ -1173,7 +1173,7 @@ void Console_Key( int key ) {
 
 	// command history (ctrl-p ctrl-n for unix style)
 
-	//----(SA)	added some mousewheel functionality to the console
+	//----(SA)	added some mousewheel functionality to the Key_StringToKeynum(
 	if ( ( key == K_MWHEELUP && keys[K_SHIFT].down ) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
 		 ( ( tolower( key ) == 'p' ) && keys[K_CTRL].down ) ) {
 		if ( nextHistoryLine - historyLine < COMMAND_HISTORY
@@ -1754,7 +1754,13 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 		if ( !( cls.keyCatchers & KEYCATCH_UI ) ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+				// Arnout: on request
+				if (cls.keyCatchers & KEYCATCH_CONSOLE) {  // get rid of the console
+					Con_ToggleConsole_f();
+				}
+				else {
+					VM_Call(uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME);
+				}				
 			} else {
 				CL_Disconnect_f();
 				S_StopAllSounds();
@@ -1787,17 +1793,17 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
 			VM_Call( cgvm, CG_KEY_EVENT, key, down );
 		}
-
 		return;
 	}
 
 	// NERVE - SMF - if we just want to pass it along to game
 	if ( cl_bypassMouseInput && cl_bypassMouseInput->integer ) {    //DAJ BUG in dedicated cl_missionStats don't exist
-		if ( ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) ) {
+		if ((key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 || key == K_MOUSE4 || key == K_MOUSE5)) {
 			if ( cl_bypassMouseInput->integer == 1 ) {
 				bypassMenu = qtrue;
 			}
-		} else if ( !UI_checkKeyExec( key ) ) {
+		}
+		else if ((cls.keyCatchers & KEYCATCH_UI && !UI_checkKeyExec(key)) || (cls.keyCatchers & KEYCATCH_CGAME && !UI_checkKeyExec(key))) {
 			bypassMenu = qtrue;
 		}
 	}

@@ -220,7 +220,6 @@ void CL_CgameError( const char *string ) {
 	Com_Error( ERR_DROP, "%s", string );
 }
 
-
 /*
 =====================
 CL_ConfigstringModified
@@ -1048,7 +1047,8 @@ void CL_InitCGame( void ) {
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	//bani - added clc.demoplaying, since some mods need this at init time, and drawactiveframe is too late for them
+	VM_Call(cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum, clc.demoplaying);
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
