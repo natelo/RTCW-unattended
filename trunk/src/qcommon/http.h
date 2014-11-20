@@ -24,8 +24,15 @@ Hold declarations and structures of all the HTTP related functionality..
 Prototypes
 ============
 */
+
 //
-// g_http.c
+// http_main.c
+//
+void http_InitThreads(void);
+int http_create_thread(void *(*thread_function)(void *), void *arguments);
+
+//
+// http.c
 //
 void HTTP_Post(char *url, char *data);
 char *HTTP_PostQuery(char *url, char *data);

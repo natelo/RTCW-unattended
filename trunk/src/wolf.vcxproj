@@ -487,6 +487,7 @@
     </ClCompile>
     <ClCompile Include="qcommon\htable.c" />
     <ClCompile Include="qcommon\http.c" />
+    <ClCompile Include="qcommon\http_main.c" />
     <ClCompile Include="qcommon\huffman.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug Dedicated|Win32'">true</BrowseInformation>

@@ -212,6 +212,9 @@
     <ClCompile Include="qcommon\dl_main_curl.c">
       <Filter>downloads</Filter>
     </ClCompile>
+    <ClCompile Include="qcommon\http_main.c">
+      <Filter>http</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A3D\a3dWrapperdp.h">
