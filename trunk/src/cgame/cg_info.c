@@ -510,7 +510,6 @@ void CG_createControlsWindow(void) {
 
 		if (aHelp != 0) {
 			cg_window_t *sw = CG_windowAlloc(WFX_TEXTSIZING | WFX_FADEIN | WFX_FLASH | WFX_SCROLLRIGHT, 500);
-			float diff = cg.fadeTime - trap_Milliseconds();
 			char *str;
 
 			cg.demoControlsWindow = sw;
@@ -558,7 +557,6 @@ void CG_demoView(void) {
 		char *ts = (cg_timescale.value != 1.0 ? "Space: Default" : "Fst/Slw: Scroll");
 		int w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH;
 		char *s2 = (cgs.wallhack ? va("^nToggle: F1     | %s", ts) : va("^nToggle: F1      | %s", ts));
-		int w2 = CG_DrawStrlen(s) * (TINYCHAR_WIDTH - 1);
 
 		CG_FillRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, colorGeneralFill);
 		CG_DrawRect(42 - 2, 400, w + 5, SMALLCHAR_HEIGHT + 3, 1, colorBorderFill);
