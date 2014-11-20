@@ -9,10 +9,10 @@ Hold declarations and structures of all the HTTP related functionality..
 #ifndef _S_HTTP
 #define _S_HTTP
 
-#include "../game/q_shared.h"
-#include "qcommon.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include "../game/q_shared.h"
+#include "qcommon.h"
 
 // URL Mappings
 #define WEB_MOTD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/motd"
@@ -26,14 +26,13 @@ Hold declarations and structures of all the HTTP related functionality..
 Prototypes
 ============
 */
+static CURL *curl_handle = NULL;
 
 //
 // http_main.c
 //
-static CURL *curl_handle = NULL;
-
-void CURL_Handle_Init(void);
-void CURL_Handle_Shutdown(void);
+void http_InitThreads(void);
+int http_create_thread(void *(*thread_function)(void *), void *arguments);
 
 //
 // http.c
