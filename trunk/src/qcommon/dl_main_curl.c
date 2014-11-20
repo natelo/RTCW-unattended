@@ -131,7 +131,7 @@ int DL_BeginDownload(const char *localName, const char *remoteName, int debug) {
 	DL_InitDownload();
 
 	/* ET://ip:port */
-	strcpy(referer, "ET://");
+	strcpy(referer, "RTCW://");
 	Q_strncpyz(referer + 5, Cvar_VariableString("cl_currentServerIP"), MAX_STRING_CHARS);
 
 	dl_request = curl_easy_init();
