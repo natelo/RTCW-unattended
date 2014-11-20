@@ -3013,9 +3013,6 @@ void CL_Init( void ) {
 // L0 
 	//IRC
 	CL_OW_IRCSetup();
-
-	// Curl
-	CURL_Handle_Init();
 // ~L0
 
 	//
@@ -3276,9 +3273,6 @@ void CL_Shutdown( void ) {
 // L0 
 	// IRC
 	CL_OW_IRCInitiateShutdown();
-
-	// Curl
-	CURL_Handle_Shutdown();
 // ~L0
 
 	CL_ShutdownUI();

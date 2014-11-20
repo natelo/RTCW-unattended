@@ -2579,7 +2579,6 @@ void Com_Init( char *commandLine ) {
 
 	// L0 - Curl
 	CURL_Handle_Init();
-	Com_Printf("COMMON CURL LOAD..\n");
 
 	com_fullyInitialized = qtrue;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
@@ -2908,7 +2907,6 @@ void Com_Shutdown( void ) {
 
 	// L0 - Curl
 	CURL_Handle_Shutdown();
-	Com_Printf("COMMON CURL SHUTDOWN..\n");
 }
 
 #if !( defined __linux__ || defined __FreeBSD__ )  // r010123 - include FreeBSD
