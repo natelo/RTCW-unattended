@@ -54,29 +54,25 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 	Used when we want to send specific data but do not care about reply..
 */
 void HTTP_Post(char *url, char *data) {
-	CURL *curl;
 	CURLcode res;
 
-	curl_global_init(CURL_GLOBAL_ALL);
-
-	curl = curl_easy_init();
-	if (curl) {		
+	curl_handle = curl_easy_init();
+	if (curl_handle) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: one way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
 		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
-		curl_easy_setopt(curl, CURLOPT_URL, url);	
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
 
-		res = curl_easy_perform(curl);
+		res = curl_easy_perform(curl_handle);
 		if (res != CURLE_OK)
 			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
-		curl_easy_cleanup(curl);
+		curl_easy_cleanup(curl_handle);
 	}
-	curl_global_cleanup();
 	return;
 }
 
@@ -103,20 +99,14 @@ char *HTTP_PostQuery(char *url, char *data) {
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, parseReply);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &s);
-		/*
-		res = curl_easy_perform(curl);
+
+		res = curl_easy_perform(curl_handle);
 
 		if (res != CURLE_OK)
 			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
-		*/
-
-		curl_multi_add_handle(curl_multi, curl_handle);
 
 		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
-		
-
-		curl_multi_remove_handle(curl_multi, curl_handle);
 		curl_easy_cleanup(curl_handle);
 	}
 	return out;
@@ -128,12 +118,11 @@ char *HTTP_PostQuery(char *url, char *data) {
 	Connects to address and processes any data it gets..
 */
 char *HTTP_Query(char *url) {
-	CURL *curl;
 	CURLcode res;
 	char *out = NULL;
 
-	curl = curl_easy_init();
-	if (curl) {
+	curl_handle = curl_easy_init();
+	if (curl_handle) {
 		struct HTTPreply s;
 		init_string(&s);
 		struct curl_slist *headers = NULL;
@@ -141,18 +130,18 @@ char *HTTP_Query(char *url) {
 		headers = curl_slist_append(headers, "Client: rtcwmp");
 		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, parseReply);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
-		res = curl_easy_perform(curl);
+		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, parseReply);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &s);
+		res = curl_easy_perform(curl_handle);
 
 		if (res != CURLE_OK)
 			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
 
 		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
-		curl_easy_cleanup(curl);
+		curl_easy_cleanup(curl_handle);
 	}
 	return out;
 }
@@ -166,7 +155,6 @@ char *HTTP_Query(char *url) {
 		- Remove static bindings and parse structure for post fields..
 */
 qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose) {
-	CURL *curl;
 	CURLcode res;
 	FILE *fd;
 	double speed_upload, total_time;
@@ -213,18 +201,18 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 			CURLFORM_END);
 	}
 
-	curl = curl_easy_init();
+	curl_handle = curl_easy_init();
 	headerlist = curl_slist_append(headerlist, buf);
 
-	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);			
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+	if (curl_handle) {
+		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headerlist);
+		curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPPOST, formpost);
 		// Cap upload
 		//curl_easy_setopt(curl, CURLOPT_MAX_SEND_SPEED_LARGE, 40000);
 
-		res = curl_easy_perform(curl);		
+		res = curl_easy_perform(curl_handle);
 		if (res != CURLE_OK) {
 			if (!verbose)
 				Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
@@ -233,8 +221,8 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 		}
 		else {
 			
-			curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
-			curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
+			curl_easy_getinfo(curl_handle, CURLINFO_SPEED_UPLOAD, &speed_upload);
+			curl_easy_getinfo(curl_handle, CURLINFO_TOTAL_TIME, &total_time);
 
 			if (!verbose)
 				Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
@@ -242,7 +230,7 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 				Com_Printf("Speed: ^n%.3f ^7bytes/sec during ^n%.3f ^7seconds\n", speed_upload, total_time);
 
 		}
-		curl_easy_cleanup(curl);		
+		curl_easy_cleanup(curl_handle);
 		curl_formfree(formpost);		
 		curl_slist_free_all(headerlist);
 	}

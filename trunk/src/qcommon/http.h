@@ -30,7 +30,6 @@ Prototypes
 //
 // http_main.c
 //
-static CURLM *curl_multi = NULL;
 static CURL *curl_handle = NULL;
 
 void CURL_Handle_Init(void);
