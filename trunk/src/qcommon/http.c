@@ -6,8 +6,6 @@
 ===========================================================================
 */
 #include "http.h"
-#include <curl/curl.h>
-#include <curl/easy.h>
 
 /*
 	Structure for replies..
@@ -88,12 +86,11 @@ void HTTP_Post(char *url, char *data) {
 	Sends data and expects reply so rest of depended functions can do their thing
 */
 char *HTTP_PostQuery(char *url, char *data) {
-	CURL *curl;
 	CURLcode res;
 	char *out = NULL;
 
-	curl = curl_easy_init();
-	if (curl) {
+	curl_handle = curl_easy_init();
+	if (curl_handle) {
 		struct HTTPreply s;
 		init_string(&s);
 		struct curl_slist *headers = NULL;
@@ -101,19 +98,26 @@ char *HTTP_PostQuery(char *url, char *data) {
 		headers = curl_slist_append(headers, "Client: rtcwmp");
 		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
 
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);		
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, parseReply);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, parseReply);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &s);
+		/*
 		res = curl_easy_perform(curl);
 
 		if (res != CURLE_OK)
 			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+		*/
+
+		curl_multi_add_handle(curl_multi, curl_handle);
 
 		out = va("%s", s.ptr); // Copy it thru engine..
 		free(s.ptr);
-		curl_easy_cleanup(curl);
+		
+
+		curl_multi_remove_handle(curl_multi, curl_handle);
+		curl_easy_cleanup(curl_handle);
 	}
 	return out;
 }

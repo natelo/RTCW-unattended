@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
+#include "http.h" // L0 - Curl
 
 #define MAX_NUM_ARGVS   50
 
@@ -2576,6 +2577,10 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
+	// L0 - Curl
+	CURL_Handle_Init();
+	Com_Printf("COMMON CURL LOAD..\n");
+
 	com_fullyInitialized = qtrue;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
 }
@@ -2729,10 +2734,6 @@ void Com_Frame( void ) {
 	int timeBeforeEvents;
 	int timeBeforeClient;
 	int timeAfter;
-
-
-
-
 
 	if ( setjmp( abortframe ) ) {
 		return;         // an ERR_DROP was thrown
@@ -2905,6 +2906,9 @@ void Com_Shutdown( void ) {
 		com_journalFile = 0;
 	}
 
+	// L0 - Curl
+	CURL_Handle_Shutdown();
+	Com_Printf("COMMON CURL SHUTDOWN..\n");
 }
 
 #if !( defined __linux__ || defined __FreeBSD__ )  // r010123 - include FreeBSD

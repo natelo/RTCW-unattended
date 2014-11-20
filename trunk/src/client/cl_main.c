@@ -3010,8 +3010,13 @@ void CL_Init( void ) {
 
 	CL_InitInput();
 
-	// L0 - IRC
+// L0 
+	//IRC
 	CL_OW_IRCSetup();
+
+	// Curl
+	CURL_Handle_Init();
+// ~L0
 
 	//
 	// register our variables
@@ -3268,9 +3273,13 @@ void CL_Shutdown( void ) {
 	S_Shutdown();
 	CL_ShutdownRef();
 
-	// L0 - IRC
+// L0 
+	// IRC
 	CL_OW_IRCInitiateShutdown();
-	// End
+
+	// Curl
+	CURL_Handle_Shutdown();
+// ~L0
 
 	CL_ShutdownUI();
 

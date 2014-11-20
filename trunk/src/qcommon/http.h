@@ -11,6 +11,8 @@ Hold declarations and structures of all the HTTP related functionality..
 
 #include "../game/q_shared.h"
 #include "qcommon.h"
+#include <curl/curl.h>
+#include <curl/easy.h>
 
 // URL Mappings
 #define WEB_MOTD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/motd"
@@ -28,8 +30,11 @@ Prototypes
 //
 // http_main.c
 //
-void http_InitThreads(void);
-int http_create_thread(void *(*thread_function)(void *), void *arguments);
+static CURLM *curl_multi = NULL;
+static CURL *curl_handle = NULL;
+
+void CURL_Handle_Init(void);
+void CURL_Handle_Shutdown(void);
 
 //
 // http.c

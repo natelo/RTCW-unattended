@@ -7,83 +7,41 @@
 */
 #include "http.h"
 
-#ifdef __linux__
-#include <gnu/lib-names.h>
-#elif defined( __MACOS__ )
-#define LIBPTHREAD_SO "/usr/lib/libpthread.dylib"
-#elif defined( __APPLE__ )
-#define LIBPTHREAD_SO "/usr/lib/libpthread.dylib"
-#endif
 
-#ifndef WIN32
-#include <pthread.h>
-#include <dlfcn.h>
+// initialize once
+static int curl_handle_initialized = 0;
 
-
-// tjw: handle for libpthread.so
-void *g_pthreads = NULL;
-
-// tjw: pointer to pthread_create() from libpthread.so
-static int(*g_pthread_create)
-(pthread_t  *,
-__const pthread_attr_t *,
-void * (*)(void *),
-void *) = NULL;
-
-
-void http_InitThreads(void)
-{
-	if (g_pthreads != NULL) {
-		G_Printf("pthreads already loaded\n");
+void CURL_Handle_Init(void) {
+	if (curl_handle_initialized) {
 		return;
 	}
-	g_pthreads = dlopen(LIBPTHREAD_SO, RTLD_NOW);
-	if (g_pthreads == NULL) {
-		G_Printf("could not load libpthread\n%s\n",
-			dlerror());
+
+	/* Make sure curl has initialized, so the cleanup doesn't get confused */
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	curl_multi = curl_multi_init();
+
+	Com_Printf("----- Curl initialization -----\n");
+	curl_handle_initialized = 1;
+}
+
+/*
+================
+DL_Shutdown
+
+================
+*/
+void CURL_Handle_Shutdown(void) {
+	if (!curl_handle_initialized) {
 		return;
 	}
-	G_Printf("loaded libpthread\n");
-	g_pthread_create = dlsym(g_pthreads, "pthread_create");
-	if (g_pthread_create == NULL) {
-		G_Printf("could not locate pthread_create\n%s\n",
-			dlerror());
-		return;
-	}
-	G_Printf("found pthread_create\n");
+
+	curl_multi_cleanup(curl_handle);
+	curl_multi = NULL;
+
+	curl_global_cleanup();
+
+	curl_handle_initialized = 0;
+		
+	Com_Printf("----- Curl shutdown -----\n");
 }
-
-int http_create_thread(void *(*thread_function)(void *), void *arguments) {
-	pthread_t thread_id;
-
-	if (g_pthread_create == NULL) {
-		// tjw: pthread_create() returns non 0 for failure
-		//      but I don't know what's proper here.
-		return -1;
-	}
-
-	if (g_httpDebug.integer)
-		G_Printf("Thread created.\n");
-
-	return g_pthread_create(&thread_id, NULL, thread_function, arguments);
-}
-
-#else //WIN32
-#include <process.h>
-
-void http_InitThreads(void)
-{
-	// forty - we can have thread support in win32 we need to link with the MT runtime and use _beginthread
-	Com_DPrintf("Threading enabled.\n");
-}
-
-int http_create_thread(void *(*thread_function)(void *), void *arguments) {
-	void *(*func)(void *) = thread_function;
-
-	Com_DPrintf("Thread created.\n");
-
-	//Yay - no complaining
-	_beginthread((void(*)(void *))func, 0, arguments);
-	return 0;
-}
-#endif
