@@ -94,16 +94,29 @@ int http_create_thread(void *(*thread_function)(void *), void *arguments) {
 /*
 	Process query 
 */
+static char *HTTPreplyMsg = { "null" };
 void *HTTP_process_PostQuery(void *args) {
 	HTTP_postCmd_t *cmd = (HTTP_postCmd_t *)args;
-	
-	// Spinlock as I really do not want to deal with sync across the threads..
-	while (HTTPreplyMsg != NULL) {}
 
 	HTTPreplyMsg = va("%s", HTTP_PostQuery(cmd->url, cmd->data));
-
 	free(cmd);
+
 	return 0;
+}
+
+/*
+	A cheap locking ..
+*/
+int SetThreadLimit(void) {
+	int i;
+
+	for (i = 0; i <= MAX_HTTP_THREADS; i++) {
+		if (HTTP_threadID.id[i] == qfalse) {
+			HTTP_threadID.id[i] = qtrue;
+			return i;
+		}
+	}
+	return -1;
 }
 
 /*
@@ -112,6 +125,10 @@ void *HTTP_process_PostQuery(void *args) {
 char *CL_HTTP_PostQuery(char *url, char *data) {
 	HTTP_postCmd_t *post_cmd = (HTTP_postCmd_t*)malloc(sizeof(HTTP_postCmd_t));
 	char *out = NULL;
+	int threadID = SetThreadLimit();
+
+	// Locks it..
+	while (threadID == -1);
 
 	// Fill the structure
 	post_cmd->url = url;
@@ -120,8 +137,11 @@ char *CL_HTTP_PostQuery(char *url, char *data) {
 
 	http_create_thread(HTTP_process_PostQuery, (void*)post_cmd);	
 	out = va("%s", HTTPreplyMsg);
+
 	HTTPreplyMsg = NULL;	
+	HTTP_threadID.id[threadID] = qfalse;
 
 	Com_DPrintf("Thread destroyed.\n");
+
 	return out;
 }

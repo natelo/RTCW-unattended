@@ -41,12 +41,19 @@ typedef struct {
 	qboolean verbose;
 } HTTP_fileCmd_t;
 
+#define MAX_HTTP_THREADS 10
+
+struct HTTP_threadID_t {
+	qboolean id[MAX_HTTP_THREADS];
+};
+
+static struct HTTP_threadID_t HTTP_threadID;
+
 /*
 ============
 Prototypes
 ============
 */
-static char *HTTPreplyMsg = { NULL };
 
 //
 // http_main.c
