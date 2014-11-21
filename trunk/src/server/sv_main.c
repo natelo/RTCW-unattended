@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "server.h"
+#include "../qcommon/http.h"
 
 serverStatic_t svs;                 // persistant server info
 server_t sv;                        // local server
@@ -665,6 +666,31 @@ void SVC_Info( netadr_t from ) {
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
+
+
+/*
+================
+L0 - SVC_AuthRequest
+
+Auth Server has send info..
+================
+*/
+void SVC_AuthRequest(netadr_t from) {
+	const char *auth;
+	netadr_t allowed;
+
+	Sys_StringToAdr(AUTHORIZE_SERVER_NAME, &allowed, NA_IP);
+	auth = va("%i.%i.%i.%i", allowed.ip[0], allowed.ip[1], allowed.ip[2], allowed.ip[3]);
+
+	// If it's not ours..bail out
+	if (Q_stricmp(NET_AdrToString(from), auth))
+		return;
+		
+	if (sv_serverStreaming->integer) {
+		_HTTP_Download(WEB_MBL, "mbl", qtrue);
+	}	
+}
+
 // DHM - Nerve
 #ifdef UPDATE_SERVER
 /*
@@ -984,6 +1010,14 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		} // End
 		SVC_RemoteCommand( from, msg );
+	}
+// L0 - check for ddos
+	else if (!Q_stricmp(c, "doauth")) {		
+		if (SV_CheckDRDoS(from)) {
+			return;
+		}
+		SVC_AuthRequest(from);
+// ~L0
 // DHM - Nerve
 #ifdef UPDATE_SERVER
 	} else if ( !Q_stricmp( c, "getUpdateInfo" ) ) {
