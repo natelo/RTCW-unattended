@@ -353,10 +353,7 @@ extern cvar_t  *sv_onlyVisibleClients;
 extern cvar_t  *sv_showAverageBPS;          // NERVE - SMF - net debugging
 
 // L0 - New stuff
-extern cvar_t *sv_serverStreaming;	// If server is streaming or not : Note: locked but really a "poor man's" solution..
-extern cvar_t *sv_serverStrict;		// If strict it will drop clients if auth is down instead of letting them in..
-extern cvar_t *sv_minGuidAge;		// Min guid age to enter a server
-extern cvar_t *sv_maxGuidAge;		// Max guid age to enter a server
+extern cvar_t	*sv_serverStreaming;	// If server is streaming or not : Note: locked but really a "poor man's" solution..
 
 extern cvar_t	*project_developer;
 extern cvar_t	*project_url;

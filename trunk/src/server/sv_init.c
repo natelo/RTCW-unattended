@@ -882,14 +882,8 @@ void SV_Init( void ) {
 	// L0 - Our cvars
 #ifdef _DEBUG_HTTP
 	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_serverStrict = Cvar_Get("sv_serverStrict", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_minGuidAge = Cvar_Get("sv_minGuidAge", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_maxGuidAge = Cvar_Get("sv_maxGuidAge", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
 #else
 	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_INIT | CVAR_SERVERINFO);
-	sv_serverStrict = Cvar_Get("sv_serverStrict", "1", CVAR_INIT | CVAR_SERVERINFO);
-	sv_minGuidAge = Cvar_Get("sv_minGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
-	sv_maxGuidAge = Cvar_Get("sv_maxGuidAge", "0", CVAR_INIT | CVAR_SERVERINFO);
 #endif	
 	Cvar_Get("project_developer", "Nate 'L0", CVAR_ROM | CVAR_SERVERINFO);
 	Cvar_Get("project_url", "rtcwmp.com", CVAR_ROM);
