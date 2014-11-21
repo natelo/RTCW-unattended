@@ -947,28 +947,8 @@ void CL_RequestMotd( void ) {
 		return;
 	}
 
-	Com_Printf("Connecting to news server..");
-	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.motdServer, NA_UNSPEC)) {
-		Com_Printf( "could not resolve address\n^nWARNING: MOTD server is unreachable!\n" );
-		return;
-	}
-	else {
-		Com_Printf("SUCCESS\n");
-	}
-	
-	cls.motdServer.port = BigShort(PORT_AUTHORIZE);
-	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-			cls.motdServer.ip[0], cls.motdServer.ip[1],
-			cls.motdServer.ip[2], cls.motdServer.ip[3],
-			BigShort(cls.motdServer.port));
-
-	// L0 - IPv6
-	Com_DPrintf("%s resolved to %s\n", AUTHORIZE_SERVER_NAME,
-		NET_AdrToStringwPort(cls.motdServer));
-	// End
-
 	// Query it now
-	result = HTTP_Query(WEB_MOTD);
+	result = CL_HTTP_Query(WEB_MOTD);
 
 	// Set MOTD for newsflash..
 	if (result) {

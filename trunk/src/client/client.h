@@ -328,13 +328,8 @@ typedef struct {
 	char updateChallenge[MAX_TOKEN_CHARS];
 	char updateInfoString[MAX_INFO_STRING];
 
-	netadr_t authorizeServer;
-
 	// L0 - Client Auth
 	netadr_t clientAuthServer;
-
-	// L0 - Motd
-	netadr_t motdServer;
 
 	// L0 - auth cookie
 	int authorizeCookie;

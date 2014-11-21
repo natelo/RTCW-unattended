@@ -43,8 +43,8 @@ void CL_checkSSTime(void) {
 			id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 			// Try once more if it fails..
-			if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
-				HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
+			if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
+				CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
 		}
 	}
 }
@@ -64,8 +64,8 @@ void CL_RequestedSS( int quality ) {
 	id = va("req_%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 	// Try once more if it fails..
-	if (!HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
-		HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
+	if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
+		CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
 }
 /*	
 	Uploads last/selected demo to a remote server
@@ -112,5 +112,5 @@ void CL_UploadDemo_f(void) {
 	else {
 		path = va("demos/%s.dm_57", arg);
 	}	
-	HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
+	CL_HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
 }
