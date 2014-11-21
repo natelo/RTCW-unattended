@@ -68,7 +68,7 @@ int http_create_thread(void *(*thread_function)(void *), void *arguments) {
 	return g_pthread_create(&thread_id, NULL, thread_function, arguments);
 }
 
-#else //WIN32
+#else // WIN32
 #include <process.h>
 
 void CL_HTTP_InitThreads(void)
@@ -89,19 +89,18 @@ int http_create_thread(void *(*thread_function)(void *), void *arguments) {
 	_beginthread((void(*)(void *))func, 0, arguments);
 	return 0;
 }
-#endif
+#endif // ~WIN32
 
 /*
 	Process query 
 */
 void *HTTP_process_PostQuery(void *args) {
 	HTTP_postCmd_t *cmd = (HTTP_postCmd_t *)args;
-	char *reply = NULL;
 	
 	// Spinlock as I really do not want to deal with sync across the threads..
-	while (HTTPreplyPtr != NULL);
+	while (HTTPreplyMsg != NULL) {}
 
-	HTTPreplyPtr = HTTP_PostQuery(cmd->url, cmd->data);
+	HTTPreplyMsg = va("%s", HTTP_PostQuery(cmd->url, cmd->data));
 
 	free(cmd);
 	return 0;
@@ -119,10 +118,9 @@ char *CL_HTTP_PostQuery(char *url, char *data) {
 	post_cmd->headerToken = "signature"; // FIXME - Add token for cheap request signing..
 	post_cmd->data = data;
 
-	http_create_thread(HTTP_process_PostQuery, (void*)post_cmd);
-
-	out = va("%s", HTTPreplyPtr);
-	HTTPreplyPtr = NULL;
+	http_create_thread(HTTP_process_PostQuery, (void*)post_cmd);	
+	out = va("%s", HTTPreplyMsg);
+	HTTPreplyMsg = NULL;	
 
 	Com_DPrintf("Thread destroyed.\n");
 	return out;

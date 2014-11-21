@@ -46,7 +46,7 @@ typedef struct {
 Prototypes
 ============
 */
-static char *HTTPreplyPtr = NULL;
+static char *HTTPreplyMsg = { NULL };
 
 //
 // http_main.c
