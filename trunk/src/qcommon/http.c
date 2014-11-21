@@ -54,6 +54,7 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 	Used when we want to send specific data but do not care about reply..
 */
 void HTTP_Post(char *url, char *data) {
+	CURL *curl_handle;
 	CURLcode res;
 
 	curl_handle = curl_easy_init();
@@ -82,6 +83,7 @@ void HTTP_Post(char *url, char *data) {
 	Sends data and expects reply so rest of depended functions can do their thing
 */
 char *HTTP_PostQuery(char *url, char *data) {
+	CURL *curl_handle;
 	CURLcode res;
 	char *out = NULL;
 
@@ -118,6 +120,7 @@ char *HTTP_PostQuery(char *url, char *data) {
 	Connects to address and processes any data it gets..
 */
 char *HTTP_Query(char *url) {
+	CURL *curl_handle;
 	CURLcode res;
 	char *out = NULL;
 
@@ -155,6 +158,7 @@ char *HTTP_Query(char *url) {
 		- Remove static bindings and parse structure for post fields..
 */
 qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose) {
+	CURL *curl_handle;
 	CURLcode res;
 	FILE *fd;
 	double speed_upload, total_time;

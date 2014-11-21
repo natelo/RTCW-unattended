@@ -174,10 +174,10 @@ void SV_GetChallenge( netadr_t from ) {
 			// If it's strict, we wait as long as it's needed..
 			if (sv_serverStrict->integer) {
 				if (ipAuth) {					
-					reply = HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
+					reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
 				}
 				else {					
-					reply = HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i", 
+					reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i",
 						from.ip[0], from.ip[1], from.ip[2], from.ip[3], guid, sv_minGuidAge->integer, sv_maxGuidAge->integer));
 				}
 
@@ -199,10 +199,10 @@ void SV_GetChallenge( netadr_t from ) {
 			Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
 
 			if (ipAuth) {				
-				reply = HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
+				reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
 			}
 			else {				
-				reply = HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i",
+				reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i",
 					from.ip[0], from.ip[1], from.ip[2], from.ip[3], guid, sv_minGuidAge->integer, sv_maxGuidAge->integer));
 			}
 

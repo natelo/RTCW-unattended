@@ -22,17 +22,37 @@ Hold declarations and structures of all the HTTP related functionality..
 #define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
 
 /*
+Structures to hold stuff
+*/
+typedef struct {
+	char *url;
+	char *headerToken;
+	char *data;
+} HTTP_postCmd_t;
+
+typedef struct {
+	char *url;
+	char *file;
+	char *field;
+	char *data;
+	char *extraField;
+	char *extraData;
+	qboolean deleteFile;
+	qboolean verbose;
+} HTTP_fileCmd_t;
+
+/*
 ============
 Prototypes
 ============
 */
-static CURL *curl_handle = NULL;
+static char *HTTPreplyPtr = NULL;
 
 //
 // http_main.c
 //
-void http_InitThreads(void);
-int http_create_thread(void *(*thread_function)(void *), void *arguments);
+void CL_HTTP_InitThreads(void);
+char *CL_HTTP_PostQuery(char *url, char *data);
 
 //
 // http.c

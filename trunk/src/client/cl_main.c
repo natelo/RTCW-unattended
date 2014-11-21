@@ -2758,7 +2758,7 @@ void CL_CheckAutoUpdate( void ) {
 				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
 				 BigShort( cls.autoupdateServer.port ) );
 
-	HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
+	CL_HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
 
 	// Fetch MOTD..
 	CL_RequestMotd();
@@ -4248,7 +4248,7 @@ int CL_HTTPKeyValidate(const char *key) {
 	}
 
 	// Query it now
-	result = HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
+	result = CL_HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
 
 	if (!Q_stricmp(result, "ok")) {
 		Cvar_Set("cl_uilaa", "y1");

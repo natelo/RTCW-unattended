@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include <setjmp.h>
+#include "http.h"		// L0 - HTTP
 
 #define MAX_NUM_ARGVS   50
 
@@ -2575,6 +2576,9 @@ void Com_Init( char *commandLine ) {
 			Cvar_Set( "nextmap", "cinematic wolfintro.RoQ" );
 		}
 	}
+
+	// L0 - Check if we have threading support
+	CL_HTTP_InitThreads();
 
 	com_fullyInitialized = qtrue;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
