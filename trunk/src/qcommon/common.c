@@ -2577,9 +2577,6 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	// L0 - Check if we have threading support
-	CL_HTTP_InitThreads();
-
 	com_fullyInitialized = qtrue;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
 }

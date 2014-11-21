@@ -61,9 +61,9 @@ void SV_GetChallenge( netadr_t from ) {
 	int oldest;
 	int oldestTime;
 	challenge_t *challenge;
-	char *guid, *c, *reply;
+	char *guid, *c;
 	int cookie;
-	qboolean ipAuth = qfalse;
+	qboolean ipAuth = qfalse, isBanned=qfalse;
 
 	// ignore if we are in single player
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
@@ -76,7 +76,7 @@ void SV_GetChallenge( netadr_t from ) {
 	// L0 - If there's no cookie then we can assume it's a 
 	// legit 1.0 request tho can be a spoof attack but nothing is perfect..
 	if (!cookie) {
-		if (sv_pure->integer) {
+		if (sv_pure->integer || sv_serverStreaming->integer) {
 			NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Download rtcwMP client @ rtcwmp.com to enter..\n");
 			return;
 		}
@@ -152,69 +152,13 @@ void SV_GetChallenge( netadr_t from ) {
 	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer) {
 #else
 	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
-#endif
-		//
-		// look up the authorize server..
-		//
-		if (!svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD) {
-			Com_Printf("Connecting to Authorize server..");
+#endif			
+		Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));	
+		isBanned = isClientBanned(guid);
 
-			if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_UNSPEC))
-				Com_Printf("SUCCESS\n");
-			else 
-				Com_Printf("could not resolve address\nWARNING: AUTH server is unreachable!\n");
-		}
-
-		//
-		// Timeout
-		//
-		if (svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT) {			
-			Com_DPrintf("authorize server timed out\n");
-
-			// If it's strict, we wait as long as it's needed..
-			if (sv_serverStrict->integer) {
-				if (ipAuth) {					
-					reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
-				}
-				else {					
-					reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i",
-						from.ip[0], from.ip[1], from.ip[2], from.ip[3], guid, sv_minGuidAge->integer, sv_maxGuidAge->integer));
-				}
-
-				if (Q_stricmp(reply, "ok")) {					
-					if (!ipAuth) {
-						NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, (reply ? reply : ""));
-					}
-					else {
-						NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", (reply ? reply : "^3Awaiting Authorization Server response."));
-					}
-					return;
-				}
-			}
-		}
-		//
-		// Initial request
-		//
-		else {			
-			Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
-
-			if (ipAuth) {				
-				reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcw&ip=%i.%i.%i.%i&guid=null&min=0&max=0", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
-			}
-			else {				
-				reply = CL_HTTP_PostQuery(WEB_AUTH, va("client=rtcwmp&ip=%i.%i.%i.%i&guid=%s&min=%i&max=%i",
-					from.ip[0], from.ip[1], from.ip[2], from.ip[3], guid, sv_minGuidAge->integer, sv_maxGuidAge->integer));
-			}
-
-			if (Q_stricmp(reply, "ok")) {
-				if (!ipAuth) {
-					NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, (reply ? reply : ""));
-				}
-				else {
-					NET_OutOfBandPrint(NS_SERVER, from, "print\n%s\n", (reply ? reply : "^3Awaiting Authorization Server response."));
-				}
-				return;
-			}
+		if (isBanned) {
+			NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, BannedMessage);
+			return;
 		}
 	}
 

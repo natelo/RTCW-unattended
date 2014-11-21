@@ -246,3 +246,49 @@ qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extra
 	return qtrue;
 }
 
+/*
+	Writes data
+*/
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+	size_t written;
+	written = fwrite(ptr, size, nmemb, stream);
+	return written;
+}
+
+/*
+	Downloads file
+*/
+qboolean HTTP_Download(char *url, char *file, qboolean verbose) {
+	CURL *curl_handle;
+	CURLcode res;
+	FILE *fp;	
+
+	fp = fopen(file, "wb");
+	if (!fp) {
+		if (!verbose)
+			Com_DPrintf("Error: Could not open [WB] local file!\n");
+		else
+			Com_Printf("Error: Could not open [WB] local file!\n");
+		return qfalse;
+	}
+
+	curl_handle = curl_easy_init();
+	if (curl_handle) {
+
+		curl_easy_setopt(curl_handle, CURLOPT_URL, va("%s/%s",url, file));
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, fp);
+
+		res = curl_easy_perform(curl_handle);
+		if (res != CURLE_OK) {
+			if (!verbose)
+				Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+			else
+				Com_Printf("Error [handle failed] occured while trying to upload the file!\n");
+		}
+		curl_easy_cleanup(curl_handle);
+	}
+	fclose(fp);
+
+	return qtrue;
+}

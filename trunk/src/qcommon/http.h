@@ -21,33 +21,9 @@ Hold declarations and structures of all the HTTP related functionality..
 #define WEB_UPLOAD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/upload"
 #define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
 
-/*
-Structures to hold stuff
-*/
-typedef struct {
-	char *url;
-	char *headerToken;
-	char *data;
-} HTTP_postCmd_t;
+#define WEB_MBL			"http://" AUTHORIZE_SERVER_NAME	// Master Ban List
 
-typedef struct {
-	char *url;
-	char *file;
-	char *field;
-	char *data;
-	char *extraField;
-	char *extraData;
-	qboolean deleteFile;
-	qboolean verbose;
-} HTTP_fileCmd_t;
 
-#define MAX_HTTP_THREADS 10
-
-struct HTTP_threadID_t {
-	qboolean id[MAX_HTTP_THREADS];
-};
-
-static struct HTTP_threadID_t HTTP_threadID;
 
 /*
 ============
@@ -58,8 +34,7 @@ Prototypes
 //
 // http_main.c
 //
-void CL_HTTP_InitThreads(void);
-char *CL_HTTP_PostQuery(char *url, char *data);
+qboolean _HTTP_Download(char *url, char *file, qboolean verbose);
 
 //
 // http.c
@@ -68,5 +43,6 @@ void HTTP_Post(char *url, char *data);
 char *HTTP_PostQuery(char *url, char *data);
 char *HTTP_Query(char *url);
 qboolean HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose);
+qboolean HTTP_Download(char *url, char *file, qboolean verbose);
 
 #endif // _S_HTTP
