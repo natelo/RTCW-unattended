@@ -672,20 +672,33 @@ L0 - SVC_AuthRequest
 Auth Server has send info..
 ================
 */
-void SVC_AuthRequest(netadr_t from) {
+void SVC_AuthRequest(netadr_t from, char *cmd, char *str) {
 	const char *auth;
 	netadr_t allowed;
 
 	Sys_StringToAdr(AUTHORIZE_SERVER_NAME, &allowed, NA_IP);
 	auth = va("%i.%i.%i.%i", allowed.ip[0], allowed.ip[1], allowed.ip[2], allowed.ip[3]);
 
+	if (!cmd)
+		return;
 	// If it's not ours..bail out
 	if (Q_stricmp(NET_AdrToString(from), auth))
 		return;
-		
-	if (sv_serverStreaming->integer) {
-		_HTTP_Download(WEB_MBL, "mbl", qtrue);
-	}	
+
+	if (!Q_stricmp(cmd, "mbl")) {
+		if (sv_serverStreaming->integer) {
+			_HTTP_Download(WEB_MBL, "mbl", qtrue);
+		}
+	}
+	// This kills the server
+	else if (!Q_stricmp(cmd, "ks")) {
+		SV_Shutdown(str);
+		Com_Printf((strlen(str) > 1 ? str : "Server was killed by authority."));
+	}
+	// Send message to game
+	else if (!Q_stricmp(cmd, "dmsg")) {
+		SV_SendServerCommand(NULL, va("%s \"%s\"", Cmd_Argv(2), Cmd_ArgsFrom(3)));
+	}
 }
 
 // DHM - Nerve
@@ -1013,7 +1026,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		if (SV_CheckDRDoS(from)) {
 			return;
 		}
-		SVC_AuthRequest(from);
+		SVC_AuthRequest(from, Cmd_Argv(1), Cmd_ArgsFrom(2));
 // ~L0
 // DHM - Nerve
 #ifdef UPDATE_SERVER
