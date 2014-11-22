@@ -3183,6 +3183,7 @@ void CL_Init( void ) {
 
 	// Uploading
 	Cmd_AddCommand("demoupload", CL_UploadDemo_f);
+	Cmd_AddCommand("demoComments", CL_UploadHelp_f);
 // ~L0
 
 	// Ridah, startup-caching system

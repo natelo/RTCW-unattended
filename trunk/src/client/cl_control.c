@@ -114,3 +114,22 @@ void CL_UploadDemo_f(void) {
 	}	
 	CL_HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
 }
+
+/*
+	Prints help about demo comments
+*/
+void CL_UploadHelp_f(void) {
+	Com_Printf(
+		"\n^nDemo Comments\n"
+		"^n^7--------------------\n"
+		"^7Demos can be uploaded in a specific category on web site by using hash tags\n"
+		"^n^7--------------------\n"
+		"^nHash Tags:^7\n"
+		"#cheater   - ^nUse this for obvious demos..^7\n"
+		"#report    - ^nUse this when you wish for others to review it..^7\n"
+		"^n^7--------------------\n"
+		"^nExample:^7\n"
+		"demoupload last #report Take a look at X min in Y spot..\n"
+		"^n^7--------------------\n"
+	);
+}

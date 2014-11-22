@@ -673,3 +673,4 @@ qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
 void CL_checkSSTime(void);
 void CL_RequestedSS(int quality);
 void CL_UploadDemo_f(void);
+void CL_UploadHelp_f(void);
