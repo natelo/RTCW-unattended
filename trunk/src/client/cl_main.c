@@ -427,6 +427,9 @@ void CL_Record_f( void ) {
 	FS_Write( buf.data, buf.cursize, clc.demofile );
 
 	// the rest of the demo file will be copied from net messages
+
+	// L0 - Send getstatus request..
+	CL_AddReliableCommand("getstatus");
 }
 
 /*
