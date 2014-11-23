@@ -1823,6 +1823,18 @@ void Script_SetCvar( itemDef_t *item, char **args ) {
 	}
 }
 
+// L0 - ET port
+void Script_CopyCvar(itemDef_t *item, char **args) {
+	const char *cvar_src = NULL, *cvar_dst = NULL;
+	if (String_Parse(args, &cvar_src) && String_Parse(args, &cvar_dst)) {
+		char buff[256];
+
+		DC->getCVarString(cvar_src, buff, 256);
+		DC->setCVar(cvar_dst, buff);
+	}
+}
+// ~L0
+
 void Script_Exec( itemDef_t *item, char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
@@ -1885,6 +1897,8 @@ commandDef_t commandList[] =
 	{ "closeallothermenus", &Script_CloseAllOtherMenus },
 
 	{ "conditionalscript", &Script_ConditionalScript },    // as conditonalopen, but then executes scripts
+
+	{ "copycvar", &Script_CopyCvar },
 // ~L0
 
 	{"conditionalopen", &Script_ConditionalOpen},    // DHM - Nerve:: cvar menu menu
