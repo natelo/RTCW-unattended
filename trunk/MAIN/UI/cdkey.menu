@@ -212,7 +212,49 @@
 			forecolor 1 1 1 1
 			visible 1
 			decoration
-		}		
+		}
+		
+		itemDef {
+			name accept
+			text "Verify"
+			type 1
+			group grpcdkey
+			textscale .3
+			style WINDOW_STYLE_FILLED		
+			rect 176 135 100 20
+			textalign 1
+			textalignx 48
+			textaligny 14
+			//forecolor 1 1 1 1
+			backcolor 0 0 0 .25
+			border 1
+			bordercolor .2 .2 .2 .3
+			visible 1
+			action { 
+				play "sound/misc/nomenu.wav" ;
+				uiScript verifyCDKey ; 
+				show finish_message 
+				}		
+			mouseexit { hide finish_message } 
+		}
+		
+		itemDef {
+   			name finish_message 
+			group grpfinish
+   			style 0
+			type ITEM_TYPE_EDITFIELD
+			text ""
+			cvar ui_cdkeyvalid
+			rect 0 316 443 20
+   	   		textalign ITEM_ALIGN_CENTER
+ 	     		textalignx 221
+  	    		textaligny 20
+			textfont UI_FONT_NORMAL
+			textscale .25
+  	    		forecolor 1 1 1 1
+      			visible 1 
+			decoration
+    	}
 	}
 }
 
