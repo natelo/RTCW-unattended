@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 // string allocation/managment
 
 #include "ui_shared.h"
+#include "ui_local.h"
 
 #define SCROLL_TIME_START                   500
 #define SCROLL_TIME_ADJUST              150
@@ -1312,6 +1313,260 @@ void Script_Close( itemDef_t *item, char **args ) {
 }
 
 // L0 - New stuff
+void Script_ConditionalScript(itemDef_t *item, char **args) {
+	const char *cvar;
+	const char *script1;
+	const char *script2;
+	const char *token;
+	float val;
+	char buff[1024];
+	int testtype;         // 0: check val not 0
+	// 1: check cvar not empty
+	int testval;
+
+	if (String_Parse(args, &cvar) &&
+		Int_Parse(args, &testtype) &&
+		String_Parse(args, &token) && (token && *token == '(') &&
+		String_Parse(args, &script1) &&
+		String_Parse(args, &token) && (token && *token == ')') &&
+		String_Parse(args, &token) && (token && *token == '(') &&
+		String_Parse(args, &script2) &&
+		String_Parse(args, &token) && (token && *token == ')')) {
+
+		switch (testtype) {
+		default:
+		case 0:
+			val = DC->getCVarValue(cvar);
+			if (val == 0.f) {
+				Item_RunScript(item, script2);
+			}
+			else {
+				Item_RunScript(item, script1);
+			}
+			break;
+		case 1:
+			DC->getCVarString(cvar, buff, sizeof(buff));
+			if (!buff[0]) {
+				Item_RunScript(item, script2);
+			}
+			else {
+				Item_RunScript(item, script1);
+			}
+			break;
+		case 3:
+			if (Int_Parse(args, &testval)) {
+				val = DC->getCVarValue(cvar);
+				if (val != testval) {
+					Item_RunScript(item, script2);
+				}
+				else {
+					Item_RunScript(item, script1);
+				}
+			}
+			break;
+		case 2:
+			// special tests
+			if (!Q_stricmp(cvar, "UIProfileIsActiveProfile")) {
+				char ui_profileStr[256];
+				char cl_profileStr[256];
+
+				DC->getCVarString("ui_profile", ui_profileStr, sizeof(ui_profileStr));
+				Q_CleanStr(ui_profileStr);
+				Q_CleanDirName(ui_profileStr);
+
+				DC->getCVarString("cl_profile", cl_profileStr, sizeof(cl_profileStr));
+
+				if (!Q_stricmp(ui_profileStr, cl_profileStr)) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+			}
+			else if (!Q_stricmp(cvar, "UIProfileValidName")) {
+				char ui_profileStr[256];
+				char ui_profileCleanedStr[256];
+
+				DC->getCVarString("ui_profile", ui_profileStr, sizeof(ui_profileStr));
+				Q_strncpyz(ui_profileCleanedStr, ui_profileStr, sizeof(ui_profileCleanedStr));
+				Q_CleanStr(ui_profileCleanedStr);
+				Q_CleanDirName(ui_profileCleanedStr);
+
+				if (*ui_profileStr && *ui_profileCleanedStr) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+
+			}
+			else if (!Q_stricmp(cvar, "UIProfileAlreadyExists")) {
+				char ui_profileCleanedStr[256];
+				qboolean alreadyExists = qfalse;
+				fileHandle_t f;
+
+				DC->getCVarString("ui_profile", ui_profileCleanedStr, sizeof(ui_profileCleanedStr));
+				Q_CleanStr(ui_profileCleanedStr);
+				Q_CleanDirName(ui_profileCleanedStr);
+
+				if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", ui_profileCleanedStr), &f, FS_READ) >= 0) {
+					alreadyExists = qtrue;
+					trap_FS_FCloseFile(f);
+				}
+
+				if (alreadyExists) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+			}
+			else if (!Q_stricmp(cvar, "UIProfileAlreadyExists_Rename")) {
+				char ui_profileCleanedStr[256];
+				qboolean alreadyExists = qfalse;
+				fileHandle_t f;
+
+				DC->getCVarString("ui_profile_renameto", ui_profileCleanedStr, sizeof(ui_profileCleanedStr));
+				Q_CleanStr(ui_profileCleanedStr);
+				Q_CleanDirName(ui_profileCleanedStr);
+
+				if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", ui_profileCleanedStr), &f, FS_READ) >= 0) {
+					alreadyExists = qtrue;
+					trap_FS_FCloseFile(f);
+				}
+
+				if (alreadyExists) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+			}
+			else if (!Q_stricmp(cvar, "ReadyToCreateProfile")) {
+				char ui_profileStr[256], ui_profileCleanedStr[256];
+				int ui_rate;
+				qboolean alreadyExists = qfalse;
+				fileHandle_t f;
+
+				DC->getCVarString("ui_profile", ui_profileStr, sizeof(ui_profileStr));
+
+				Q_strncpyz(ui_profileCleanedStr, ui_profileStr, sizeof(ui_profileCleanedStr));
+				Q_CleanStr(ui_profileCleanedStr);
+				Q_CleanDirName(ui_profileCleanedStr);
+
+				if (trap_FS_FOpenFile(va("profiles/%s/profile.dat", ui_profileCleanedStr), &f, FS_READ) >= 0) {
+					alreadyExists = qtrue;
+					trap_FS_FCloseFile(f);
+				}
+
+				ui_rate = (int)DC->getCVarValue("ui_rate");
+
+				if (!alreadyExists && *ui_profileStr && ui_rate > 0) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+			}
+			else if (!Q_stricmp(cvar, "vidrestartIsRequired")) {
+				int ui_r_mode = DC->getCVarValue("ui_r_mode");
+				int ui_r_colorbits = DC->getCVarValue("ui_r_colorbits");
+				int ui_r_fullscreen = DC->getCVarValue("ui_r_fullscreen");
+				int ui_r_texturebits = DC->getCVarValue("ui_r_texturebits");
+				int ui_r_depthbits = DC->getCVarValue("ui_r_depthbits");
+				int ui_r_ext_compressed_textures = DC->getCVarValue("ui_r_ext_compressed_textures");
+				int ui_r_allowextensions = DC->getCVarValue("ui_r_allowextensions");
+				int ui_s_khz = DC->getCVarValue("ui_s_khz");
+				int ui_r_detailtextures = DC->getCVarValue("ui_r_detailtextures");
+				int ui_r_subdivisions = DC->getCVarValue("ui_r_subdivisions");
+				char ui_r_texturemode[MAX_CVAR_VALUE_STRING];
+
+				int r_mode = DC->getCVarValue("r_mode");
+				int r_colorbits = DC->getCVarValue("r_colorbits");
+				int r_fullscreen = DC->getCVarValue("r_fullscreen");
+				int r_texturebits = DC->getCVarValue("r_texturebits");
+				int r_depthbits = DC->getCVarValue("r_depthbits");
+				int r_ext_compressed_textures = DC->getCVarValue("r_ext_compressed_textures");
+				int r_allowextensions = DC->getCVarValue("r_allowextensions");
+				int s_khz = DC->getCVarValue("s_khz");
+				int r_detailtextures = DC->getCVarValue("r_detailtextures");
+				int r_subdivisions = DC->getCVarValue("r_subdivisions");
+				char r_texturemode[MAX_CVAR_VALUE_STRING];
+
+				trap_Cvar_VariableStringBuffer("ui_r_texturemode", ui_r_texturemode, sizeof(ui_r_texturemode));
+				trap_Cvar_VariableStringBuffer("r_texturemode", r_texturemode, sizeof(r_texturemode));
+
+				if (ui_r_subdivisions != r_subdivisions ||
+					ui_r_mode != r_mode ||
+					ui_r_colorbits != r_colorbits ||
+					ui_r_fullscreen != r_fullscreen ||
+					ui_r_texturebits != r_texturebits ||
+					ui_r_depthbits != r_depthbits ||
+					ui_r_ext_compressed_textures != r_ext_compressed_textures ||
+					ui_r_allowextensions != r_allowextensions ||
+					ui_s_khz != s_khz ||
+					ui_r_detailtextures != r_detailtextures ||
+					Q_stricmp(r_texturemode, ui_r_texturemode)) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+				/*} else if( !Q_stricmpn( cvar, "voteflags", 9 ) ) {
+				char info[MAX_INFO_STRING];
+				int voteflags = atoi(cvar + 9);
+
+				trap_Cvar_VariableStringBuffer( "cg_ui_voteFlags", info, sizeof(info) );
+
+				if( (atoi(info) & item->voteFlag) != item->voteFlag ) {
+				Item_RunScript( item, script1 );
+				} else {
+				Item_RunScript( item, script2 );
+				}*/
+#ifndef CGAMEDLL
+			}
+			else if (!Q_stricmpn(cvar, "serversort_", 11)) {
+				int sorttype = atoi(cvar + 11);
+
+				if (sorttype != uiInfo.serverStatus.sortKey) {
+					Item_RunScript(item, script2);
+				}
+				else {
+					Item_RunScript(item, script1);
+				}
+			}
+			else if (!Q_stricmp(cvar, "ValidReplaySelected")) {
+				if (uiInfo.demoIndex >= 0 && uiInfo.demoIndex < uiInfo.demoCount) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					Item_RunScript(item, script2);
+				}
+#endif // !CGAMEDLL
+			}
+			else if (!Q_stricmp(cvar, "ROldModeCheck")) {
+				char r_oldModeStr[256];
+				int r_oldMode;
+				int r_mode = DC->getCVarValue("r_mode");
+
+				DC->getCVarString("r_oldMode", r_oldModeStr, sizeof(r_oldModeStr));
+				r_oldMode = atoi(r_oldModeStr);
+
+				if (*r_oldModeStr && r_oldMode != r_mode) {
+					Item_RunScript(item, script1);
+				}
+				else {
+					if (r_oldMode == r_mode) {
+						trap_Cvar_Set("r_oldMode", ""); // clear it
+					}
+					Item_RunScript(item, script2);
+				}
+			}
+			break;
+		}
+	}
+}
+
 void Script_CloseAll(itemDef_t *item, char **args) {
 	Menus_CloseAll();
 }
@@ -1628,6 +1883,8 @@ commandDef_t commandList[] =
 
 	{ "closeall", &Script_CloseAll },
 	{ "closeallothermenus", &Script_CloseAllOtherMenus },
+
+	{ "conditionalscript", &Script_ConditionalScript },    // as conditonalopen, but then executes scripts
 // ~L0
 
 	{"conditionalopen", &Script_ConditionalOpen},    // DHM - Nerve:: cvar menu menu

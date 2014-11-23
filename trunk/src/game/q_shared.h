@@ -1659,10 +1659,14 @@ typedef enum {
 #define VOTEFLAGS_KICK              ( 1 << 6 )
 #define VOTEFLAGS_MAP                   ( 1 << 7 )
 
-// L0 - Cpu info
+// L0 
+
+// Cpu info
 #define lengthof( a ) (sizeof( (a) ) / sizeof( (a)[0] ))
-// IPv6
+// Misc
 int Q_CountChar(const char *string, char tocount);
+char *Q_CleanDirName(char *dirname);
+
 // ~L0
 
 #endif  // __Q_SHARED_H
