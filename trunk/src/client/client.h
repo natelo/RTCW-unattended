@@ -460,7 +460,6 @@ int CL_GetPingQueueCount( void );
 
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
-qboolean CL_CDKeyValidate( const char *key, const char *checksum );
 int CL_HTTPKeyValidate( const char *key ); // L0 - Used for UI checking
 int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
 

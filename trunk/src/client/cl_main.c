@@ -2961,18 +2961,6 @@ void CL_LoadTranslations_f( void ) {
 // -NERVE - SMF
 #endif
 
-// etp: update cl_guid
-void CL_UpdateGUID(void) {
-	if (CL_CDKeyValidate(cl_cdkey, NULL)) {
-		Cvar_Set("cl_guid",
-			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
-		);
-	}
-	else {
-		Cvar_Set("cl_guid", "NO_GUID");
-	}
-}
-
 //===========================================================================================
 
 /*
@@ -4248,36 +4236,16 @@ int CL_HTTPKeyValidate(const char *key) {
 	}
 }
 
-/*
-=================
-bool CL_CDKeyValidate
-
-L0 - Just pings it..
-=================
-*/
-qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {	
-
-	if (!key || strlen(key) != CDKEY_LEN) {		
-		return qfalse;
-	}
-
-	Com_DPrintf("Contacting Auth Server..");
-	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
-		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
-		return qfalse;
+// etp: update cl_guid
+void CL_UpdateGUID(void) {
+	if (CL_HTTPKeyValidate(cl_cdkey)) {
+		Cvar_Set("cl_guid",
+			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
+			);
 	}
 	else {
-		Com_DPrintf("connection established\n");
-		return qtrue;
+		Cvar_Set("cl_guid", "NO_GUID");
 	}
-		
-	cls.clientAuthServer.port = BigShort(PORT_AUTHORIZE);
-	Com_DPrintf("%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-		cls.clientAuthServer.ip[0], cls.clientAuthServer.ip[1],
-		cls.clientAuthServer.ip[2], cls.clientAuthServer.ip[3],
-		BigShort(cls.clientAuthServer.port));
-
-	return qtrue;
 }
 
 // NERVE - SMF
