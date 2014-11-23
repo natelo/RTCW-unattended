@@ -75,6 +75,9 @@ static qboolean debugMode = qfalse;
 #define DOUBLE_CLICK_DELAY 300
 static int lastListBoxClickTime = 0;
 
+void Item_MouseLeave(itemDef_t *item);
+void Item_SetMouseOver(itemDef_t *item, qboolean focus);
+
 void Item_RunScript( itemDef_t *item, const char *s );
 void Item_SetupKeywordHash( void );
 void Menu_SetupKeywordHash( void );
@@ -841,12 +844,18 @@ itemDef_t *Menu_ClearFocus( menuDef_t *menu ) {
 	}
 
 	for ( i = 0; i < menu->itemCount; i++ ) {
-		if ( menu->items[i]->window.flags & WINDOW_HASFOCUS ) {
+		if (menu->items[i]->window.flags & WINDOW_HASFOCUS) {
 			ret = menu->items[i];
+			menu->items[i]->window.flags &= ~WINDOW_HASFOCUS;
 		}
-		menu->items[i]->window.flags &= ~WINDOW_HASFOCUS;
-		if ( menu->items[i]->leaveFocus ) {
-			Item_RunScript( menu->items[i], menu->items[i]->leaveFocus );
+
+		if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
+			Item_MouseLeave(menu->items[i]);
+			Item_SetMouseOver(menu->items[i], qfalse);
+		}
+
+		if (menu->items[i]->leaveFocus) {
+			Item_RunScript(menu->items[i], menu->items[i]->leaveFocus);
 		}
 	}
 
@@ -1046,22 +1055,52 @@ void Script_SetItemColor( itemDef_t *item, char **args ) {
 void Menu_ShowItemByName( menuDef_t *menu, const char *p, qboolean bShow ) {
 	itemDef_t *item;
 	int i;
-	int count = Menu_ItemsMatchingGroup( menu, p );
-	for ( i = 0; i < count; i++ ) {
-		item = Menu_GetMatchingItemByNumber( menu, i, p );
-		if ( item != NULL ) {
-			if ( bShow ) {
+	int count = Menu_ItemsMatchingGroup(menu, p);
+	for (i = 0; i < count; i++) {
+		item = Menu_GetMatchingItemByNumber(menu, i, p);
+		if (item != NULL) {
+			if (bShow) {
 				item->window.flags |= WINDOW_VISIBLE;
-			} else {
+			}
+			else {
 				item->window.flags &= ~WINDOW_VISIBLE;
 				// stop cinematics playing in the window
-				if ( item->window.cinematic >= 0 ) {
-					DC->stopCinematic( item->window.cinematic );
+				if (item->window.cinematic >= 0) {
+					DC->stopCinematic(item->window.cinematic);
 					item->window.cinematic = -1;
 				}
 			}
 		}
 	}
+/*
+	// L0 - FIXME - ET version but doesn't work (crashes..)
+
+	itemDef_t *item;
+	int i;
+	int count = Menu_ItemsMatchingGroup(menu, p);
+	for (i = 0; i < count; i++) {
+		item = Menu_GetMatchingItemByNumber(menu, i, p);
+		if (item != NULL) {
+			if (bShow) {
+				item->window.flags |= WINDOW_VISIBLE;
+			}
+			else {
+				if (item->window.flags & WINDOW_MOUSEOVER) {
+					Item_MouseLeave(item);
+					Item_SetMouseOver(item, qfalse);
+				}
+
+				item->window.flags &= ~WINDOW_VISIBLE;
+
+				// stop cinematics playing in the window
+				if (item->window.cinematic >= 0) {
+					DC->stopCinematic(item->window.cinematic);
+					item->window.cinematic = -1;
+				}
+			}
+		}
+	}
+*/
 }
 
 void Menu_FadeItemByName( menuDef_t *menu, const char *p, qboolean fadeOut ) {
@@ -1112,19 +1151,32 @@ static void Menu_RunCloseScript( menuDef_t *menu ) {
 }
 
 void Menus_CloseByName( const char *p ) {
-	menuDef_t *menu = Menus_FindByName( p );
-	if ( menu != NULL ) {
-		Menu_RunCloseScript( menu );
-		menu->window.flags &= ~( WINDOW_VISIBLE | WINDOW_HASFOCUS );
-		if ( menu->window.flags & WINDOW_MODAL ) {
-			if ( modalMenuCount <= 0 ) {
-				Com_Printf( S_COLOR_YELLOW "WARNING: tried closing a modal window with an empty modal stack!\n" );
-			} else
+	menuDef_t *menu = Menus_FindByName(p);
+	if (menu != NULL) {
+		int i;
+
+		// Gordon: make sure no edit fields are left hanging
+		for (i = 0; i < menu->itemCount; i++) {
+			if (g_editItem == menu->items[i]) {
+				g_editingField = qfalse;
+				g_editItem = NULL;
+			}
+		}
+
+		menu->cursorItem = -1;
+		Menu_ClearFocus(menu);
+		Menu_RunCloseScript(menu);
+		menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS | WINDOW_MOUSEOVER);
+		if (menu->window.flags & WINDOW_MODAL) {
+			if (modalMenuCount <= 0) {
+				Com_Printf(S_COLOR_YELLOW "WARNING: tried closing a modal window with an empty modal stack!\n");
+			}
+			else
 			{
 				modalMenuCount--;
 				// if modal doesn't have a parent, the stack item may be NULL .. just go back to the main menu then
-				if ( modalMenuStack[modalMenuCount] ) {
-					Menus_ActivateByName( modalMenuStack[modalMenuCount]->window.name, qfalse ); // don't try to push the one we are opening to the stack
+				if (modalMenuStack[modalMenuCount]) {
+					Menus_ActivateByName(modalMenuStack[modalMenuCount]->window.name, qfalse); // don't try to push the one we are opening to the stack
 				}
 			}
 		}
@@ -1135,7 +1187,7 @@ void Menus_CloseAll() {
 	int i;
 	for ( i = 0; i < menuCount; i++ ) {
 		Menu_RunCloseScript( &Menus[i] );
-		Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
+		Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE | WINDOW_MOUSEOVER );
 	}
 }
 
@@ -1177,21 +1229,75 @@ void Script_Open( itemDef_t *item, char **args ) {
 	}
 }
 
+// L0 - ET ports
+void Menu_FadeMenuByName(const char *p, qboolean fadeOut) {
+	itemDef_t   *item;
+	int i;
+	menuDef_t *menu = Menus_FindByName(p);
+
+	if (menu) {
+		for (i = 0; i < menu->itemCount; i++) {
+			item = menu->items[i];
+			if (fadeOut) {
+				item->window.flags |= (WINDOW_FADINGOUT | WINDOW_VISIBLE);
+				item->window.flags &= ~WINDOW_FADINGIN;
+			}
+			else {
+				item->window.flags |= (WINDOW_VISIBLE | WINDOW_FADINGIN);
+				item->window.flags &= ~WINDOW_FADINGOUT;
+			}
+		}
+	}
+}
+
+void Script_FadeInMenu(itemDef_t *item, char **args) {
+	const char *name = NULL;
+	if (String_Parse(args, &name)) {
+		Menu_FadeMenuByName(name, qfalse);
+	}
+}
+
+void Script_FadeOutMenu(itemDef_t *item, char **args) {
+	const char *name = NULL;
+	if (String_Parse(args, &name)) {
+		Menu_FadeMenuByName(name, qtrue);
+	}
+}
+// ~L0
+
 // DHM - Nerve
 
 void Script_ConditionalOpen( itemDef_t *item, char **args ) {
-	const char *cvar;
-	const char *name1;
-	const char *name2;
+	const char *cvar = NULL;
+	const char *name1 = NULL;
+	const char *name2 = NULL;
 	float val;
+	char buff[1024];
+	int testtype;         // 0: check val not 0
+	// 1: check cvar not empty
 
-	if ( String_Parse( args, &cvar ) && String_Parse( args, &name1 ) && String_Parse( args, &name2 ) ) {
+	if (String_Parse(args, &cvar) && Int_Parse(args, &testtype) && String_Parse(args, &name1) && String_Parse(args, &name2)) {
 
-		val = DC->getCVarValue( cvar );
-		if ( val == 0.f ) {
-			Menus_OpenByName( name2 );
-		} else {
-			Menus_OpenByName( name1 );
+		switch (testtype) {
+		default:
+		case 0:
+			val = DC->getCVarValue(cvar);
+			if (val == 0.f) {
+				Menus_OpenByName(name2);
+			}
+			else {
+				Menus_OpenByName(name1);
+			}
+			break;
+		case 1:
+			DC->getCVarString(cvar, buff, sizeof(buff));
+			if (!buff[0]) {
+				Menus_OpenByName(name2);
+			}
+			else {
+				Menus_OpenByName(name1);
+			}
+			break;
 		}
 	}
 }
@@ -1205,8 +1311,22 @@ void Script_Close( itemDef_t *item, char **args ) {
 	}
 }
 
+// L0 - New stuff
+void Script_CloseAll(itemDef_t *item, char **args) {
+	Menus_CloseAll();
+}
 
-
+void Script_CloseAllOtherMenus(itemDef_t *item, char **args) {
+	int i;
+	for (i = 0; i < menuCount; i++) {
+		if (&Menus[i] == item->parent) {
+			continue;
+		}
+		Menu_RunCloseScript(&Menus[i]);
+		Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE | WINDOW_MOUSEOVER);
+	}
+}
+// ~L0
 
 /*
 ==============
@@ -1501,6 +1621,14 @@ commandDef_t commandList[] =
 	{"hide", &Script_Hide},                      // group/name
 	{"setcolor", &Script_SetColor},              // works on this
 	{"open", &Script_Open},                      // menu
+
+// L0 - New stuff
+	{ "fadeinmenu", &Script_FadeInMenu },          // menu
+	{ "fadeoutmenu", &Script_FadeOutMenu },        // menu
+
+	{ "closeall", &Script_CloseAll },
+	{ "closeallothermenus", &Script_CloseAllOtherMenus },
+// ~L0
 
 	{"conditionalopen", &Script_ConditionalOpen},    // DHM - Nerve:: cvar menu menu
 													 // opens first menu if cvar is true[non-zero], second if false
@@ -2791,6 +2919,11 @@ static void Display_CloseCinematics() {
 }
 
 void  Menus_Activate( menuDef_t *menu ) {
+	int i;
+	for (i = 0; i < menuCount; i++) {
+		Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_MOUSEOVER);
+	}
+
 	menu->window.flags |= ( WINDOW_HASFOCUS | WINDOW_VISIBLE );
 	if ( menu->onOpen ) {
 		itemDef_t item;
@@ -2799,12 +2932,10 @@ void  Menus_Activate( menuDef_t *menu ) {
 	}
 
 	if ( menu->soundName && *menu->soundName ) {
-//		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
 		DC->startBackgroundTrack( menu->soundName, menu->soundName );
 	}
 
 	Display_CloseCinematics();
-
 }
 
 int Display_VisibleMenuCount() {
@@ -2826,15 +2957,18 @@ void Menus_HandleOOBClick( menuDef_t *menu, int key, qboolean down ) {
 		// key on.. force a mouse move to activate focus and script stuff
 		if ( down && menu->window.flags & WINDOW_OOB_CLICK ) {
 			Menu_RunCloseScript( menu );
-			menu->window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
+			menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE | WINDOW_MOUSEOVER);
 		}
 
 		for ( i = 0; i < menuCount; i++ ) {
 			if ( Menu_OverActiveItem( &Menus[i], DC->cursorx, DC->cursory ) ) {
 //				Menu_RunCloseScript(menu);			// NERVE - SMF - why do we close the calling menu instead of just removing the focus?
 //				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
-				menu->window.flags &= ~( WINDOW_HASFOCUS );
-				Menus_Activate( &Menus[i] );
+
+				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_MOUSEOVER);
+				Menus[i].window.flags |= (WINDOW_HASFOCUS | WINDOW_VISIBLE);
+
+				//Menus_Activate( &Menus[i] );
 				Menu_HandleMouseMove( &Menus[i], DC->cursorx, DC->cursory );
 				Menu_HandleKey( &Menus[i], key, down );
 			}
@@ -4410,7 +4544,7 @@ void Item_Paint( itemDef_t *item ) {
 
 	if ( item->window.ownerDrawFlags && DC->ownerDrawVisible ) {
 		if ( !DC->ownerDrawVisible( item->window.ownerDrawFlags ) ) {
-			item->window.flags &= ~WINDOW_VISIBLE;
+			item->window.flags &= ~( WINDOW_VISIBLE | WINDOW_MOUSEOVER );
 		} else {
 			item->window.flags |= WINDOW_VISIBLE;
 		}
@@ -4582,7 +4716,7 @@ menuDef_t *Menus_ActivateByName( const char *p, qboolean modalStack ) {
 				modalMenuStack[modalMenuCount++] = focus;
 			}
 		} else {
-			Menus[i].window.flags &= ~WINDOW_HASFOCUS;
+			Menus[i].window.flags &= ~(WINDOW_HASFOCUS | WINDOW_MOUSEOVER);
 		}
 	}
 	Display_CloseCinematics();
@@ -4681,6 +4815,7 @@ void Menu_HandleMouseMove( menuDef_t *menu, float x, float y ) {
 
 void Menu_Paint( menuDef_t *menu, qboolean forcePaint ) {
 	int i;
+	itemDef_t *item = NULL;
 
 	if ( menu == NULL ) {
 		return;
@@ -4713,6 +4848,9 @@ void Menu_Paint( menuDef_t *menu, qboolean forcePaint ) {
 
 	for ( i = 0; i < menu->itemCount; i++ ) {
 		Item_Paint( menu->items[i] );
+		if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
+			item = menu->items[i];
+		}
 	}
 
 	if ( debugMode ) {
