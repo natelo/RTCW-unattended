@@ -1954,6 +1954,13 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y ) {
 		if ( Rect_ContainsPoint( &r, x, y ) ) {
 			return WINDOW_LB_PGDN;
 		}
+
+		// hack hack
+		r.x = item->window.rect.x;
+		r.w = item->window.rect.w;
+		if (Rect_ContainsPoint(&r, x, y)) {
+			return WINDOW_LB_SOMEWHERE;
+		}
 	} else {
 		r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 		r.y = item->window.rect.y;
@@ -1980,45 +1987,56 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y ) {
 		if ( Rect_ContainsPoint( &r, x, y ) ) {
 			return WINDOW_LB_PGDN;
 		}
+
+		// hack hack
+		r.y = item->window.rect.y;
+		r.h = item->window.rect.h;
+		if (Rect_ContainsPoint(&r, x, y)) {
+			return WINDOW_LB_SOMEWHERE;
+		}
 	}
 	return 0;
 }
 
 
-void Item_ListBox_MouseEnter( itemDef_t *item, float x, float y ) {
+void Item_ListBox_MouseEnter(itemDef_t *item, float x, float y, qboolean click) {
 	rectDef_t r;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 
-	item->window.flags &= ~( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN );
-	item->window.flags |= Item_ListBox_OverLB( item, x, y );
+	item->window.flags &= ~(WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN | WINDOW_LB_SOMEWHERE);
+	item->window.flags |= Item_ListBox_OverLB(item, x, y);
 
-	if ( item->window.flags & WINDOW_HORIZONTAL ) {
-		if ( !( item->window.flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN ) ) ) {
-			// check for selection hit as we have exausted buttons and thumb
-			if ( listPtr->elementStyle == LISTBOX_IMAGE ) {
-				r.x = item->window.rect.x;
-				r.y = item->window.rect.y;
-				r.h = item->window.rect.h - SCROLLBAR_SIZE;
-				r.w = item->window.rect.w - listPtr->drawPadding;
-				if ( Rect_ContainsPoint( &r, x, y ) ) {
-					listPtr->cursorPos =  (int)( ( x - r.x ) / listPtr->elementWidth )  + listPtr->startPos;
-					if ( listPtr->cursorPos >= listPtr->endPos ) {
-						listPtr->cursorPos = listPtr->endPos;
+	if (click) {
+		if (item->window.flags & WINDOW_HORIZONTAL) {
+			if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN | WINDOW_LB_SOMEWHERE))) {
+				// check for selection hit as we have exausted buttons and thumb
+				if (listPtr->elementStyle == LISTBOX_IMAGE) {
+					r.x = item->window.rect.x;
+					r.y = item->window.rect.y;
+					r.h = item->window.rect.h - SCROLLBAR_SIZE;
+					r.w = item->window.rect.w - listPtr->drawPadding;
+					if (Rect_ContainsPoint(&r, x, y)) {
+						listPtr->cursorPos = (int)((x - r.x) / listPtr->elementWidth) + listPtr->startPos;
+						if (listPtr->cursorPos >= listPtr->endPos) {
+							listPtr->cursorPos = listPtr->endPos;
+						}
 					}
 				}
-			} else {
-				// text hit..
+				else {
+					// text hit..
+				}
 			}
 		}
-	} else if ( !( item->window.flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN ) ) ) {
-		r.x = item->window.rect.x;
-		r.y = item->window.rect.y;
-		r.w = item->window.rect.w - SCROLLBAR_SIZE;
-		r.h = item->window.rect.h - listPtr->drawPadding;
-		if ( Rect_ContainsPoint( &r, x, y ) ) {
-			listPtr->cursorPos =  (int)( ( y - 2 - r.y ) / listPtr->elementHeight )  + listPtr->startPos;
-			if ( listPtr->cursorPos > listPtr->endPos ) {
-				listPtr->cursorPos = listPtr->endPos;
+		else if (!(item->window.flags & (WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN | WINDOW_LB_SOMEWHERE))) {
+			r.x = item->window.rect.x;
+			r.y = item->window.rect.y;
+			r.w = item->window.rect.w - SCROLLBAR_SIZE;
+			r.h = item->window.rect.h - listPtr->drawPadding;
+			if (Rect_ContainsPoint(&r, x, y)) {
+				listPtr->cursorPos = (int)((y - 2 - r.y) / listPtr->elementHeight) + listPtr->startPos;
+				if (listPtr->cursorPos > listPtr->endPos) {
+					listPtr->cursorPos = listPtr->endPos;
+				}
 			}
 		}
 	}
@@ -2063,7 +2081,7 @@ void Item_MouseEnter( itemDef_t *item, float x, float y ) {
 			}
 
 			if ( item->type == ITEM_TYPE_LISTBOX ) {
-				Item_ListBox_MouseEnter( item, x, y );
+				Item_ListBox_MouseEnter( item, x, y, qfalse );
 			}
 		}
 	}
@@ -2210,7 +2228,7 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 		}
 		// mouse hit
 		if ( key == K_MOUSE1 || key == K_MOUSE2 ) {
-			Item_ListBox_MouseEnter(item, DC->cursorx, DC->cursory);
+			Item_ListBox_MouseEnter(item, DC->cursorx, DC->cursory, qtrue);
 
 			if ( item->window.flags & WINDOW_LB_LEFTARROW ) {
 				listPtr->startPos--;
@@ -2237,6 +2255,8 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 				}
 			} else if ( item->window.flags & WINDOW_LB_THUMB ) {
 				// Display_SetCaptureItem(item);
+			} else if (item->window.flags & WINDOW_LB_SOMEWHERE) {
+				// do nowt
 			} else {
 				// select an item
 				if ( DC->realTime < lastListBoxClickTime && listPtr->doubleClick ) {
