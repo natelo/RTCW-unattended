@@ -106,7 +106,7 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
-cvar_t	*cl_uilaa;
+cvar_t	*cl_uilaa;		// User Is Logged And Auth'ed..
 
 cvar_t  *cl_wwwDownload;
 // ~L0
@@ -4210,38 +4210,45 @@ int CL_HTTPKeyValidate(const char *key) {
 		return 0;
 	}
 
-	Com_DPrintf("Contacting Auth Server..");
+	Com_Printf("Contacting Auth Server..");
 	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
-		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
+		Com_Printf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
 		return 1;
 	}
 	else {
-		Com_DPrintf("connection established\n");
+		Com_Printf("connection established\n");
 	}
 
 	// Query it now
 	result = CL_HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
+	
+	// Sort output
+	Cmd_TokenizeString(result);
+	result = Cmd_Argv(0);	
 
-	if (!Q_stricmp(result, "ok")) {
-		Cvar_Set("cl_uilaa", "y1");
-		return 2;
-	}
-	else if (!Q_stricmp(result, "no")) {
-		Cvar_Set("cl_uilaa", "");
+	if (!Q_stricmp(result, "no")) {
+		Cvar_Set("cl_uilaa", va(Cmd_ArgsFrom(1)));
 		return 3;
 	}
+	else if (!Q_stricmp(result, "ok")) {
+		Cvar_Set("cl_uilaa", "y1");
+		return 2;
+	}	
 	else {
 		Cvar_Set("cl_uilaa", "");
 		return 4;
 	}
 }
 
-// etp: update cl_guid
+/*
+	Update GUID if needed
+*/
 void CL_UpdateGUID(void) {
-	if (CL_HTTPKeyValidate(cl_cdkey)) {
-		Cvar_Set("cl_guid",
-			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
-			);
+	if (strlen(cl_guid->string) == 32 && cl_uilaa) {
+		return;
+	}
+	else if (CL_HTTPKeyValidate(cl_cdkey) == 2) {
+		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
 	}
 	else {
 		Cvar_Set("cl_guid", "NO_GUID");
