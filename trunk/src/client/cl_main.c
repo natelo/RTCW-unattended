@@ -4210,13 +4210,13 @@ int CL_HTTPKeyValidate(const char *key) {
 		return 0;
 	}
 
-	Com_Printf("Contacting Auth Server..");
+	Com_DPrintf("Contacting Auth Server..");
 	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
-		Com_Printf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
+		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
 		return 1;
 	}
 	else {
-		Com_Printf("connection established\n");
+		Com_DPrintf("connection established\n");
 	}
 
 	// Query it now
@@ -4232,12 +4232,10 @@ int CL_HTTPKeyValidate(const char *key) {
 	}
 	else if (!Q_stricmp(result, "ok")) {
 		Cvar_Set("cl_uilaa", "y1");
-		return 2;
-	}	
-	else {
-		Cvar_Set("cl_uilaa", "");
-		return 4;
+		return 3;
 	}
+
+	return 2; // "Failed to reply"
 }
 
 /*
