@@ -29,6 +29,57 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{0FAEBA59
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{56F6BA89-D703-4F44-BDD8-F8482791C742}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Media", "Media", "{9A34C753-8071-4BCB-B524-E2A0E9038F45}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{5E488D39-AEBB-45FE-9B25-63E9DA28B19A}"
+	ProjectSection(SolutionItems) = preProject
+		..\MAIN\UI\auto_update.menu = ..\MAIN\UI\auto_update.menu
+		..\MAIN\UI\cdkey.menu = ..\MAIN\UI\cdkey.menu
+		..\MAIN\UI\connect.menu = ..\MAIN\UI\connect.menu
+		..\MAIN\UI\controls.menu = ..\MAIN\UI\controls.menu
+		..\MAIN\UI\createfavorite.menu = ..\MAIN\UI\createfavorite.menu
+		..\MAIN\UI\createserver.menu = ..\MAIN\UI\createserver.menu
+		..\MAIN\UI\credit.menu = ..\MAIN\UI\credit.menu
+		..\MAIN\UI\default.menu = ..\MAIN\UI\default.menu
+		..\MAIN\UI\error.menu = ..\MAIN\UI\error.menu
+		..\MAIN\UI\filter.menu = ..\MAIN\UI\filter.menu
+		..\MAIN\UI\global.menu = ..\MAIN\UI\global.menu
+		..\MAIN\UI\hud.menu = ..\MAIN\UI\hud.menu
+		..\MAIN\UI\hud.txt = ..\MAIN\UI\hud.txt
+		..\MAIN\UI\in_rec_restart.menu = ..\MAIN\UI\in_rec_restart.menu
+		..\MAIN\UI\ingame.menu = ..\MAIN\UI\ingame.menu
+		..\MAIN\UI\ingame.txt = ..\MAIN\UI\ingame.txt
+		..\MAIN\UI\ingame_callvote.menu = ..\MAIN\UI\ingame_callvote.menu
+		..\MAIN\UI\ingame_controls.menu = ..\MAIN\UI\ingame_controls.menu
+		..\MAIN\UI\ingame_leave.menu = ..\MAIN\UI\ingame_leave.menu
+		..\MAIN\UI\ingame_options.menu = ..\MAIN\UI\ingame_options.menu
+		..\MAIN\UI\ingame_system.menu = ..\MAIN\UI\ingame_system.menu
+		..\MAIN\UI\joinserver.menu = ..\MAIN\UI\joinserver.menu
+		..\MAIN\UI\macros.h = ..\MAIN\UI\macros.h
+		..\MAIN\UI\main.menu = ..\MAIN\UI\main.menu
+		..\MAIN\UI\menudef.h = ..\MAIN\UI\menudef.h
+		..\MAIN\UI\menus.txt = ..\MAIN\UI\menus.txt
+		..\MAIN\UI\mods.menu = ..\MAIN\UI\mods.menu
+		..\MAIN\UI\multi.menu = ..\MAIN\UI\multi.menu
+		..\MAIN\UI\multi_setup.menu = ..\MAIN\UI\multi_setup.menu
+		..\MAIN\UI\nerve_credit.txt = ..\MAIN\UI\nerve_credit.txt
+		..\MAIN\UI\options.menu = ..\MAIN\UI\options.menu
+		..\MAIN\UI\password.menu = ..\MAIN\UI\password.menu
+		..\MAIN\UI\quit.menu = ..\MAIN\UI\quit.menu
+		..\MAIN\UI\quitcredit.menu = ..\MAIN\UI\quitcredit.menu
+		..\MAIN\UI\rec_restart.menu = ..\MAIN\UI\rec_restart.menu
+		..\MAIN\UI\serverinfo.menu = ..\MAIN\UI\serverinfo.menu
+		..\MAIN\UI\setup.menu = ..\MAIN\UI\setup.menu
+		..\MAIN\UI\system.menu = ..\MAIN\UI\system.menu
+		..\MAIN\UI\urls.menu = ..\MAIN\UI\urls.menu
+		..\MAIN\UI\vid_restart.menu = ..\MAIN\UI\vid_restart.menu
+		..\MAIN\UI\wm_limbo.menu = ..\MAIN\UI\wm_limbo.menu
+		..\MAIN\UI\wm_pickplayer.menu = ..\MAIN\UI\wm_pickplayer.menu
+		..\MAIN\UI\wm_pickteam.menu = ..\MAIN\UI\wm_pickteam.menu
+		..\MAIN\UI\wm_quickmessage.menu = ..\MAIN\UI\wm_quickmessage.menu
+		..\MAIN\UI\wm_quickmessageAlt.menu = ..\MAIN\UI\wm_quickmessageAlt.menu
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Dedicated|Win32 = Debug Dedicated|Win32
@@ -123,5 +174,7 @@ Global
 		{64DCBC13-78A6-43E9-931D-B63FBB0421C7} = {0FAEBA59-61D9-420E-95BC-C423FA14D764}
 		{3ACD01D0-DCF1-46A5-A477-7E8524032A02} = {56F6BA89-D703-4F44-BDD8-F8482791C742}
 		{87EE9DA4-DE1E-4448-8324-183C98DCA588} = {FCEB279E-F604-469A-BEB5-B094F006EBB9}
+		{9A34C753-8071-4BCB-B524-E2A0E9038F45} = {0FAEBA59-61D9-420E-95BC-C423FA14D764}
+		{5E488D39-AEBB-45FE-9B25-63E9DA28B19A} = {9A34C753-8071-4BCB-B524-E2A0E9038F45}
 	EndGlobalSection
 EndGlobal
