@@ -5,7 +5,7 @@
 
 // Menu definitions
 {	
-	// Base ..
+	// Base ..	
 	loadMenu { "ui_mp/main.menu" }
 	loadMenu { "ui_mp/multi.menu" }
  	loadMenu { "ui_mp/joinserver.menu" }
@@ -28,6 +28,7 @@
 	loadMenu { "ui_mp/filter.menu" }
 	loadMenu { "ui_mp/in_rec_restart.menu" }
 	loadMenu { "ui_mp/rec_restart.menu" }
+
 	// In-game
 	loadMenu { "ui_mp/ingame.menu" }
 	loadMenu { "ui_mp/ingame_controls.menu" }
@@ -35,12 +36,13 @@
 	loadMenu { "ui_mp/ingame_system.menu" }
 	loadMenu { "ui_mp/ingame_leave.menu" }
 	loadMenu { "ui_mp/ingame_callvote.menu" }
+
 	// Vsays
 	loadMenu { "ui_mp/wm_limbo.menu" }
 	loadMenu { "ui_mp/wm_quickmessage.menu" }
 	loadMenu { "ui_mp/wm_quickmessageAlt.menu" }
-	// Modal
-	// Crap..ERROR box FIRST... app order matters..
+
+	// Modal	
 	loadMenu { "ui_mp/error.menu" }
 	loadMenu { "ui_mp/serverinfo.menu" }	
 	loadMenu { "ui_mp/mods.menu" }

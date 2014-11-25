@@ -4562,15 +4562,15 @@ static void UI_RunMenuScript( char **args ) {
 				Q_strncpyz( out, buff + 12, 5 );
 				trap_Cvar_Set( "cdkey4", out );
 			}
-
-		} else if ( Q_stricmp( name, "verifyCDKey" ) == 0 ) {
+		}
+		else if (Q_stricmp(name, "verifyCDKey") == 0) {
 			int queryKey;
 			buff[0] = '\0';
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey1" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey2" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey3" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey4" ) );
-			trap_Cvar_Set( "cdkey", buff );
+			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey1"));
+			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey2"));
+			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey3"));
+			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey4"));
+			trap_Cvar_Set("cdkey", buff);
 			// L0 - Modified key lookup..
 			queryKey = trap_VerifyCDKey(buff);
 			if (queryKey == 0) {
@@ -4588,6 +4588,21 @@ static void UI_RunMenuScript( char **args ) {
 
 				trap_Cvar_Set("ui_cdkeyvalid", out);
 			}
+		} else if ( Q_stricmp( name, "doLogin" ) == 0 ) {
+			int queryKey;
+
+			// L0 - Modified key lookup..
+			queryKey = trap_VerifyCDKey(buff);
+			if (queryKey == 0) {
+				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Incorrect Key entered."));
+				Menus_CloseByName("main");
+			}
+			else {
+				Menus_OpenByName("login_menu");
+			}
+
+
+
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
 			UI_MapCountByGameType( qfalse );

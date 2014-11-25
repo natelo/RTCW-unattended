@@ -43,7 +43,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{5E488D39-A
 		..\MAIN\UI\default.menu = ..\MAIN\UI\default.menu
 		..\MAIN\UI\error.menu = ..\MAIN\UI\error.menu
 		..\MAIN\UI\filter.menu = ..\MAIN\UI\filter.menu
-		..\MAIN\UI\global.menu = ..\MAIN\UI\global.menu
 		..\MAIN\UI\hud.menu = ..\MAIN\UI\hud.menu
 		..\MAIN\UI\hud.txt = ..\MAIN\UI\hud.txt
 		..\MAIN\UI\in_rec_restart.menu = ..\MAIN\UI\in_rec_restart.menu
