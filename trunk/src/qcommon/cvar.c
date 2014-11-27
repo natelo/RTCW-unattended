@@ -679,10 +679,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	cvar_t  *var;
 	char buffer[1024];
 
-	for ( var = cvar_vars ; var ; var = var->next ) {
-		if ( Q_stricmp( var->name, "cl_guid" ) == 0 ) { // L0 - Never guid..
-			continue;
-		}
+	for ( var = cvar_vars ; var ; var = var->next ) {		
 		if ( var->flags & CVAR_ARCHIVE ) {
 			// write the latched value, even if it hasn't taken effect yet
 			if ( var->latchedString ) {
