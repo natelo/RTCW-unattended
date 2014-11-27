@@ -4237,17 +4237,66 @@ int CL_CDKeyValidate(const char *key) {
 }
 
 /*
+=================
+L0 - Checks for key sanity..
+=================
+*/
+qboolean CL_KeySanityCheck(const char *key) {
+	int i, j, sum = 0, keysum = 0;
+	char c;
+
+	if (!key || strlen(key) != CDKEY_LEN) {
+		return qfalse;
+	}
+	for (i = 0, j = 0; i < CDKEY_LEN; i++) {
+		c = *key++;
+		if (c >= 'a' && c <= 'n') {
+			c -= 88;
+		}
+		else if (c >= 'p' && c <= 'x') {
+			c -= 89;
+		}
+		else if (c >= '1' && c <= '9') {
+			c -= 49;
+		}
+		else if (c >= 'A' && c <= 'N') {
+			c -= 56;
+		}
+		else if (c >= 'P' && c <= 'X') {
+			c -= 57;
+		}
+		else {
+			return qfalse;
+		}
+
+		keysum ^= c << j;
+		if (++j > 5) {
+			j = 0;
+		}
+	}
+	
+	CL_UpdateGUID();
+	return qtrue;
+}
+
+/*
 	Update GUID if needed
 */
 void CL_UpdateGUID(void) {
+
+	Com_Printf("^5GUID KEY: %s\n", cl_cdkey);
+
 	if (strlen(cl_guid->string) == (CLIENT_GUID-1)) {
+		Com_Printf("^5GUID FAILED...\n");
 		return;
 	}
-	else if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
+	else if (CL_KeySanityCheck(cl_cdkey)) {
 		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
+		Com_Printf("^5GUID CREATED...\n");
 	}
 	else {
-		Cvar_Set("cl_guid", "NO_GUID");
+		Com_Printf("^5SANITIY FAILED...");
+		Cvar_Set("cl_guid", "NO_GUID\n");
 	}
 }
 
