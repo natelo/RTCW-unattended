@@ -2714,6 +2714,7 @@ void CL_StartHunkUsers( void ) {
 	L0 - Patched to account for HTTP stuff..
 */
 void CL_CheckAutoUpdate( void ) {
+	char *reply;
 
 	if ( !cl_autoupdate->integer ) {
 		return;
@@ -2726,21 +2727,18 @@ void CL_CheckAutoUpdate( void ) {
 
 	srand( Com_Milliseconds() );
 	
-	// L0 - We do not need more then one..
-	Com_Printf("Connecting to update server..");
+	// L0 - We do not need more then one..	
 	if (!NET_StringToAdr(UPDATE_SERVER_NAME, &cls.autoupdateServer, NA_IP)) {
-		Com_Printf("could not resolve address\n^nWARNING: Update server is unreachable!\n");
+		return;
 	}
-	else {
-		Com_Printf("SUCCESS\n");
-	}
-		
-	cls.autoupdateServer.port = BigShort( PORT_UPDATE );
-	Com_DPrintf( "%i.%i.%i.%i:%i\n", cls.autoupdateServer.ip[0], cls.autoupdateServer.ip[1],
-				 cls.autoupdateServer.ip[2], cls.autoupdateServer.ip[3],
-				 BigShort( cls.autoupdateServer.port ) );
 
-	CL_HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
+	reply = CL_HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
+
+	// If it's not silent then bail out
+	if (Q_stricmp(reply, "")) {
+		Com_Error(ERR_FATAL, reply);
+		return;
+	}
 
 	// Fetch MOTD..
 	CL_RequestMotd();
