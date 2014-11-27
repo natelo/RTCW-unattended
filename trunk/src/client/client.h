@@ -460,7 +460,7 @@ int CL_GetPingQueueCount( void );
 
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
-int CL_HTTPKeyValidate( const char *key ); // L0 - Used for UI checking
+int CL_CDKeyValidate(const char *key);
 int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
 
 void CL_AddToLimboChat( const char *str );                  // NERVE - SMF

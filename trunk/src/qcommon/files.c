@@ -1094,6 +1094,13 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 		return -1;
 	}
 
+	// make sure the q3key file is only readable by the quake3.exe at initialization
+	// any other time the key should only be accessed in memory using the provided functions
+	if (com_fullyInitialized && strstr(filename, "rtcwkey")) {
+		*file = 0;
+		return -1;
+	}
+
 	//
 	// search through the path, one element at a time
 	//
@@ -2978,6 +2985,7 @@ FS_Startup
 */
 static void FS_Startup( const char *gameName ) {
 	const char *homePath;
+	cvar_t  *fs;
 
 	Com_Printf( "----- FS_Startup -----\n" );
 
@@ -3031,6 +3039,12 @@ static void FS_Startup( const char *gameName ) {
 		if ( fs_homepath->string[0] && Q_stricmp( fs_homepath->string,fs_basepath->string ) ) {
 			FS_AddGameDirectory( fs_homepath->string, fs_gamedirvar->string );
 		}
+	}
+
+	Com_ReadCDKey(BASEGAME);
+	fs = Cvar_Get("fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO);
+	if (fs && fs->string[0] != 0) {
+		Com_AppendCDKey(fs->string);
 	}
 
 	// add our commands

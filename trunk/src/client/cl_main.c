@@ -4197,12 +4197,12 @@ void CL_ShowIP_f( void ) {
 
 /*
 =================
-CL_HTTPKeyValidate
+int CL_CDKeyValidate
 
-L0 - UI now uses this..
+L0 - Redone this to use http 
 =================
 */
-int CL_HTTPKeyValidate(const char *key) {
+int CL_CDKeyValidate(const char *key) {
 	char *result;
 
 	if (!key || strlen(key) != CDKEY_LEN) {
@@ -4221,10 +4221,10 @@ int CL_HTTPKeyValidate(const char *key) {
 
 	// Query it now
 	result = CL_HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
-	
+
 	// Sort output
 	Cmd_TokenizeString(result);
-	result = Cmd_Argv(0);	
+	result = Cmd_Argv(0);
 
 	if (!Q_stricmp(result, "no")) {
 		Cvar_Set("cl_uilaa", va(Cmd_ArgsFrom(1)));
@@ -4245,7 +4245,7 @@ void CL_UpdateGUID(void) {
 	if (strlen(cl_guid->string) == 32 && cl_uilaa) {
 		return;
 	}
-	else if (CL_HTTPKeyValidate(cl_cdkey) == 2) {
+	else if (CL_CDKeyValidate(cl_cdkey) == 2) {
 		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
 	}
 	else {

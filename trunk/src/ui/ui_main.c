@@ -4587,22 +4587,8 @@ static void UI_RunMenuScript( char **args ) {
 				trap_Cvar_VariableStringBuffer("cl_uilaa", out, sizeof(out));
 
 				trap_Cvar_Set("ui_cdkeyvalid", out);
-			}
-		} else if ( Q_stricmp( name, "doLogin" ) == 0 ) {
-			int queryKey;
-
-			// L0 - Modified key lookup..
-			queryKey = trap_VerifyCDKey(buff);
-			if (queryKey == 0) {
-				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Incorrect Key entered."));
-				Menus_CloseByName("main");
-			}
-			else {
-				Menus_OpenByName("login_menu");
-			}
-
-
-
+				trap_SetCDKey(buff);
+			}		
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
 			UI_MapCountByGameType( qfalse );
