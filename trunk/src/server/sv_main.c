@@ -80,6 +80,7 @@ cvar_t  *sv_showAverageBPS;     // NERVE - SMF - net debugging
 
 // L0 - Our stuff
 cvar_t	*sv_serverStreaming;
+cvar_t	*sv_serverToken;
 
 // -> Projects info
 cvar_t	*project_developer;
@@ -675,12 +676,14 @@ Auth Server has send info..
 void SVC_AuthRequest(netadr_t from, char *cmd, char *str) {
 	const char *auth;
 	netadr_t allowed;
-
+	
 	Sys_StringToAdr(AUTHORIZE_SERVER_NAME, &allowed, NA_IP);
 	auth = va("%i.%i.%i.%i", allowed.ip[0], allowed.ip[1], allowed.ip[2], allowed.ip[3]);
 
-	if (!cmd)
+	if (!cmd) {
 		return;
+	}
+
 	// If it's not ours..bail out
 	if (Q_stricmp(NET_AdrToString(from), auth))
 		return;
@@ -697,7 +700,7 @@ void SVC_AuthRequest(netadr_t from, char *cmd, char *str) {
 	}
 	// Send message to game
 	else if (!Q_stricmp(cmd, "dmsg")) {
-		SV_SendServerCommand(NULL, va("%s \"%s\"", Cmd_Argv(2), Cmd_ArgsFrom(3)));
+		SV_SendServerCommand(NULL, va("%s \"%s\"", Cmd_Argv(3), Cmd_ArgsFrom(4)));
 	}
 }
 
@@ -1026,7 +1029,13 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		if (SV_CheckDRDoS(from)) {
 			return;
 		}
-		SVC_AuthRequest(from, Cmd_Argv(1), Cmd_ArgsFrom(2));
+
+		// Make sure it's a legit request..
+		if (sv_serverToken->string != "" &&
+			sv_serverToken->string != "none" &&
+			!Q_stricmp(Cmd_Argv(1), sv_serverToken->string) 
+		)
+		SVC_AuthRequest(from, Cmd_Argv(2), Cmd_ArgsFrom(3));
 // ~L0
 // DHM - Nerve
 #ifdef UPDATE_SERVER

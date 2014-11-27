@@ -884,7 +884,9 @@ void SV_Init( void ) {
 	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
 #else
 	sv_serverStreaming = Cvar_Get("sv_serverStreaming", "1", CVAR_INIT | CVAR_SERVERINFO);
-#endif	
+#endif
+	sv_serverToken = Cvar_Get("sv_serverToken", "", CVAR_ARCHIVE);
+
 	Cvar_Get("project_developer", "Nate 'L0", CVAR_ROM | CVAR_SERVERINFO);
 	Cvar_Get("project_url", "rtcwmp.com", CVAR_ROM);
 

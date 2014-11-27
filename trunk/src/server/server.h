@@ -353,7 +353,8 @@ extern cvar_t  *sv_onlyVisibleClients;
 extern cvar_t  *sv_showAverageBPS;          // NERVE - SMF - net debugging
 
 // L0 - New stuff
-extern cvar_t	*sv_serverStreaming;	// If server is streaming or not : Note: locked but really a "poor man's" solution..
+extern cvar_t	*sv_serverStreaming;
+extern cvar_t	*sv_serverToken;
 
 extern cvar_t	*project_developer;
 extern cvar_t	*project_url;
