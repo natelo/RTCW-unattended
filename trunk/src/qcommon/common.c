@@ -2258,7 +2258,7 @@ static void Com_Crash_f( void ) {
 }
 
 int CL_CDKeyValidate(const char *key);
-void CL_WriteGUID(void);
+void CL_UpdateGUID(void);
 
 // TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
 //   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to take the risk
@@ -2291,11 +2291,13 @@ void Com_ReadCDKey(const char *filename) {
 	FS_Read(buffer, 16, f);
 	FS_FCloseFile(f);
 
-	if (CL_CDKeyValidate(buffer)) {
+	Com_Printf("^5CHECKING KEY: %s", cl_cdkey);
+
+	if (CL_CDKeyValidate(buffer) == AUTH_OK) {
 		Q_strncpyz(cl_cdkey, buffer, 17);
 		// L0 - Create guid as well
 #ifndef DEDICATED
-		CL_WriteGUID();
+		CL_UpdateGUID();
 #endif
 	}
 	else {

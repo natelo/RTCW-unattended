@@ -152,14 +152,18 @@ void SV_GetChallenge( netadr_t from ) {
 	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer) {
 #else
 	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
-#endif			
-		Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));	
-		isBanned = isClientBanned(guid);
-
-		if (isBanned) {
-			NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i %s", challenge->cookie, BannedMessage);
+#endif
+		if (isClientBanned(guid)) {
+			NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i 1 %s", challenge->cookie, BannedMessage);
 			return;
 		}
+
+		Com_Printf("GUID: %s\n", challenge->guid);
+
+		return;
+
+		// Now Auth stuff
+		Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
 	}
 
 	// Let them in

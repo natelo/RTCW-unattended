@@ -26,12 +26,12 @@ qboolean isClientBanned(char *guid) {
 	char msg[512];
 	char bannedGuid[32];
 
-	if (!Q_stricmp(guid, "")) {
+	if (!Q_stricmp(guid, "") || !Q_stricmp(guid, "NO_GUID")) {
 		BannedMessage = "Spoofed/Missing GUID...";
 		return qtrue;
 	}
 
-	bannedfile = fopen("mbl", "r");
+	bannedfile = fopen("bannedGuids", "r");
 	if (bannedfile) {
 		while (fgets(guids, 1024, bannedfile) != NULL) {
 			sscanf(guids, "%s %[^\n]", bannedGuid, msg);

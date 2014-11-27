@@ -4245,27 +4245,14 @@ int CL_CDKeyValidate(const char *key) {
 	Update GUID if needed
 */
 void CL_UpdateGUID(void) {
-	if (strlen(cl_guid->string) == 32 && cl_uilaa) {
-		return;
-	}
-	else if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
-		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
+	if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
+		Cvar_Set("cl_guid",
+			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
+			);
 	}
 	else {
 		Cvar_Set("cl_guid", "NO_GUID");
 	}
-}
-
-/*
-	Writes guid
-*/
-void CL_WriteGUID(void) {
-	if (!cl_cdkey) {
-		return;
-	}
-	Cvar_Set("cl_guid", Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
-	return;
-
 }
 
 // NERVE - SMF
