@@ -19,14 +19,19 @@ void SV_SendSSRequest( int clientNum, int quality) {
 
 /*
 	Check if client is banned
+	- Based upon Nobo's banning from rtcwPub
 
-	NOTE: IPv4 ATM only..
+	NOTE: IPv4 ATM only..	
 */
-char *isClientBanned(char *ip) {
+char *isClientBanned(char *ip, char *password) {
 	FILE *bannedfile;
 	char ips[1024];
 	char msg[512];
+	char *pass = NULL;
 	char *out = NULL;
+
+	if (strlen(password) > 0)
+		pass = Com_MD5(password, strlen(password), CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
 
 	bannedfile = fopen("mbl", "r");
 	if (bannedfile) {
@@ -36,8 +41,9 @@ char *isClientBanned(char *ip) {
 		while (fgets(ips, 1024, bannedfile) != NULL) {
 			unsigned int match[5];
 			unsigned int subrange;
+			char bypass[33];
 
-			int matchcount = sscanf(ips, "%3u.%3u.%3u.%3u/%2u %[^\n]", &match[0], &match[1], &match[2], &match[3], &match[4], msg);
+			int matchcount = sscanf(ips, "%3u.%3u.%3u.%3u/%2u %s %[^\n]", &match[0], &match[1], &match[2], &match[3], &match[4], bypass, msg);
 			subrange = match[4];
 
 			// Some (really basic) sanity checks
@@ -47,29 +53,30 @@ char *isClientBanned(char *ip) {
 			if (clientIP[0] == match[0]) {
 				// Full Range (32)
 				if (clientIP[1] == match[1] && clientIP[2] == match[2] && clientIP[3] == match[3]) {
-					out = va("%s", msg);
+					out = ((pass != NULL && !Q_stricmp(pass, bypass)) ? NULL : va("%s", msg));
 					break;
 				}
 				else {
 					if (subrange &&
 						(
-						subrange == 24 ||
-						subrange == 16 ||
-						subrange == 8
+							subrange == 24 ||
+							subrange == 16 ||
+							subrange == 8
 						)
-						) {
+					) 
+					{
 						// Traverse through it now
 						if (subrange == 24 && clientIP[2] == match[2] && clientIP[1] == match[1]) {
-							out = va("%s", msg);
+							out = ((pass != NULL && !Q_stricmp(pass, bypass)) ? NULL : va("%s", msg));
 							break;
 						}
 						else if (subrange == 16 && clientIP[1] == match[1]) {
-							out = va("%s", msg);
+							out = ((pass != NULL && !Q_stricmp(pass, bypass)) ? NULL : va("%s", msg));
 							break;
 						}
 						// First bit already matched upon entry..
 						else if (subrange == 8) {
-							out = va("%s", msg);
+							out = ((pass != NULL && !Q_stricmp(pass, bypass)) ? NULL : va("%s", msg));
 							break;
 						}
 					}

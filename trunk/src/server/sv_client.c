@@ -316,8 +316,7 @@ void SV_DirectConnect( netadr_t from ) {
 #else
 	if (!Sys_IsLANAddress(from) && sv_serverStreaming->integer && from.type == NA_IP) {
 #endif
-		char *bypass = Info_ValueForKey(userinfo, "password");
-		char *isBanned = isClientBanned(va("%u.%u.%u.%u", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
+		char *isBanned = isClientBanned(va("%u.%u.%u.%u", from.ip[0], from.ip[1], from.ip[2], from.ip[3]), Info_ValueForKey(userinfo, "password"));
 		if (isBanned) {			
 				// TODO : Mark oldClient so right message can be send..for time being we'll use this
 				NET_OutOfBandPrint(NS_SERVER, from, "print\n^3%s\n", (isBanned ? isBanned : "Banned! Protest on rtcwmp.com"));
