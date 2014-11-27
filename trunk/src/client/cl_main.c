@@ -106,7 +106,6 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
-cvar_t	*cl_uilaa;		// User Is Logged And Auth'ed..
 
 cvar_t  *cl_wwwDownload;
 // ~L0
@@ -3119,17 +3118,14 @@ void CL_Init( void ) {
 	cl_debugTranslation = Cvar_Get( "cl_debugTranslation", "0", 0 );
 	// -NERVE - SMF
 
-	// L0 - New Stuff
+// L0 - New Stuff
 	cl_demoPrefix = Cvar_Get( "cl_demoPrefix", "", CVAR_ARCHIVE );
 	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );	// ROM so it's cleared every run..
 
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
 	CL_UpdateGUID();
-
-	// Auth check
-	cl_uilaa = Cvar_Get("cl_uilaa", "", CVAR_ROM);
-	// ~L0
+// ~L0
 
 	// DHM - Nerve :: Auto-update
 	cl_updateavailable = Cvar_Get( "cl_updateavailable", "0", CVAR_ROM );
@@ -4206,14 +4202,14 @@ int CL_CDKeyValidate(const char *key) {
 	char *result;
 
 	if (!key || strlen(key) != CDKEY_LEN) {
-		Cvar_Set("cl_uilaa", "");
-		return 0;
+		Com_Error(ERR_FATAL, "Corrupted key. Generate your key @ rtcwmp.com");
+		return AUTH_FAILED;
 	}
 
 	Com_DPrintf("Contacting Auth Server..");
 	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
 		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
-		return 1;
+		return AUTH_OFFLINE;
 	}
 	else {
 		Com_DPrintf("connection established\n");
@@ -4227,25 +4223,27 @@ int CL_CDKeyValidate(const char *key) {
 	result = Cmd_Argv(0);
 
 	if (!Q_stricmp(result, "no")) {
-		Cvar_Set("cl_uilaa", va(Cmd_ArgsFrom(1)));
-		return 3;
+		if (!Q_stricmp(Cmd_Argv(1), "1")) {
+			Com_Error(ERR_FATAL, va("%s", Cmd_ArgsFrom(2)));
+			return AUTH_NO;
+		}		
+		return AUTH_NO;
 	}
 	else if (!Q_stricmp(result, "ok")) {
-		Cvar_Set("cl_uilaa", "y1");
-		return 3;
+		return AUTH_OK;
 	}
 
-	return 2; // "Failed to reply"
+	return AUTH_FAILED; // "Failed to reply"
 }
 
 /*
 	Update GUID if needed
 */
 void CL_UpdateGUID(void) {
-	if (strlen(cl_guid->string) == 32 && cl_uilaa) {
+	if (strlen(cl_guid->string) == (CLIENT_GUID-1)) {
 		return;
 	}
-	else if (CL_CDKeyValidate(cl_cdkey) == 2) {
+	else if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
 		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
 	}
 	else {

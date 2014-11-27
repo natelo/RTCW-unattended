@@ -1112,9 +1112,6 @@ int CL_UISystemCalls( int *args ) {
 		re.RemapShader( VMA( 1 ), VMA( 2 ), VMA( 3 ) );
 		return 0;
 
-	case UI_VERIFY_CDKEY:		
-		return CL_CDKeyValidate(VMA(1));
-
 		// NERVE - SMF
 	case UI_CL_GETLIMBOSTRING:
 		return CL_GetLimboString( args[1], VMA( 2 ) );

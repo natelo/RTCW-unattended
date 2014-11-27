@@ -420,8 +420,6 @@ extern cvar_t  *cl_language;
 // L0 - New Stuff
 extern cvar_t	*cl_demoPrefix;
 extern cvar_t	*cl_demoLast;
-
-extern cvar_t	*cl_uilaa; // User Is Logged And Authenticated ..
 // ~L0
 
 //=================================================

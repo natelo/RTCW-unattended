@@ -1237,10 +1237,19 @@ extern huffman_t clientHuffTables;
 #error unknown OS
 #endif
 
-// -- L0 md5 -- 
+// L0 
+
+// md5
 char *Com_MD5File(const char *fn, int length, const char *prefix, int prefix_len);
 char *Com_MD5(const void *data, int length, const char *prefix, int prefix_len, int hexcase);
-// End
+
+// Guid stuff
+#define CLIENT_GUID		33
+#define AUTH_OFFLINE	0
+#define AUTH_NO			1
+#define AUTH_OK			2
+#define AUTH_FAILED		3
+// ~L0
 
 #endif // _QCOMMON_H_
 

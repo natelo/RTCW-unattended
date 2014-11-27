@@ -99,7 +99,7 @@ void CL_StartHunkUsers( void ) {
 void CL_ShutdownAll( void ) {};
 
 // bk001208 - added new dummy (RC4)
-int CL_CDKeyValidate(const char *key) { return 1; }
+int CL_CDKeyValidate(const char *key) { return AUTH_OK; }
 
 // TTimo added for win32 dedicated
 void Key_ClearStates( void ) { }

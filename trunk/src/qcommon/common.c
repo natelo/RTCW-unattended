@@ -2280,8 +2280,8 @@ void Com_ReadCDKey(const char *filename) {
 	sprintf(fbuffer, "%s/rtcwkey", filename);
 
 	FS_SV_FOpenFileRead(fbuffer, &f);
-	if (!f) {
-		Q_strncpyz(cl_cdkey, "                ", 17);
+	if (!f) {		
+		Com_Error(ERR_FATAL, "Missing key! Get your key @ rtcwmp.com");
 		return;
 	}
 
@@ -2290,7 +2290,7 @@ void Com_ReadCDKey(const char *filename) {
 	FS_Read(buffer, 16, f);
 	FS_FCloseFile(f);
 
-	if (CL_CDKeyValidate(buffer)) {
+	if (CL_CDKeyValidate(buffer) == 4) {
 		Q_strncpyz(cl_cdkey, buffer, 17);
 	}
 	else {
@@ -2321,7 +2321,7 @@ void Com_AppendCDKey(const char *filename) {
 	FS_Read(buffer, 16, f);
 	FS_FCloseFile(f);
 
-	if (CL_CDKeyValidate(buffer)) {
+	if (CL_CDKeyValidate(buffer) == 4) {
 		strcat(&cl_cdkey[16], buffer);
 	}
 	else {
@@ -2343,7 +2343,7 @@ static void Com_WriteCDKey(const char *filename, const char *ikey) {
 	sprintf(fbuffer, "%s/rtcwkey", filename);
 	Q_strncpyz(key, ikey, 17);
 
-	if (!CL_CDKeyValidate(key)) {
+	if (CL_CDKeyValidate(key) != AUTH_OK) {
 		return;
 	}
 
