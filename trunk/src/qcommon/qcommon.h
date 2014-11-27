@@ -986,6 +986,7 @@ qboolean SV_GameCommand( void );
 // UI interface
 //
 qboolean UI_GameCommand( void );
+qboolean UI_usesUniqueCDKey();
 
 /*
 ==============================================================
@@ -1238,16 +1239,16 @@ extern huffman_t clientHuffTables;
 
 // L0 
 
-// md5
+// MD5
 char *Com_MD5File(const char *fn, int length, const char *prefix, int prefix_len);
 char *Com_MD5(const void *data, int length, const char *prefix, int prefix_len, int hexcase);
 
-// Guid stuff
-#define CLIENT_GUID		33
-#define AUTH_OFFLINE	0
-#define AUTH_NO			1
-#define AUTH_OK			2
-#define AUTH_FAILED		3
+// GUID
+#define CLIENT_GUID	33
+#define AUTH_FAIL	0
+#define AUTH_NO		1
+#define AUTH_OK		2
+
 // ~L0
 
 #endif // _QCOMMON_H_

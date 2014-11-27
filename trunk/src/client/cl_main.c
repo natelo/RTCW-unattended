@@ -106,6 +106,7 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
+cvar_t	*cl_uilaa;		// User Is Logged And Auth'ed..
 
 cvar_t  *cl_wwwDownload;
 // ~L0
@@ -3118,14 +3119,17 @@ void CL_Init( void ) {
 	cl_debugTranslation = Cvar_Get( "cl_debugTranslation", "0", 0 );
 	// -NERVE - SMF
 
-// L0 - New Stuff
+	// L0 - New Stuff
 	cl_demoPrefix = Cvar_Get( "cl_demoPrefix", "", CVAR_ARCHIVE );
 	cl_demoLast = Cvar_Get( "cl_demoLast", "", CVAR_ROM );	// ROM so it's cleared every run..
 
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
 	CL_UpdateGUID();
-// ~L0
+
+	// Auth check
+	cl_uilaa = Cvar_Get("cl_uilaa", "", CVAR_ROM);
+	// ~L0
 
 	// DHM - Nerve :: Auto-update
 	cl_updateavailable = Cvar_Get( "cl_updateavailable", "0", CVAR_ROM );
@@ -4202,14 +4206,14 @@ int CL_CDKeyValidate(const char *key) {
 	char *result;
 
 	if (!key || strlen(key) != CDKEY_LEN) {
-		Com_Error(ERR_FATAL, "Corrupted key. Generate your key @ rtcwmp.com");
-		return AUTH_FAILED;
+		Cvar_Set("cl_uilaa", "");
+		return -1;
 	}
 
 	Com_DPrintf("Contacting Auth Server..");
 	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
 		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
-		return AUTH_OFFLINE;
+		return AUTH_FAIL;
 	}
 	else {
 		Com_DPrintf("connection established\n");
@@ -4223,81 +4227,45 @@ int CL_CDKeyValidate(const char *key) {
 	result = Cmd_Argv(0);
 
 	if (!Q_stricmp(result, "no")) {
-		if (!Q_stricmp(Cmd_Argv(1), "1")) {
+		if (!Q_stricmp(Cmd_Argv(1), "1"))
 			Com_Error(ERR_FATAL, va("%s", Cmd_ArgsFrom(2)));
-			return AUTH_NO;
-		}		
+		else
+			Cvar_Set("cl_uilaa", va("%s", Cmd_ArgsFrom(1)));
 		return AUTH_NO;
 	}
 	else if (!Q_stricmp(result, "ok")) {
+		Cvar_Set("cl_uilaa", va("%s", Cmd_ArgsFrom(1)));
 		return AUTH_OK;
 	}
 
-	return AUTH_FAILED; // "Failed to reply"
-}
-
-/*
-=================
-L0 - Checks for key sanity..
-=================
-*/
-qboolean CL_KeySanityCheck(const char *key) {
-	int i, j, sum = 0, keysum = 0;
-	char c;
-
-	if (!key || strlen(key) != CDKEY_LEN) {
-		return qfalse;
-	}
-	for (i = 0, j = 0; i < CDKEY_LEN; i++) {
-		c = *key++;
-		if (c >= 'a' && c <= 'n') {
-			c -= 88;
-		}
-		else if (c >= 'p' && c <= 'x') {
-			c -= 89;
-		}
-		else if (c >= '1' && c <= '9') {
-			c -= 49;
-		}
-		else if (c >= 'A' && c <= 'N') {
-			c -= 56;
-		}
-		else if (c >= 'P' && c <= 'X') {
-			c -= 57;
-		}
-		else {
-			return qfalse;
-		}
-
-		keysum ^= c << j;
-		if (++j > 5) {
-			j = 0;
-		}
-	}
-	
-	CL_UpdateGUID();
-	return qtrue;
+	return AUTH_FAIL;
 }
 
 /*
 	Update GUID if needed
 */
 void CL_UpdateGUID(void) {
-
-	Com_Printf("^5GUID KEY: %s\n", cl_cdkey);
-
-	if (strlen(cl_guid->string) == (CLIENT_GUID-1)) {
-		Com_Printf("^5GUID FAILED...\n");
+	if (strlen(cl_guid->string) == 32 && cl_uilaa) {
 		return;
 	}
-	else if (CL_KeySanityCheck(cl_cdkey)) {
+	else if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
 		Cvar_Set("cl_guid",	Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
-		Com_Printf("^5GUID CREATED...\n");
 	}
 	else {
-		Com_Printf("^5SANITIY FAILED...");
-		Cvar_Set("cl_guid", "NO_GUID\n");
+		Cvar_Set("cl_guid", "NO_GUID");
 	}
+}
+
+/*
+	Writes guid
+*/
+void CL_WriteGUID(void) {
+	if (!cl_cdkey) {
+		return;
+	}
+	Cvar_Set("cl_guid", Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
+	return;
+
 }
 
 // NERVE - SMF

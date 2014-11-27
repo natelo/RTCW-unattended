@@ -1069,6 +1069,8 @@ void            trap_SetPbSvStatus( int status );                               
 
 // -NERVE - SMF
 
+void            trap_GetCDKey( char *buf, int buflen );
+void            trap_SetCDKey( char *buf );
 void            trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
 void            trap_S_StopBackgroundTrack( void );
 void            trap_S_StartBackgroundTrack( const char *intro, const char *loop );
@@ -1079,6 +1081,7 @@ void            trap_CIN_DrawCinematic( int handle );
 void            trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+int				trap_VerifyCDKey( const char *key);
 qboolean        trap_GetLimboString( int index, char *buf );            // NERVE - SMF
 void            trap_CheckAutoUpdate( void );                           // DHM - Nerve
 void            trap_GetAutoUpdate( void );                             // DHM - Nerve

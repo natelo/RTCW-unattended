@@ -420,6 +420,8 @@ extern cvar_t  *cl_language;
 // L0 - New Stuff
 extern cvar_t	*cl_demoPrefix;
 extern cvar_t	*cl_demoLast;
+
+extern cvar_t	*cl_uilaa; // User Is Logged And Authenticated ..
 // ~L0
 
 //=================================================
@@ -540,9 +542,12 @@ void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
 char *Key_KeynumToString( int keynum, qboolean bTranslate );
-
-// etp - Guid
+// etp: cl_guid setup
 void CL_UpdateGUID(void);
+// L0 - Create cl_guid
+void CL_WriteGuid(void);
+// etp: 64 or 80bit keys
+#define CDKEY_LARGE 1
 
 //
 // L0 - cl_irc.c
