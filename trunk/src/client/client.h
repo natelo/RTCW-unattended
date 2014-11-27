@@ -539,8 +539,6 @@ void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
 char *Key_KeynumToString( int keynum, qboolean bTranslate );
-// etp: cl_guid setup
-void CL_UpdateGUID(void);
 
 //
 // L0 - cl_irc.c
@@ -668,3 +666,4 @@ void CL_checkSSTime(void);
 void CL_RequestedSS(int quality);
 void CL_UploadDemo_f(void);
 void CL_UploadHelp_f(void);
+void CL_checkCDKey(void);

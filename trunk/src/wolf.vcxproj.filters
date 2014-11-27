@@ -206,6 +206,9 @@
     <ClCompile Include="qcommon\http_main.c">
       <Filter>http</Filter>
     </ClCompile>
+    <ClCompile Include="client\cl_GetHDDSerial.cpp">
+      <Filter>Control</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A3D\a3dWrapperdp.h">
@@ -315,6 +318,9 @@
     </ClInclude>
     <ClInclude Include="qcommon\dl_public.h">
       <Filter>downloads</Filter>
+    </ClInclude>
+    <ClInclude Include="client\cl_GetHDDSerial.h">
+      <Filter>Control</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

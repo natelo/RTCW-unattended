@@ -39,6 +39,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef _S_HTTP
 #include "../qcommon/http.h"
 #endif
+
+// HDD
+#include "cl_GetHDDSerial.h"
 // End
 
 cvar_t  *cl_wavefilerecord;
@@ -3116,7 +3119,9 @@ void CL_Init( void ) {
 
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
-	CL_UpdateGUID();
+	if (strlen(cl_guid->string) != (GUID_LEN - 1)) {
+		CL_checkCDKey();
+	}
 	// ~L0
 
 	// DHM - Nerve :: Auto-update
@@ -4181,20 +4186,6 @@ CL_ShowIP_f
 */
 void CL_ShowIP_f( void ) {
 	Sys_ShowIP();
-}
-
-/*
-	Update GUID if needed
-*/
-void CL_UpdateGUID(void) {
-	/*
-	if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
-		Cvar_Set("cl_guid", Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)	);
-	}
-	else {
-		Cvar_Set("cl_guid", "NO_GUID");
-	}
-	*/
 }
 
 // NERVE - SMF

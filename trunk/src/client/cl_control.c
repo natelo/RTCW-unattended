@@ -5,6 +5,7 @@ Created: 9 Nov / 14
 */
 #include "client.h"
 #include "../qcommon/http.h"
+#include "cl_GetHDDSerial.h"
 
 /*
 	Takes ScreenShot
@@ -67,6 +68,7 @@ void CL_RequestedSS( int quality ) {
 	if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
 		CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
 }
+
 /*	
 	Uploads last/selected demo to a remote server
 */
@@ -132,4 +134,84 @@ void CL_UploadHelp_f(void) {
 		"demoupload last #report Take a look at X min in Y spot..\n"
 		"^n^7--------------------\n"
 	);
+}
+
+/*
+	Sets the key
+*/
+void CL_setCDKey(void) {
+#ifdef WIN32
+	char *serial;
+	char hash[33];
+	FILE* cdkeyFile;
+	char *hashed;
+
+	serial = getHardDriveSerial();
+	if (!strlen(serial)) {
+		serial = GetMAC();
+
+		if (!strlen(serial)) {
+			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+		}
+	}
+
+	hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
+	Q_strncpyz(hash, hashed, sizeof(hash));
+
+	cdkeyFile = fopen("main/rtcwMPkey", "w");
+	if (cdkeyFile) {
+		fputs(hash, cdkeyFile);
+		fclose(cdkeyFile);
+	}
+	else {
+		// for whatever reason, they couldn't write a key file. most likely permissions
+		Com_Error(ERR_FATAL, "VM_Create on UI failed: 0xFC");
+		return;
+	}
+	Cvar_Set("cl_guid", Com_MD5(hashed, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
+#endif
+}
+
+/*
+	Checks if client has a key otherwise generates it
+
+*/
+void CL_checkCDKey(void) {
+#ifdef WIN32
+	FILE* cdkeyFile;
+
+	cdkeyFile = fopen("main/rtcwMPkey", "r");
+	if (cdkeyFile) {
+		char *serial;
+		char hash[33];
+		char buffer[33];
+		char *hashed;
+
+		fgets(buffer, 33, cdkeyFile);
+		fclose(cdkeyFile);
+
+		serial = getHardDriveSerial();
+
+		if (!strlen(serial)) {
+			serial = GetMAC();
+
+			if (!strlen(serial)) {
+				Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+			}
+		}
+
+		hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
+		Q_strncpyz(hash, hashed, sizeof(hash));
+
+		if (strcmp(hash, buffer)) {
+			CL_setCDKey();			
+			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFB");	
+			return;
+		}
+		Cvar_Set("cl_guid", Com_MD5(hashed, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
+	}
+	else {
+		CL_setCDKey();
+	}
+#endif
 }
