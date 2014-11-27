@@ -17,32 +17,3 @@ void SV_SendSSRequest( int clientNum, int quality) {
 	SV_SendServerCommand(svs.clients + clientNum, "ssreq %d", quality);
 }
 
-/*
-	Check if client is banned
-*/
-qboolean isClientBanned(char *guid) {
-	FILE *bannedfile;
-	char guids[1024];	
-	char msg[512];
-	char bannedGuid[32];
-
-	if (!Q_stricmp(guid, "") || !Q_stricmp(guid, "NO_GUID")) {
-		BannedMessage = "Spoofed/Missing GUID...";
-		return qtrue;
-	}
-
-	bannedfile = fopen("bannedGuids", "r");
-	if (bannedfile) {
-		while (fgets(guids, 1024, bannedfile) != NULL) {
-			sscanf(guids, "%s %[^\n]", bannedGuid, msg);
-
-			if (!Q_stricmp(bannedGuid, guid)) {
-				BannedMessage = va("%s", msg);
-				fclose(bannedfile);
-				return qtrue;
-			}
-		}
-		fclose(bannedfile);
-	}
-	return qfalse;
-}

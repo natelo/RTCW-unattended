@@ -63,7 +63,7 @@ void SV_GetChallenge( netadr_t from ) {
 	challenge_t *challenge;
 	char *guid, *c;
 	int cookie;
-	qboolean ipAuth = qfalse, isBanned=qfalse;
+	qboolean ipAuth = qfalse;
 
 	// ignore if we are in single player
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
@@ -153,17 +153,10 @@ void SV_GetChallenge( netadr_t from ) {
 #else
 	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
 #endif
-		if (isClientBanned(guid)) {
-			NET_OutOfBandPrint(NS_SERVER, challenge->adr, "authStatus %i 1 %s", challenge->cookie, BannedMessage);
-			return;
-		}
-
-		Com_Printf("GUID: %s\n", challenge->guid);
-
-		return;
-
 		// Now Auth stuff
 		Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
+
+		// ADD AUTH CRAP..
 	}
 
 	// Let them in

@@ -3039,9 +3039,6 @@ static void FS_Startup( const char *gameName ) {
 			FS_AddGameDirectory( fs_homepath->string, fs_gamedirvar->string );
 		}
 	}
-
-	Com_ReadCDKey(BASEGAME);	
-
 	// add our commands
 	Cmd_AddCommand( "path", FS_Path_f );
 	Cmd_AddCommand( "dir", FS_Dir_f );

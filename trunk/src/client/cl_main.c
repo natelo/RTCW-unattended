@@ -106,7 +106,6 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
-cvar_t	*cl_uilaa;		// User Is Logged And Auth'ed..
 
 cvar_t  *cl_wwwDownload;
 // ~L0
@@ -3126,9 +3125,6 @@ void CL_Init( void ) {
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
 	CL_UpdateGUID();
-
-	// Auth check
-	cl_uilaa = Cvar_Get("cl_uilaa", "", CVAR_ROM);
 	// ~L0
 
 	// DHM - Nerve :: Auto-update
@@ -4196,63 +4192,17 @@ void CL_ShowIP_f( void ) {
 }
 
 /*
-=================
-int CL_CDKeyValidate
-
-L0 - Redone this to use http 
-=================
-*/
-int CL_CDKeyValidate(const char *key) {
-	char *result;
-
-	if (!key || strlen(key) != CDKEY_LEN) {
-		Cvar_Set("cl_uilaa", "");
-		return -1;
-	}
-
-	Com_DPrintf("Contacting Auth Server..");
-	if (!NET_StringToAdr(AUTHORIZE_SERVER_NAME, &cls.clientAuthServer, NA_IP)) {
-		Com_DPrintf("could not resolve address\n^nWARNING: Auth Server is unreachable!\n");
-		return AUTH_FAIL;
-	}
-	else {
-		Com_DPrintf("connection established\n");
-	}
-
-	// Query it now
-	result = CL_HTTP_PostQuery(WEB_CLIENT_AUTH, va("key=%s", key));
-
-	// Sort output
-	Cmd_TokenizeString(result);
-	result = Cmd_Argv(0);
-
-	if (!Q_stricmp(result, "no")) {
-		if (!Q_stricmp(Cmd_Argv(1), "1"))
-			Com_Error(ERR_FATAL, va("%s", Cmd_ArgsFrom(2)));
-		else
-			Cvar_Set("cl_uilaa", va("%s", Cmd_ArgsFrom(1)));
-		return AUTH_NO;
-	}
-	else if (!Q_stricmp(result, "ok")) {
-		Cvar_Set("cl_uilaa", va("%s", Cmd_ArgsFrom(1)));
-		return AUTH_OK;
-	}
-
-	return AUTH_FAIL;
-}
-
-/*
 	Update GUID if needed
 */
 void CL_UpdateGUID(void) {
+	/*
 	if (CL_CDKeyValidate(cl_cdkey) == AUTH_OK) {
-		Cvar_Set("cl_guid",
-			Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)
-			);
+		Cvar_Set("cl_guid", Com_MD5(cl_cdkey, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0)	);
 	}
 	else {
 		Cvar_Set("cl_guid", "NO_GUID");
 	}
+	*/
 }
 
 // NERVE - SMF

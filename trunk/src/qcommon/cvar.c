@@ -680,7 +680,7 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	char buffer[1024];
 
 	for ( var = cvar_vars ; var ; var = var->next ) {
-		if ( Q_stricmp( var->name, "cl_cdkey" ) == 0 ) {
+		if ( Q_stricmp( var->name, "cl_guid" ) == 0 ) { // L0 - Never guid..
 			continue;
 		}
 		if ( var->flags & CVAR_ARCHIVE ) {

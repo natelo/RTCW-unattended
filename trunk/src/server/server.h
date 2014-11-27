@@ -541,9 +541,7 @@ qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 //
 // L0 - sv_controls.c
 //
-char *BannedMessage;
 void SV_SendSSRequest(int clientNum, int quality);
-qboolean isClientBanned(char *guid);
 
 // L0 - HTTP downloads
 //bani - cl->downloadnotify

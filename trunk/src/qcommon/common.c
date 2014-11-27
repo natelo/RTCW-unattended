@@ -2257,54 +2257,6 @@ static void Com_Crash_f( void ) {
 	*( int * ) 0 = 0x12345678;
 }
 
-int CL_CDKeyValidate(const char *key);
-void CL_UpdateGUID(void);
-
-// TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version
-//   not sure it's necessary to have different defaults for regular and dedicated, but I don't want to take the risk
-#ifndef DEDICATED
-char cl_cdkey[34] = "NO_GUID";
-#else
-char cl_cdkey[34] = "123456789";
-#endif
-
-/*
-=================
-Com_ReadCDKey
-=================
-*/
-void Com_ReadCDKey(const char *filename) {
-	fileHandle_t f;
-	char buffer[33];
-	char fbuffer[MAX_OSPATH];
-
-	sprintf(fbuffer, "%s/rtcwkey", filename);
-
-	FS_SV_FOpenFileRead(fbuffer, &f);
-	if (!f) {
-		Com_Error(ERR_FATAL, "Missing key! Obtain your key @ rtcwmp.com");
-		return;
-	}
-
-	Com_Memset(buffer, 0, sizeof(buffer));
-
-	FS_Read(buffer, 16, f);
-	FS_FCloseFile(f);
-
-	Com_Printf("^5CHECKING KEY: %s", cl_cdkey);
-
-	if (CL_CDKeyValidate(buffer) == AUTH_OK) {
-		Q_strncpyz(cl_cdkey, buffer, 17);
-		// L0 - Create guid as well
-#ifndef DEDICATED
-		CL_UpdateGUID();
-#endif
-	}
-	else {
-		Q_strncpyz(cl_cdkey, "                ", 17);
-	}
-}
-
 void Com_SetRecommended() {
 	cvar_t *cv;
 	qboolean goodVideo;

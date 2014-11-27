@@ -4545,47 +4545,6 @@ static void UI_RunMenuScript( char **args ) {
 			trap_Cvar_Set( "com_introPlayed", "1" );
 			trap_Cvar_Set( "com_recommendedSet", "1" );                   // NERVE - SMF
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
-		} else if ( Q_stricmp( name, "getCDKey" ) == 0 ) {
-			char out[17];
-			trap_GetCDKey( buff, 17 );
-			trap_Cvar_Set( "cdkey1", "" );
-			trap_Cvar_Set( "cdkey2", "" );
-			trap_Cvar_Set( "cdkey3", "" );
-			trap_Cvar_Set( "cdkey4", "" );
-			if ( strlen( buff ) == CDKEY_LEN ) {
-				Q_strncpyz( out, buff, 5 );
-				trap_Cvar_Set( "cdkey1", out );
-				Q_strncpyz( out, buff + 4, 5 );
-				trap_Cvar_Set( "cdkey2", out );
-				Q_strncpyz( out, buff + 8, 5 );
-				trap_Cvar_Set( "cdkey3", out );
-				Q_strncpyz( out, buff + 12, 5 );
-				trap_Cvar_Set( "cdkey4", out );
-			}
-		}
-		else if (Q_stricmp(name, "verifyCDKey") == 0) {
-			int queryKey;
-			buff[0] = '\0';
-			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey1"));
-			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey2"));
-			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey3"));
-			Q_strcat(buff, 1024, UI_Cvar_VariableString("cdkey4"));
-			trap_Cvar_Set("cdkey", buff);
-			// L0 - Modified key lookup..
-			queryKey = trap_VerifyCDKey(buff);
-			if (queryKey == -1) {
-				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Incorrect Key entered."));
-			}
-			else if (queryKey == 0) { /* 0 = AUTH_FAIL */
-				trap_Cvar_Set("ui_cdkeyvalid", trap_TranslateString("Auth server seems to be offline."));
-			}
-			else {
-				char out[1024];
-				trap_Cvar_VariableStringBuffer("cl_uilaa", out, sizeof(out));
-
-				trap_Cvar_Set("ui_cdkeyvalid", out);
-				trap_SetCDKey(buff);
-			}		
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
 			UI_MapCountByGameType( qfalse );

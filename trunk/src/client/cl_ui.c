@@ -670,47 +670,6 @@ void Key_SetCatcher( int catcher ) {
 
 }
 
-
-/*
-====================
-CLUI_GetCDKey
-====================
-*/
-static void CLUI_GetCDKey( char *buf, int buflen ) {
-	cvar_t  *fs;
-	fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-	if ( UI_usesUniqueCDKey() && fs && fs->string[0] != 0 ) {
-		memcpy( buf, &cl_cdkey[16], 16 );
-		buf[16] = 0;
-	} else {
-		memcpy( buf, cl_cdkey, 16 );
-		buf[16] = 0;
-	}
-}
-
-
-/*
-====================
-CLUI_SetCDKey
-====================
-*/
-static void CLUI_SetCDKey( char *buf ) {
-	cvar_t  *fs;
-	fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-	if ( UI_usesUniqueCDKey() && fs && fs->string[0] != 0 ) {
-		memcpy( &cl_cdkey[16], buf, 16 );
-		cl_cdkey[32] = 0;
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	} else {
-		memcpy( cl_cdkey, buf, 16 );
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-	// etp: after changing key we have to update cl_guid
-	CL_UpdateGUID();
-}
-
 /*
 ====================
 GetConfigString
@@ -1030,14 +989,6 @@ int CL_UISystemCalls( int *args ) {
 	case UI_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
 
-	case UI_GET_CDKEY:
-		CLUI_GetCDKey( VMA( 1 ), args[2] );
-		return 0;
-
-	case UI_SET_CDKEY:
-		CLUI_SetCDKey( VMA( 1 ) );
-		return 0;
-
 	case UI_R_REGISTERFONT:
 		re.RegisterFont( VMA( 1 ), args[2], VMA( 3 ) );
 		return 0;
@@ -1111,9 +1062,6 @@ int CL_UISystemCalls( int *args ) {
 	case UI_R_REMAP_SHADER:
 		re.RemapShader( VMA( 1 ), VMA( 2 ), VMA( 3 ) );
 		return 0;
-
-	case UI_VERIFY_CDKEY:		
-		return CL_CDKeyValidate(VMA(1));
 
 		// NERVE - SMF
 	case UI_CL_GETLIMBOSTRING:
