@@ -18,10 +18,7 @@ Hold declarations and structures of all the HTTP related functionality..
 #define WEB_MOTD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/motd"
 #define WEB_UPLOAD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/upload"
 #define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
-
 #define WEB_MBL			"http://" AUTHORIZE_SERVER_NAME	// Master Ban List
-
-
 
 /*
 ============

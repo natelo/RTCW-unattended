@@ -63,7 +63,7 @@ void SV_GetChallenge( netadr_t from ) {
 	challenge_t *challenge;
 	char *guid, *c;
 	int cookie;
-	qboolean ipAuth = qfalse;
+	qboolean ipAuth = qfalse; // TODO: Mark them
 
 	// ignore if we are in single player
 	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
@@ -76,7 +76,7 @@ void SV_GetChallenge( netadr_t from ) {
 	// L0 - If there's no cookie then we can assume it's a 
 	// legit 1.0 request tho can be a spoof attack but nothing is perfect..
 	if (!cookie) {
-		if (sv_pure->integer || sv_serverStreaming->integer) {
+		if (sv_pure->integer) {
 			NET_OutOfBandPrint(NS_SERVER, from, "print\n^3Download rtcwMP client @ rtcwmp.com to enter..\n");
 			return;
 		}
@@ -133,7 +133,7 @@ void SV_GetChallenge( netadr_t from ) {
 		challenge->firstTime = svs.time;
 		challenge->firstPing = 0;
 		challenge->connected = qfalse;
-		challenge->authed = qfalse;
+		challenge->authed = qfalse;		
 		i = oldest;
 	}
 
@@ -145,18 +145,6 @@ void SV_GetChallenge( netadr_t from ) {
 	if (!ipAuth) {
 		Q_strncpyz(challenge->guid, guid, sizeof(challenge->guid));
 		challenge->cookie = cookie;
-	}
-
-	// If server is streaming try to Auth users..
-#ifdef _DEBUG_HTTP
-	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer) {
-#else
-	if ( !Sys_IsLANAddress( from ) && sv_serverStreaming->integer) {
-#endif
-		// Now Auth stuff
-		Com_DPrintf("Querying Auth server for %s\n", NET_AdrToString(from));
-
-		// ADD AUTH CRAP..
 	}
 
 	// Let them in
@@ -321,6 +309,23 @@ void SV_DirectConnect( netadr_t from ) {
 	newcl = &temp;
 	memset( newcl, 0, sizeof( client_t ) );
 
+	// Down here as we do not want to scan file until we're sure it's a legit request.
+	// NOTE: IPv4 Only atm.. - TODO
+#ifdef _DEBUG_HTTP
+	if (Sys_IsLANAddress(from) && sv_serverStreaming->integer && from.type == NA_IP) {
+#else
+	if (!Sys_IsLANAddress(from) && sv_serverStreaming->integer && from.type == NA_IP) {
+#endif
+		char *bypass = Info_ValueForKey(userinfo, "password");
+		char *isBanned = isClientBanned(va("%u.%u.%u.%u", from.ip[0], from.ip[1], from.ip[2], from.ip[3]));
+		if (isBanned) {			
+				// TODO : Mark oldClient so right message can be send..for time being we'll use this
+				NET_OutOfBandPrint(NS_SERVER, from, "print\n^3%s\n", (isBanned ? isBanned : "Banned! Protest on rtcwmp.com"));
+				NET_OutOfBandPrint(NS_SERVER, from, "authStatus 2 %s", (isBanned ? isBanned : "^7Protest on rtcwmp.com"));
+			return;
+		}
+	}
+
 	// if there is already a slot for this ip, reuse it
 	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
 		if ( cl->state == CS_FREE ) {
@@ -335,6 +340,7 @@ void SV_DirectConnect( netadr_t from ) {
 			goto gotnewcl;
 		}
 	}
+
 
 	// find a client slot
 	// if "sv_privateClients" is set > 0, then that number

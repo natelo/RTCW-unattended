@@ -1739,7 +1739,6 @@ Packet received from game servers
 ===================
 */
 void CL_AuthPacket(netadr_t from) {
-	int	challenge;
 	unsigned int type;
 	char *msg;
 
@@ -1748,14 +1747,9 @@ void CL_AuthPacket(netadr_t from) {
 		return;
 	}
 
-	challenge = atoi(Cmd_Argv(1));
-	if (challenge != cls.authorizeCookie) {
-		return;
-	}
-
 	// Packet handler
-	type = atoi(Cmd_Argv(2));
-	msg = Cmd_ArgsFrom(3);
+	type = atoi(Cmd_Argv(1));
+	msg = Cmd_ArgsFrom(2);
 
 	switch (type) {
 		case 1:
