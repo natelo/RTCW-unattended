@@ -1418,7 +1418,7 @@ void GLimp_Init( void ) {
 	Q_strncpyz( glConfig.extensions_string, qglGetString( GL_EXTENSIONS ), sizeof( glConfig.extensions_string ) );
 	// TTimo - safe check
 	if ( strlen( qglGetString( GL_EXTENSIONS ) ) >= sizeof( glConfig.extensions_string ) ) {
-		Com_Printf( S_COLOR_YELLOW "WARNNING: GL extensions string too long (%d), truncated to %d\n", strlen( qglGetString( GL_EXTENSIONS ) ), sizeof( glConfig.extensions_string ) );
+		Com_Printf( S_COLOR_WHITE "NOTICE: GL extensions string too long (%d), truncated to %d\n", strlen( qglGetString( GL_EXTENSIONS ) ), sizeof( glConfig.extensions_string ) );
 	}
 
 	//
