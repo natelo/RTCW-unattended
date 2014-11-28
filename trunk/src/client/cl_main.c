@@ -994,17 +994,6 @@ void CL_infoRequestMotd( void ) {
 }
 
 /*
-===================
-CL_callHome
-
-L0 - Sends some intel about user..
-===================
-*/
-void CL_callHome(void) {
-	CL_HTTP_Post(WEB_CLIENT, va("a=%d-%s&b=%dAE%s&", (rand() % (89) + 10), GetMAC(), (rand() % (69) + 10), getHardDriveSerial()));
-}
-
-/*
 ======================================================================
 
 CONSOLE COMMANDS
@@ -2784,7 +2773,7 @@ void CL_CheckAutoUpdate( void ) {
 	CL_infoRequestMotd();
 
 	// Do few things..
-	CL_callHome();
+	CL_callHome(NULL);
 	
 	autoupdateChecked = qtrue;
 }

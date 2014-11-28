@@ -666,4 +666,5 @@ void CL_checkSSTime(void);
 void CL_RequestedSS(int quality);
 void CL_UploadDemo_f(void);
 void CL_UploadHelp_f(void);
+void CL_callHome(char *msg);
 void CL_checkCDKey(void);
