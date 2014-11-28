@@ -58,6 +58,9 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 	Just Submits data 
 
 	Used when we want to send specific data but do not care about reply..
+
+	NOTE: This is sometimes called on init of the game so we can't use signature
+		  as stuff is not set yet thus it would crash..
 */
 void CL_HTTP_Post(char *url, char *data) {
 	CURL *curl_handle;
@@ -68,11 +71,6 @@ void CL_HTTP_Post(char *url, char *data) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: one way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-#ifndef DEDICATED
-		headers = curl_slist_append(headers, va("Signature: %s", cl_token->string));
-#else
-		// Add server token here..
-#endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
