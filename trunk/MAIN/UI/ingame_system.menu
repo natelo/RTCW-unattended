@@ -134,32 +134,10 @@
    			name graphics
 			group grpSystem
    			type ITEM_TYPE_MULTI
-			text "Graphics engine:"
-			cvar "cl_renderer"	
-			cvarStrList { "Default engine", "opengl1", "Enhanced engine", "rend2" }
-			rect 99 75 256 12
-      		textalign ITEM_ALIGN_RIGHT
-      		textalignx 128
-      		textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .25 
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07      
-      		forecolor 1 1 1 1
-      		visible 0 
-			action { uiScript glCustom; uiScript update "r_colorbits" }
-			mouseenter	{ show floater_message }
-			mouseexit	{ hide floater_message }	
-		}
-
-		itemDef {
-   			name graphics
-			group grpSystem
-   			type ITEM_TYPE_MULTI
 			text "Color Depth:"
 			cvar "r_colorbits"
 			cvarFloatList { "Desktop Default" 0 "16-bit" 16 "32-bit" 32 }
-			rect 99 90 256 12
+			rect 99 75 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -180,7 +158,7 @@
       		type ITEM_TYPE_YESNO
 			text "Fullscreen:"
 			cvar "r_fullscreen"
-			rect 99 105 256 12
+			rect 99 90 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -202,7 +180,7 @@
 			text "Lighting:"
 			cvar "r_vertexlight"
 			cvarFloatList { "Light Map (high)" 0 "Vertex (low)" 1  }
-			rect 99 120 256 12
+			rect 99 105 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -224,7 +202,7 @@
 			text "Bloom effect:"
 			cvar "r_bloom"
 			cvarFloatList { "Disabled" 0 "Enabled" 1  }
-			rect 99 135 256 12
+			rect 99 120 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -246,7 +224,7 @@
 			text "Geometric Detail:"
 			cvar "r_lodbias"
 			cvarFloatList { "Low" 2 "Medium" 1 "High" 0 }
-			rect 99 150 256 12
+			rect 99 135 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -268,7 +246,7 @@
 			text "Texture Detail:"
 			cvar "r_picmip"
 			cvarFloatList { "Low" 2 "Normal" 1 "High" 0 }
-			rect 99 165 256 12
+			rect 99 150 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -290,7 +268,7 @@
 			text "Texture Quality:"
 			cvar "r_texturebits"
 			cvarFloatList { "Default" 0 "16 bit" 16 "32 bit" 32 }
-			rect 99 180 256 12
+			rect 99 165 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -311,7 +289,7 @@
 			text "Texture Filter:"
 			cvar "r_texturemode"
 			cvarStrList { "Bilinear", "GL_LINEAR_MIPMAP_NEAREST", "Trilinear", "GL_LINEAR_MIPMAP_LINEAR"  }
-			rect 99 195 256 12
+			rect 99 180 256 12
 	      	textalign ITEM_ALIGN_RIGHT
 	      	textalignx 128
 	      	textaligny 10
@@ -332,7 +310,7 @@
 	      	type ITEM_TYPE_YESNO
 			text "Compress Textures:"
 			cvar "r_ext_compressed_textures"
-			rect 99 210 256 12
+			rect 99 195 256 12
       		textalign ITEM_ALIGN_RIGHT
       		textalignx 128
       		textaligny 10
@@ -353,7 +331,7 @@
       		type ITEM_TYPE_SLIDER
 			text "Brightness:"
 			cvarfloat "r_gamma" 1 0.5 3
- 			rect 99 225 256 12
+ 			rect 99 210 256 12
     	  	textalign ITEM_ALIGN_RIGHT
       		textalignx 128 
      	 	textaligny 10
@@ -373,7 +351,7 @@
       		type ITEM_TYPE_SLIDER
 			text "Intensity:"
 			cvarfloat "r_intensity" 1 0.5 3
- 			rect 99 240 256 12
+ 			rect 99 225 256 12
     	  	textalign ITEM_ALIGN_RIGHT
       		textalignx 128 
      	 	textaligny 10
@@ -393,7 +371,7 @@
       		type ITEM_TYPE_SLIDER
 			text "MapOverBrightBits:"
 			cvarfloat "r_mapoverbrightbits" 1 0.5 3
- 			rect 99 255 256 12
+ 			rect 99 240 256 12
     	  	textalign ITEM_ALIGN_RIGHT
       		textalignx 128 
      	 	textaligny 10
@@ -413,7 +391,7 @@
    	   		type ITEM_TYPE_SLIDER
 			text "Screen Size:"
 			cvarfloat "cg_viewsize" 100 30 100
-			rect 99 270 256 12
+			rect 99 255 256 12
     	  	textalign ITEM_ALIGN_RIGHT
    	   		textalignx 128
     	  	textaligny 10
@@ -425,7 +403,27 @@
     	  	visible 0
 			mouseenter { show slider_message }
 			mouseexit { hide slider_message }	 
-    	}	
+    	}
+		
+		itemDef {
+   			name graphics
+			group grpSystem
+   			type ITEM_TYPE_SLIDER
+			text "Field of View:"
+			cvarfloat "cg_fov" 90 90 120
+			rect 99 270 256 12
+      		textalign ITEM_ALIGN_RIGHT
+      		textalignx 128
+      		textaligny 10
+			textfont UI_FONT_NORMAL
+			textscale .25 
+			style WINDOW_STYLE_FILLED
+			backcolor 1 1 1 .07      
+      		forecolor 1 1 1 1
+      		visible 0
+			mouseenter { show slider_message }
+			mouseexit { hide slider_message }		
+		}	
 
 		itemDef {
 			name ctr_driver

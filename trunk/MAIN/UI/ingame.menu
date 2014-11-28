@@ -134,7 +134,7 @@
 			forecolor 1 1 1 1
 			backcolor .2 .2 .2 .8 
 			visible 1 
-			action { conditionalopen cg_ui_novote error_popmenu_novote ingame_callvote }
+			action { open ingame_callvote }
 			mouseEnter { setitemcolor controls backcolor .1 .1 .1 .9 }
 			mouseExit { setitemcolor controls backcolor .2 .2 .2 .8 }
 		}
@@ -236,8 +236,8 @@
 			name rtcwmp_about
 			rect 10 448 256 20
 			type 4
-			style 0
-			text "^zrtcwMP Client"
+			style 1
+			text "^nrtcwMP Client"
 			cvar gameversion
 			maxPaintChars 64
 			textalignx 8

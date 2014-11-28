@@ -86,7 +86,7 @@
 		itemDef {
 			name performance
 			group grpOptions
-			text "Wall Mark Lifetime:  "
+			text "Wall mark Lifetime:  "
 			type ITEM_TYPE_MULTI	
 			cvar "cg_markTime"
 			cvarFloatList { "Insanely Long" 80000 "Very Long" 60000 "Long" 30000 "Normal" 20000 "Short" 10000 "Off" 0 }
@@ -588,28 +588,85 @@
 		}
 
 		// L0 - This pretty much sucks atm but is less painful..
-		ROWYES("hud", "grpOptions", "Disable Blood on Hud when Hit", "cg_bloodBlend", 30)
-		ROWYES("hud", "grpOptions", "Show Blood on Walls, Floor", "cg_showblood", 45)
-		ROWYES("hud", "grpOptions", "Draw Muzzle Flash", "cg_muzzleFlas", 60 )
-		ROWYES("hud", "grpOptions", "Show Reinforcements Timer", "cg_drawRespawnTimer", 75)
-		ROWYES("hud", "grpOptions", "Show Country Flags of Players", "cg_showFlags",90)
-		ROWYES("hud", "grpOptions", "Show Killing Sprees Prints", "cg_drawSprees", 105)
-		ROWYES("hud", "grpOptions", "Show TK Complaint", "cg_drawComplaintPopUp", 120)
-		ROWYES("hud", "grpOptions", "Pop-In Personal Messages", "cg_showPopIn", 135)		
-		ROWBIND("hud", "grpOptions", "Game stats window key", "+stats", 150)
-		ROWBIND("hud", "grpOptions", "Topshots stats window key", "+topshots", 165)
-		ROWBIND("hud", "grpOptions", "Weapon stats window key", "+wstats", 180)
-		ROWYES("hud", "grpOptions", "Log CenterPrints to Console", "cg_printObjectiveInfo", 195)
-		ROWYES("hud", "grpOptions", "Draw Pickup Items", "cg_drawPickupItems", 210)
-		ROWYES("hud", "grpOptions", "Weapon State Highlighting", "cg_drawWeaponIconFlash", 225)
-		ROWYES("hud", "grpOptions", "Use Enemy Radar in DM Mode", "cg_enemyRadar", 240)
-		ROWYES("hud", "grpOptions", "Hide All Chats", "cg_noChat", 255)
-		ROWMULTIF("hud", "grpOptions", "Game Font Type", "ch_font", "Default" 0 "OSP 1" 1 "OSP 2" 2, 270)
-		ROWYES("hud", "grpOptions", "Pop-Up Limbo Menu when Dying", "cg_popupLimboMenu", 285)
+		itemDef {
+			name hud
+			group grpOptions
+			type ITEM_TYPE_SLIDER
+			text "Blood Damage Blend:"			
+			cvarfloat "cg_bloodDamageBlend" 1 0 1			
+			rect 22 30 400 12
+			textalign ITEM_ALIGN_RIGHT
+			textalignx 205
+			textaligny 10
+			textfont UI_FONT_NORMAL
+			textscale .255
+			textfont UI_FONT_NORMAL	
+			style WINDOW_STYLE_FILLED
+			backcolor 1 1 1 .07
+			forecolor 1 1 1 1
+			visible 0
+			mouseenter { show floater_message }
+			mouseexit { hide floater_message }
+		}
 		
 		itemDef {
-			name ctr_sound
-			text "Sound"
+			name hud
+			group grpOptions
+			type ITEM_TYPE_SLIDER
+			text "Blood Flash:"		
+			cvarfloat "cg_bloodFlash" 1 0 1					
+			rect 22 45 400 12
+			textalign ITEM_ALIGN_RIGHT
+			textalignx 205
+			textaligny 10
+			textfont UI_FONT_NORMAL
+			textscale .255
+			textfont UI_FONT_NORMAL	
+			style WINDOW_STYLE_FILLED
+			backcolor 1 1 1 .07
+			forecolor 1 1 1 1
+			visible 0
+			mouseenter { show floater_message }
+			mouseexit { hide floater_message }
+		}
+
+		ROWYES("hud", "grpOptions", "Show Blood on Walls, Floor", "cg_showblood", 60)
+		ROWYES("hud", "grpOptions", "Draw Muzzle Flash", "cg_muzzleFlash", 75 )
+		ROWYES("hud", "grpOptions", "Show Reinforcements Timer", "cg_drawRespawnTimer", 90)
+	
+		// No other way (I'm lazy..)
+		itemDef {
+			name hud
+			group grpOptions
+ 			type ITEM_TYPE_MULTI
+			text "Reinforcements Timer Color:  "			
+			cvar "cg_reinforcementTimeColor"
+			cvarStrList { "White", "white", "Yellow", "yellow", "Red", "red", "Green", "green", "Blue", "blue", "Magenta", "magenta", "Cyan", "cyan", "Orange", "orange", "Light Blue", "0xa0c0ff", "Medium Blue", "mdblue", "Light Red", "0xffc0a0", "Medium Red", "mdred", "Light Green", "0xa0ffc0", "Medium Green", "mdgreen", "Dark Green", "dkgreen", "Medium Cyan", "mdcyan", "Medium Yellow", "mdyellow", "Medium Orange", "mdorange", "Light Grey", "ltgrey", "Medium Grey", "mdgrey", "Dark Grey", "dkgrey", "Black", "black" }
+			rect 22 105 400 12	
+			textalign ITEM_ALIGN_RIGHT
+			textalignx 205
+			textaligny 10	
+			textfont UI_FONT_NORMAL	
+			textfont UI_FONT_NORMAL
+			textscale .255    
+			style WINDOW_STYLE_FILLED
+			backcolor 1 1 1 .07    
+			forecolor 1 1 1 1
+			visible 0
+			mouseenter { show floater_message }
+			mouseexit { hide floater_message }
+		}
+			
+		ROWYES("hud", "grpOptions", "Show TK Complaint", "cg_drawComplaintPopUp", 120)
+		ROWYES("hud", "grpOptions", "Log CenterPrints to Console", "cg_printObjectiveInfo", 135)
+		ROWYES("hud", "grpOptions", "Draw Pickup Items", "cg_drawPickupItems", 150)
+		ROWYES("hud", "grpOptions", "Weapon State Highlighting", "cg_drawWeaponIconFlash", 165)
+		ROWYES("hud", "grpOptions", "Enemy Radar", "cg_enemyRadar", 180)
+		ROWYES("hud", "grpOptions", "Pop-Up Limbo Menu", "cg_popupLimboMenu", 195)
+		
+		itemDef {
+			name ctr_demo
+			text "Demo Hud"
 			type 1
 			textfont UI_FONT_NORMAL
 			textscale .255
@@ -623,297 +680,16 @@
 			forecolor 1 1 1 1
 			backcolor .1 .1 .1 0 
 			visible 1
-			action { play "sound/misc/kcaction.wav"; hide grpOptions; show sound; }
-			mouseEnter { show message_driver; setitemcolor ctr_sound backcolor .3 .3 .3 0 } 
-			mouseExit { hide message_driver; setitemcolor ctr_sound backcolor .1 .1 .1 0 } 
+			action { play "sound/misc/kcaction.wav"; hide grpOptions; show demo; }
+			mouseEnter { show message_driver; setitemcolor ctr_demo backcolor .3 .3 .3 0 } 
+			mouseExit { hide message_driver; setitemcolor ctr_demo backcolor .1 .1 .1 0 } 
 		}	 	
 
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Use hitsounds:  "
-			cvar "cg_hitsounds"
-			rect 99 30 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Spree sounds:  "
-			cvar " cg_spreeSounds"			
-			rect 99 45 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Announcer:  "
-			cvar "cg_announcer"
-			rect 99 60 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_MULTI
-			text "Voice chats:  "
-			cvar "cg_noVoice"
-			cvarFloatList { "Enable All" 0 "Team Only" 1 "Global Only" 2 "Disable All" 3 }
-			rect 99 75 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			text "VOIP settings"
- 			type 1
-			rect 197 95 60 12
-			textalign ITEM_ALIGN_CENTER
-			textfont UI_FONT_NORMAL
-			textscale .255		
-			textalignx 30
-			textfont UI_FONT_NORMAL	
-			textaligny 12
-			forecolor 1 0 0 1
-			visible 0 
-			decoration		
-		}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Enable VOIP:  "
-			cvar "cl_voip"		
-			rect 99 110 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Use mic:  "
-			cvar "s_alCapture"		
-			rect 99 125 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_MULTI
-			text "Broadcast to:  "
-			cvar "cl_voipSendTarget"				
-			cvarStrList { "All", "all", "Attacker", "attacker", "Players in crosshair", "crosshair", "Near by players", "spatial", "None", "none" }
-			rect 99 140 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Show Voice Meter:  "
-			cvar "cl_voipShowMeter"		
-			rect 99 155 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Talk always:  "
-			cvar "cl_voipUseVAD"		
-			rect 99 170 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_BIND
-			text "Bind Talk to key:  "
-			cvar "+voiprecord"	
-			rect 99 185 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-		
-		itemDef {
-			name sound
-			group grpOptions
-			text "MUMBLE settings"
- 			type 1
-			rect 197 205 60 12
-			textalign ITEM_ALIGN_CENTER
-			textfont UI_FONT_NORMAL
-			textscale .255		
-			textalignx 30
-			textfont UI_FONT_NORMAL	
-			textaligny 12
-			forecolor 1 0 0 1
-			visible 0 
-			decoration		
-		}	
-
-		itemDef {
-			name sound
-			group grpOptions
-			type ITEM_TYPE_YESNO
-			text "Enable Mumble:  "
-			cvar "cl_useMumble"		
-			rect 99 220 256 12
-			textalign ITEM_ALIGN_RIGHT
-			textalignx 128
-			textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .255
-			textfont UI_FONT_NORMAL	
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07
-			forecolor 1 1 1 1
-			visible 0
-			mouseenter { show floater_message }
-			mouseexit { hide floater_message }
-    	}
-
-		itemDef {
-     	 	name sound		
-			group grpOptions
-      		type ITEM_TYPE_SLIDER
-			text "Sound scaling:  "				
-			cvarfloat "cl_mumbleScale" .0254 .0 .0500
- 			rect 99 235 256 12
-    	  	textalign ITEM_ALIGN_RIGHT
-      		textalignx 128 
-     	 	textaligny 10
-			textfont UI_FONT_NORMAL
-			textscale .25 
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .07       
-    	  	forecolor 1 1 1 1
-   	   		visible 0 
-			mouseenter { show floater_message}
-			mouseexit { hide floater_message }
-    	}
+		ROWYES("demo", "grpOptions", "Show Time Counter", "demo_showTimein", 30)
+		ROWYES("demo", "grpOptions", "Disable Advertisement", "demo_noAdvertisement", 45)
+		ROWYES("demo", "grpOptions", "Show Popups", "demo_popupWindow", 60)
+		ROWYES("demo", "grpOptions", "Show Controls Menu", "demo_controlsWindow", 75)
+		ROWYES("demo", "grpOptions", "Show Info Bar", "demo_infoWindow", 90)
 
 		itemDef {
 			name ctr_tweaks
@@ -932,8 +708,8 @@
 			backcolor .1 .1 .1 0 
 			visible 1
 			action { play "sound/misc/kcaction.wav"; hide grpOptions; show tweaks; }
-			mouseEnter { show message_driver; setitemcolor ctr_sound backcolor .3 .3 .3 0 } 
-			mouseExit { hide message_driver; setitemcolor ctr_sound backcolor .1 .1 .1 0 } 
+			mouseEnter { show message_driver; setitemcolor ctr_demo backcolor .3 .3 .3 0 } 
+			mouseExit { hide message_driver; setitemcolor ctr_demo backcolor .1 .1 .1 0 } 
 		}	 	
 
 		itemDef {
@@ -942,7 +718,7 @@
 			type ITEM_TYPE_MULTI
 			text "Auto Actions:  "
 			cvar "cg_autoAction"
-			cvarFloatList { "Disabled" 0 "Record Demo" 1 "Take Screenshot" 2 "Demo & Screenshot" 3 "Dump End Match Stats" 4 "Take SS & Dumb Stats" 5 "Take Demo & Dump Stats" 6 "Take SS, Demo & Dump Stats" 7 }
+			cvarFloatList { "Disabled" 0 "Record Demo" 1 "Take Screenshot" 2 "Demo & Screenshot" 3 }
 			rect 99 30 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
@@ -1023,7 +799,7 @@
 			type ITEM_TYPE_MULTI
 			text "Zoom to FOV:  "
 			cvar "cg_zoomedFOV"
-			cvarFloatList { "90 FOV" 90 "95 FOV" 95 "100 FOV" 100 "105 FOV" 105 "110 FOV" 110 "115 FOV" 115 "120 FOV" 120 "125 FOV" 125 "130 FOV" 130 "135 FOV" 135 "140 FOV" 140 }
+			cvarFloatList { "90 FOV" 90 "95 FOV" 95 "100 FOV" 100 "105 FOV" 105 "110 FOV" 110 "115 FOV" 115 "120 FOV" 120 }
 			rect 99 95 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
@@ -1164,11 +940,32 @@
 		itemDef {
 			name tweaks
 			group grpOptions
+			type ITEM_TYPE_YESNO
+			text "HTTP Downloads:  "
+			cvar "cl_wwwDownload"
+			rect 99 205 256 12
+			textalign ITEM_ALIGN_RIGHT
+			textalignx 128
+			textaligny 10
+			textfont UI_FONT_NORMAL
+			textscale .255
+			textfont UI_FONT_NORMAL	
+			style WINDOW_STYLE_FILLED
+			backcolor 1 1 1 .07
+			forecolor 1 1 1 1
+			visible 0
+			mouseenter { show floater_message }
+			mouseexit { hide floater_message }
+    	}
+
+		itemDef {
+			name tweaks
+			group grpOptions
 			type ITEM_TYPE_MULTI
 			text "Motion sickness   I:  "
 			cvar "cg_runpitch"			
 			cvarFloatList { "Enabled" 0.002 "Disabled" 0.000 }
-			rect 99 205 256 12
+			rect 99 220 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
 			textaligny 10
@@ -1190,7 +987,7 @@
 			text "Motion sickness  II:  "
 			cvar "cg_runroll"			
 			cvarFloatList { "Enabled" 0.005 "Disabled" 0.000 }
-			rect 99 220 256 12
+			rect 99 235 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
 			textaligny 10
@@ -1212,7 +1009,7 @@
 			text "Motion sickness III:  "
 			cvar "cg_bobup"			
 			cvarFloatList { "Enabled" 0.005 "Disabled" 0.000 }
-			rect 99 235 256 12
+			rect 99 250 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
 			textaligny 10
@@ -1234,7 +1031,7 @@
 			text "Motion sickness IV:  "
 			cvar "cg_bobpitch"			
 			cvarFloatList { "Enabled" 0.002 "Disabled" 0.000 }
-			rect 99 250 256 12
+			rect 99 265 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
 			textaligny 10
@@ -1256,7 +1053,7 @@
 			text "Motion sickness  V:  "
 			cvar "cg_bobroll"			
 			cvarFloatList { "Enabled" 0.002 "Disabled" 0.000 }
-			rect 99 265 256 12
+			rect 99 280 256 12
 			textalign ITEM_ALIGN_RIGHT
 			textalignx 128
 			textaligny 10

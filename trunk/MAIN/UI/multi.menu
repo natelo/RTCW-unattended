@@ -429,24 +429,7 @@
 			forecolor 1 1 1 1
 			decoration 
 			visible 0
-		}
-
-		itemDef {
-			name message_cdkey
-			group grpmessage
-			style 0 
-			rect 320 437 128 30
-			textalign 1
-			textstyle 1
-			textalignx 0
-			textaligny 25
-			textfont UI_FONT_NORMAL
-			textscale .255
-			text "Enter Encryption Key"
-			forecolor 1 1 1 1
-			decoration 
-			visible 0
-		}
+		}		
 
 		itemDef {
 			name message_default

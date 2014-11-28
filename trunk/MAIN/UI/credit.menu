@@ -1251,123 +1251,14 @@
 			textaligny 10
 			textstyle 2
 			textscale .22
-			textalign ITEM_ALIGN_CENTER
+			textalign ITEM_ALIGN_CENTER			
 			text "rtcwMP Client Project"
 			forecolor 1 1 1 1
+			backcolor .37 .1 .1 0
 			decoration 
 			visible 0
 		}
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 133 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 149 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 197 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}		
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 245 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}	
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 261 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}	
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 276 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}	
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 293 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}		
-
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 341 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}
 		
-		itemDef {
-			name win1
-			group grprtcwmp
-			rect 120 357 440 10
-			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-			forecolor 1 1 1 1
-			visible 0 
-			decoration
-		}		
-		
-		itemDef {
-			name win1
-			group grprtcwmp
- 			rect 120 405 440 10
- 			style WINDOW_STYLE_FILLED
-			backcolor 1 1 1 .1         
-   			forecolor 1 1 1 1
-   			visible 0 
-			decoration
-		}
-
 		itemDef {
 			name win1
 			group grprtcwmp

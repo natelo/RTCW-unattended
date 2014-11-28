@@ -34,7 +34,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{5E488D39-AEBB-45FE-9B25-63E9DA28B19A}"
 	ProjectSection(SolutionItems) = preProject
 		..\MAIN\UI\auto_update.menu = ..\MAIN\UI\auto_update.menu
-		..\MAIN\UI\cdkey.menu = ..\MAIN\UI\cdkey.menu
 		..\MAIN\UI\connect.menu = ..\MAIN\UI\connect.menu
 		..\MAIN\UI\controls.menu = ..\MAIN\UI\controls.menu
 		..\MAIN\UI\createfavorite.menu = ..\MAIN\UI\createfavorite.menu
