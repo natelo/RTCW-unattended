@@ -37,17 +37,13 @@ char HardDriveModelNumber [1024];
 int PRINT_DEBUG = true;
 
 
-
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
 static void dump_buffer (const char* title,
 			const unsigned char* buffer,
 			int len);
+#endif
 
-
-void WriteConstantString (char *entry, char *string)
-{
-}
-
-
+void WriteConstantString (char *entry, char *string) { }
 
    //  Required to ensure correct PhysicalDrive IOCTL structure setup
 #pragma pack(1)
@@ -948,12 +944,12 @@ int ReadPhysicalDriveInNTWithZeroRights () {
 							driveName);
 #endif
 				}
-				else {         
-					DISK_GEOMETRY_EX* geom = (DISK_GEOMETRY_EX*) &buffer;
+				else {
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+					DISK_GEOMETRY_EX* geom = (DISK_GEOMETRY_EX*)&buffer;
 					int fixed = (geom->Geometry.MediaType == FixedMedia);
 					__int64 size = geom->DiskSize.QuadPart;
-				     
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
+
 					templog ("\n**** DISK_GEOMETRY_EX for drive %d ****\n"
 							"Disk is%s fixed\n"
 							"DiskSize = %I64d\n",
@@ -963,9 +959,9 @@ int ReadPhysicalDriveInNTWithZeroRights () {
 #endif
 				}
 			}
-			else {
-				DWORD err = GetLastError ();
+			else {				
 #ifdef PRINTING_TO_CONSOLE_ALLOWED
+				DWORD err = GetLastError();
 				templog ("\nDeviceIOControl IOCTL_STORAGE_QUERY_PROPERTY error = %d\n", err);
 #endif
 			}
@@ -1046,13 +1042,13 @@ int ReadDrivePortsInWin9X () {
 	pt_IdeDInfo pOutBufVxD = 0;
 	DWORD lpBytesReturned = 0;
 
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
 	//  set the thread priority high so that we get exclusive access to the disk
 	BOOL status =
 	// SetThreadPriority (GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 	SetPriorityClass (GetCurrentProcess (), REALTIME_PRIORITY_CLASS);
 	// SetPriorityClass (GetCurrentProcess (), HIGH_PRIORITY_CLASS);
 
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
 	if (0 == status) 
 		// printf ("\nERROR: Could not SetThreadPriority, LastError: %d\n", GetLastError ());
 		templog ("\nERROR: Could not SetPriorityClass, LastError: %d\n", GetLastError ());
@@ -1181,8 +1177,10 @@ void PrintIdeInfo (int drive, DWORD diskdata [256]) {
 	char revisionNumber [1024];
 	char bufferSize [32];
 
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
 	__int64 sectors = 0;
 	__int64 bytes = 0;
+#endif
 
 	//  copy the hard drive serial number to the buffer
 	ConvertToString (diskdata, 10, 19, serialNumber);
@@ -1428,6 +1426,7 @@ char * GetMAC() {
 	return string;
 }
 
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
 static void dump_buffer (const char* title,
 			const unsigned char* buffer,
 			int len)
@@ -1470,5 +1469,6 @@ static void dump_buffer (const char* title,
 	}
 	templog ("-- DONE --\n");
 }
+#endif
 
 #endif // WIN32
