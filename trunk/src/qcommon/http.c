@@ -7,6 +7,12 @@
 */
 #include "http.h"
 
+#ifndef DEDICATED
+	extern cvar_t *cl_token;
+#else
+// Add server token here..
+#endif
+
 /*
 	Structure for replies..
 */
@@ -62,7 +68,11 @@ void CL_HTTP_Post(char *url, char *data) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: one way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+#ifndef DEDICATED
+		headers = curl_slist_append(headers, va("Signature: %s", cl_token->string));
+#else
+		// Add server token here..
+#endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
@@ -94,7 +104,11 @@ char *CL_HTTP_PostQuery(char *url, char *data) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: two way street");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+#ifndef DEDICATED
+		headers = curl_slist_append(headers, va("Signature: %s", cl_token->string));
+#else
+		// Add server token here..
+#endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
@@ -131,7 +145,11 @@ char *CL_HTTP_Query(char *url) {
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Intention: friends with benefits");
 		headers = curl_slist_append(headers, "Client: rtcwmp");
-		//headers = curl_slist_append(headers, va("Signature: BLA BLA"));
+#ifndef DEDICATED
+		headers = curl_slist_append(headers, va("Signature: %s", cl_token->string));
+#else
+		// Add server token here..
+#endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
@@ -205,6 +223,16 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 			CURLFORM_END);
 	}
 
+#ifndef DEDICATED	
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "signature",
+		CURLFORM_COPYCONTENTS, cl_token->string,
+		CURLFORM_END);
+#else
+	// Add Server Token here..	
+#endif
+
 	curl_handle = curl_easy_init();
 	headerlist = curl_slist_append(headerlist, buf);
 
@@ -275,6 +303,7 @@ qboolean HTTP_Download(char *url, char *file, qboolean verbose) {
 	curl_handle = curl_easy_init();
 	if (curl_handle) {
 
+		// TODO: Add server token and tie it to signature..
 		curl_easy_setopt(curl_handle, CURLOPT_URL, va("%s/%s",url, file));
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, fp);

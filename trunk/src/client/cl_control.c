@@ -41,7 +41,7 @@ void CL_checkSSTime(void) {
 			CL_actionGenerateTime();
 
 			// Sort ID
-			id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+			id = va("%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 			// Try once more if it fails..
 			if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
@@ -62,7 +62,7 @@ void CL_RequestedSS( int quality ) {
 	CL_actionGenerateTime();
 
 	// Sort ID
-	id = va("req_%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+	id = va("req\\%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 
 	// Try once more if it fails..
 	if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
@@ -74,7 +74,7 @@ void CL_RequestedSS( int quality ) {
 */
 void CL_UploadDemo_f(void) {
 	char *path; 
-	char *id = va("%s_%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+	char *id = va("%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
 	char *arg, *comment = NULL;
 	char extension[32];
 

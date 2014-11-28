@@ -109,6 +109,7 @@ cvar_t	*cl_demoPrefix;
 cvar_t	*cl_demoLast;
 
 cvar_t	*cl_guid;
+cvar_t	*cl_token;
 
 cvar_t  *cl_wwwDownload;
 // ~L0
@@ -3157,6 +3158,8 @@ void CL_Init( void ) {
 	if (strlen(cl_guid->string) != (GUID_LEN - 1)) {
 		CL_checkCDKey();
 	}
+
+	cl_token = Cvar_Get("cl_token", "", CVAR_ARCHIVE );
 	// ~L0
 
 	// DHM - Nerve :: Auto-update

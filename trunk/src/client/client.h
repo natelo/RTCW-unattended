@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 
 // client.h -- primary header for client
 
+#ifndef __CLIENT_H
+#define __CLIENT_H
+
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_public.h"
@@ -420,6 +423,8 @@ extern cvar_t  *cl_language;
 // L0 - New Stuff
 extern cvar_t	*cl_demoPrefix;
 extern cvar_t	*cl_demoLast;
+
+extern cvar_t	*cl_token;
 // ~L0
 
 //=================================================
@@ -668,3 +673,5 @@ void CL_UploadDemo_f(void);
 void CL_UploadHelp_f(void);
 void CL_callHome(char *msg);
 void CL_checkCDKey(void);
+
+#endif // __CLIENT_H
