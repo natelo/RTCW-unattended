@@ -53,7 +53,7 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 
 	Used when we want to send specific data but do not care about reply..
 */
-void HTTP_Post(char *url, char *data) {
+void CL_HTTP_Post(char *url, char *data) {
 	CURL *curl_handle;
 	CURLcode res;
 

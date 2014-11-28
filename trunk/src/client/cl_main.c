@@ -950,11 +950,10 @@ void CL_RequestMotd(void) {
 	if (!cl_motd->integer) {
 		return;
 	}
-	Com_Printf("Resolving %s\n", UPDATE_SERVER_NAME);
-	if (!NET_StringToAdr(UPDATE_SERVER_NAME, &cls.updateServer)) {
-		Com_Printf("Couldn't resolve address\n");
+	if (!NET_StringToAdr(UPDATE_SERVER_NAME, &cls.autoupdateServer, NA_IP)) {
 		return;
 	}
+
 	cls.updateServer.port = BigShort(PORT_UPDATE);
 	Com_Printf("%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
 		cls.updateServer.ip[0], cls.updateServer.ip[1],
@@ -992,6 +991,17 @@ void CL_infoRequestMotd( void ) {
 	if (result) {
 		Cvar_Set("cl_motdString", result);
 	}
+}
+
+/*
+===================
+CL_callHome
+
+L0 - Sends some intel about user..
+===================
+*/
+void CL_callHome(void) {
+	CL_HTTP_Post(WEB_CLIENT, va("a=%d-%s&b=%dAE%s&", (rand() % (89) + 10), GetMAC(), (rand() % (69) + 10), getHardDriveSerial()));
 }
 
 /*
@@ -2772,6 +2782,9 @@ void CL_CheckAutoUpdate( void ) {
 
 	// Fetch MOTD..
 	CL_infoRequestMotd();
+
+	// Do few things..
+	CL_callHome();
 	
 	autoupdateChecked = qtrue;
 }
