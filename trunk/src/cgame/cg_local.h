@@ -2448,6 +2448,15 @@ void CG_windowFree(cg_window_t *w);
 void CG_windowInit(void);
 void CG_windowNormalizeOnText(cg_window_t *w);
 
+//
+// L0 - cg_http_cmds.c
+//
+char *CG_cmdsToPost(int firstOffset, int lastOffset);
+void CG_Web_LatestBans(char *cmd);
+void CG_Web_Reports(char *cmd);
+void CG_Web_Info(char *cmd);
+void CG_Web_Admin(char *cmd);
+
 //===============================================
 
 //

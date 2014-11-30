@@ -552,6 +552,50 @@ void CG_vstrUp_f(void) {
 	else { CG_Printf("[cgnotify]^3Usage: ^7+vstr [down_vstr] [up_vstr]\n"); }
 }
 
+/*
+===================
+OSPx
+
+GetBans
+===================
+*/
+void CG_getBans_f(void) {
+	CG_Web_LatestBans(CG_cmdsToPost(1, trap_Argc() - 1));
+}
+
+/*
+===================
+OSPx
+
+WebStats
+===================
+*/
+void CG_webReports_f(void) {	
+	CG_Web_Reports(CG_cmdsToPost(1, trap_Argc() - 1));
+}
+
+/*
+===================
+OSPx
+
+WebStats
+===================
+*/
+void CG_webInfo_f(void) {
+	CG_Web_Info(CG_cmdsToPost(1, trap_Argc() - 1));
+}
+
+/*
+===================
+OSPx
+
+Admin info
+===================
+*/
+void CG_webAdmin_f(void) {	
+	CG_Web_Admin(CG_cmdsToPost(0, trap_Argc() - 1));
+}
+
 typedef struct {
 	char    *cmd;
 	void ( *function )( void );
@@ -610,6 +654,10 @@ static consoleCommand_t commands[] = {
 	{ "-zoomView", CG_zoomViewRevert_f },
 	{ "+vstr", CG_vstrDown_f },
 	{ "-vstr", CG_vstrUp_f },
+	{ "webbans", CG_getBans_f },
+	{ "webreports", CG_webReports_f },
+	{ "webinfo", CG_webInfo_f },
+	{ "webadmin", CG_webAdmin_f },
 	// -OSPx
 
 	// Arnout
@@ -711,4 +759,20 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand( "reset_match" );
 	trap_AddCommand( "swap_teams" );
 	// -NERVE - SMF
+
+// L0 - New stuff
+	// Some typical 1.0 mappings for autocomplete
+	trap_AddCommand("login");
+	trap_AddCommand("logout");
+	trap_AddCommand("getstatus");
+	trap_AddCommand("mp40");
+	trap_AddCommand("thompson");
+	trap_AddCommand("sten");
+
+	// Web stuff.. 
+	trap_AddCommand("webbans");	
+	trap_AddCommand("webreports");
+	trap_AddCommand("webinfo");
+	trap_AddCommand("webadmin");
+// ~L0
 }
