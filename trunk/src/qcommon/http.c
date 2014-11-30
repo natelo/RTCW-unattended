@@ -55,6 +55,15 @@ size_t parseReply(void *ptr, size_t size, size_t nmemb, struct HTTPreply *s) {
 }
 
 /*
+	Writes data (for download)
+*/
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+	size_t written;
+	written = fwrite(ptr, size, nmemb, stream);
+	return written;
+}
+
+/*
 	Just Submits data 
 
 	Used when we want to send specific data but do not care about reply..
@@ -270,15 +279,6 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 		remove(va("%s%s", path, file));
 
 	return qtrue;
-}
-
-/*
-	Writes data
-*/
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
-	size_t written;
-	written = fwrite(ptr, size, nmemb, stream);
-	return written;
 }
 
 /*
