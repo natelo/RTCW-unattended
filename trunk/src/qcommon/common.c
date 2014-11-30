@@ -282,6 +282,8 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		Cvar_Set( "com_errorMessage", com_errorMessage );
 	}
 
+	CLIENT_IS_CONNECTED = qfalse; // L0 - Bloom fix for modal boxes
+
 	if ( code == ERR_SERVERDISCONNECT ) {
 		CL_Disconnect( qtrue );
 		CL_FlushMemory();
