@@ -593,7 +593,7 @@ Admin info
 ===================
 */
 void CG_webAdmin_f(void) {	
-	CG_Web_Admin(CG_cmdsToPost(0, trap_Argc() - 1));
+	CG_Web_Admin(CG_cmdsToPost(1, trap_Argc() - 1));
 }
 
 typedef struct {
