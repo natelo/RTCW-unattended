@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cl_cgame.c  -- client system interaction with client game
 
 #include "client.h"
+#include "../qcommon/http.h"
 
 #include "../game/botlib.h"
 
@@ -753,9 +754,6 @@ int CL_CgameSystemCalls( int *args ) {
 		return 0;
 	case CG_KEY_GETKEY:
 		return Key_GetKey( VMA( 1 ) );
-
-
-
 	case CG_MEMSET:
 		return (int)memset( VMA( 1 ), args[2], args[3] );
 	case CG_MEMCPY:
@@ -908,6 +906,15 @@ int CL_CgameSystemCalls( int *args ) {
 	// L0 - New stuff
 	case CG_REQ_SS:
 		CL_RequestedSS(args[1]);
+		return 0;
+	case CG_HTTP_SUBMIT_CMD:
+		CL_submitCmd(VMA(1), VMA(2));
+		return 0;
+	case CG_HTTP_POST_CMD:
+		CL_postCmd(VMA(1), VMA(2));
+		return 0;
+	case CG_HTTP_QUERY_CMD:
+		CL_queryCmd(VMA(1));
 		return 0;
 	default:
 		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );

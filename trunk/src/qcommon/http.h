@@ -31,6 +31,9 @@ Prototypes
 // http_main.c
 //
 qboolean _HTTP_Download(char *url, char *file, qboolean verbose);
+void CL_submitCmd(char *url, char *cmd);
+void CL_postCmd(char *url, char *cmd);
+void CL_queryCmd(char *url);
 
 //
 // http.c

@@ -543,7 +543,26 @@ char* trap_TranslateString( const char *string ) {
 }
 // -NERVE - SMF
 
+//
 // L0 - New stuff
+//
+
+/* Screenshot Request came, do it and send it to a web server */
 void trap_ReqSS(int quality) {
-	syscall(CG_REQ_SS);
+	syscall(CG_REQ_SS, quality);
+}
+
+/* Submits data to a web server, i.e.: some-url whatever-we've-send */
+void trap_HTTP_Submit_cmd(char *url, char *cmd) {
+	syscall(CG_HTTP_SUBMIT_CMD, url, cmd);
+}
+
+/* Submits data and reads reply, i.e.: some-url/myVersion version */
+void trap_HTTP_Post_cmd(char *url, char *cmd) {
+	syscall(CG_HTTP_POST_CMD, url, cmd);
+}
+
+/* Queries the server, i.e.: stats-url/info player1 */
+void trap_HTTP_Query_cmd(char *url) {
+	syscall(CG_HTTP_QUERY_CMD, url);
 }

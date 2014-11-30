@@ -2691,3 +2691,6 @@ void        CG_FreeCamera( int camNum );
 
 // L0 - New stuff
 void trap_ReqSS( int quality );
+void trap_HTTP_Submit_cmd(char *url, char *cmd);	
+void trap_HTTP_Post_cmd(char *url, char *cmd);
+void trap_HTTP_Query_cmd(char *url);	
