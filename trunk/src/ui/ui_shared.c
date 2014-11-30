@@ -3922,27 +3922,6 @@ static bind_t g_bindings[] =
 	{"itemnext",     ']',         -1, -1, -1},
 	{"+button3",     K_MOUSE3,       -1, -1, -1},
 
-/*
-	{"prevTeamMember",	-1,				-1, -1, -1},
-	{"nextTeamMember",	-1,				-1, -1, -1},
-	{"nextOrder",		-1,				-1, -1, -1},
-	{"confirmOrder",	-1,				-1, -1, -1},
-	{"denyOrder",		-1,				-1, -1, -1},
-	{"taskOffense",     -1,				-1, -1, -1},
-	{"taskDefense",     -1,				-1, -1, -1},
-	{"taskPatrol",		-1,				-1, -1, -1},
-	{"taskCamp",		-1,				-1, -1, -1},
-	{"taskFollow",		-1,				-1, -1, -1},
-	{"taskRetrieve",	-1,				-1, -1, -1},
-	{"taskEscort",		-1,				-1, -1, -1},
-	{"taskOwnFlag",     -1,				-1, -1, -1},
-	{"taskSuicide",     -1,				-1, -1, -1},
-	{"tauntKillInsult", -1,				-1, -1, -1},
-	{"tauntPraise",     -1,				-1, -1, -1},
-	{"tauntTaunt",		-1,				-1, -1, -1},
-	{"tauntDeathInsult",-1,				-1, -1, -1},
-	{"tauntGauntlet",	-1,				-1, -1, -1},
-*/
 	{"scoresUp",     -1,             -1, -1, -1},
 	{"scoresDown",       -1,             -1, -1, -1},
 	{"messagemode",  -1,             -1, -1, -1},
@@ -3974,6 +3953,9 @@ static bind_t g_bindings[] =
 	// OSPx
 	{ "+zoomView", -1, -1, -1, -1 },
 	{ "+vstr", -1, -1, -1, -1 },
+	{ "getstatus", -1, -1, -1, -1 },
+	{ "gib", -1, -1, -1, -1 },
+	{ "kill", -1, -1, -1, -1 },
 	// -OSPx
 
 	{"weapon 1",     -1,             -1, -1, -1},
