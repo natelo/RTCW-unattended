@@ -15,11 +15,19 @@ Hold declarations and structures of all the HTTP related functionality..
 #include "qcommon.h"
 
 // URL Mappings
+#ifndef _DEBUG
+#define WEB_MOTD		"http://" AUTHORIZE_SERVER_NAME "/query/motd"
+#define WEB_UPLOAD		"http://" AUTHORIZE_SERVER_NAME "/query/upload"
+#define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/query/update"
+#define WEB_CLIENT		"http://" AUTHORIZE_SERVER_NAME "/query/client"
+#define WEB_MBL			"http://" AUTHORIZE_SERVER_NAME		// Master Ban List
+#else
 #define WEB_MOTD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/motd"
 #define WEB_UPLOAD		"http://" AUTHORIZE_SERVER_NAME "/stats/query/upload"
 #define WEB_UPDATE		"http://" UPDATE_SERVER_NAME "/stats/query/update"
 #define WEB_CLIENT		"http://" AUTHORIZE_SERVER_NAME "/stats/query/client"
-#define WEB_MBL			"http://" AUTHORIZE_SERVER_NAME	// Master Ban List
+#define WEB_MBL			"http://" AUTHORIZE_SERVER_NAME	"/stats"	// Master Ban List
+#endif
 
 /*
 ============

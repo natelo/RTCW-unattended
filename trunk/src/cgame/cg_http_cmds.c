@@ -33,10 +33,10 @@
 
 // So it's simplier
 #ifndef _DEBUG
-#define WEB_BANS	"http://client.rtcwmp.com/api/bans"
-#define WEB_REPORTS	"http://client.rtcwmp.com/api/reports"
-#define WEB_INFO	"http://client.rtcwmp.com/api/info"
-#define WEB_ADMIN	"http://client.rtcwmp.com/api/admin"
+#define WEB_BANS	"http://stats.rtcwmp.com/api/bans"
+#define WEB_REPORTS	"http://stats.rtcwmp.com/api/reports"
+#define WEB_INFO	"http://stats.rtcwmp.com/api/info"
+#define WEB_ADMIN	"http://stats.rtcwmp.com/api/admin"
 #else
 #define WEB_BANS	"http://127.0.0.1/stats/query/bans"
 #define WEB_REPORTS	"http://127.0.0.1/stats/query/reports"

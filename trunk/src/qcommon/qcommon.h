@@ -280,13 +280,12 @@ You or the server may be running older versions of the game. Press the auto-upda
 #define CODENAME	"SAVINGBlazkowicz"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
 
 // NERVE - SMF - wolf multiplayer master servers
-#define MASTER_SERVER_NAME      "wolfmaster.s4ndmod.com"
 #ifdef _DEBUG_HTTP
 	#define	AUTHORIZE_SERVER_NAME	"127.0.0.1"
 	#define UPDATE_SERVER_NAME		"127.0.0.1"
 #else
-	#define	AUTHORIZE_SERVER_NAME	"auth.rtcwmp.com"	
-	#define UPDATE_SERVER_NAME		"updt.rtcwmp.com"
+	#define	AUTHORIZE_SERVER_NAME	"stats.rtcwmp.com"	
+	#define UPDATE_SERVER_NAME		"stats.rtcwmp.com"
 #endif
 
 // L0 - Guid..
