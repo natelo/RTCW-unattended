@@ -118,7 +118,6 @@ CG_DamageFeedback
 void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float left, front, up;
 	float kick;
-	int health;
 	float scale;
 	vec3_t dir;
 	vec3_t angles;
@@ -130,21 +129,13 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	// show the attacking player's head and name in corner
 	cg.attackerTime = cg.time;
 
-	// the lower on health you are, the greater the view kick will be
-	health = cg.snap->ps.stats[STAT_HEALTH];
-	if ( health < 40 ) {
-		scale = 1;
-	} else {
-		scale = 40.0 / health;
-	}
-	kick = damage * scale;
-
-	if ( kick < 5 ) {
-		kick = 5;
-	}
-	if ( kick > 10 ) {
-		kick = 10;
-	}
+// OSPx 
+	// Sort scale: float * multiplier
+	scale = ( (cg_damageNudge.value > 1) ? 5 : (cg_damageNudge.value < 0.1) ? 1 : cg_damageNudge.value * 10);
+	
+	// 5 is as high as it goes..
+	kick = (scale > 5 ? scale / 2 : scale);
+// ~OSPx
 
 	// find a free slot
 	for ( slot = 0; slot < MAX_VIEWDAMAGE; slot++ ) {

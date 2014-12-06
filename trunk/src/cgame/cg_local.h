@@ -1935,6 +1935,7 @@ extern vmCvar_t cg_antilag;
 extern vmCvar_t cg_crosshairPulse;
 extern vmCvar_t cg_bloodDamageBlend;
 extern vmCvar_t cg_bloodFlash;
+extern vmCvar_t cg_damageNudge;
 extern vmCvar_t cg_crosshairAlpha;
 extern vmCvar_t cg_crosshairAlphaAlt;
 extern vmCvar_t cg_crosshairColor;
