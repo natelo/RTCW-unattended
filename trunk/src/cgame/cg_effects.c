@@ -1506,7 +1506,7 @@ void CG_RumbleEfx( float pitch, float yaw ) {
 #define MAX_SMOKESPRITES 512
 #define SMOKEBOMB_DISTANCEBETWEENSPRITES 16.f
 #define SMOKEBOMB_SPAWNRATE 10
-#define SMOKEBOMB_SMOKEVELOCITY ((640.f - 16.f)/8)/1000.f	// units per msec
+#define SMOKEBOMB_SMOKEVELOCITY ((320.f - 16.f)/8)/1000.f	// units per msec
 
 typedef struct smokesprite_s {
 	struct smokesprite_s *next;
@@ -1668,7 +1668,8 @@ void CG_RenderSmokeGrenadeSmoke(centity_t *cent, const weaponInfo_t *weapon) {
 		return;
 	}
 
-	if (cent->currentState.effect1Time > 16) {		
+	if (cent->currentState.effect1Time > 16) {
+		//int volume = 16 + ((cent->currentState.effect1Time/640.f)*(100-16));
 
 		if (!cent->dl_atten ||
 			cent->currentState.pos.trType != TR_STATIONARY ||
@@ -1688,23 +1689,12 @@ void CG_RenderSmokeGrenadeSmoke(centity_t *cent, const weaponInfo_t *weapon) {
 			}
 		}
 
-		//trap_S_AddLoopingSound( cent->lerpOrigin, vec3_origin, weapon->overheatSound, volume, 0 );
 		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->overheatSound, 0);
 
 		// emitter is stuck in solid
 		if (cent->dl_atten == 2) {
 			return;
 		}
-
-		// Number of sprites for radius calculation:
-		// lifetime of a sprite : (.5f * radius) / velocity
-		// number of sprites in a row: radius / SMOKEBOMB_DISTANCEBETWEENSPRITES
-		//		numSpritesForRadius = cent->currentState.effect1Time / SMOKEBOMB_DISTANCEBETWEENSPRITES;
-
-		//		numSpritesForRadius = cent->currentState.effect1Time / ((((640.f - 16.f)/16)/1000.f) * cg.frametime);
-		//		numNewSpritesNeeded = numSpritesForRadius - cent->miscTime;
-
-		//		CG_Printf( "numSpritesForRadius: %i / numNewSpritesNeeded: %i / cent->miscTime: %i\n", numSpritesForRadius, numNewSpritesNeeded, cent->miscTime );
 
 		if (cg.oldTime && cent->lastFuseSparkTime != cg.time) {
 			cent->muzzleFlashTime += cg.frametime;
@@ -1719,8 +1709,6 @@ void CG_RenderSmokeGrenadeSmoke(centity_t *cent, const weaponInfo_t *weapon) {
 		if (!spritesNeeded)
 			return;
 		else if (spritesNeeded == 1) {
-			// this is theoretically fine, till the smokegrenade ends up in a solid
-			//while( !CG_SpawnSmokeSprite( cent, 0.f ) );
 
 			// this is better
 			if (!CG_SpawnSmokeSprite(cent, 0.f))
@@ -1728,13 +1716,10 @@ void CG_RenderSmokeGrenadeSmoke(centity_t *cent, const weaponInfo_t *weapon) {
 				CG_SpawnSmokeSprite(cent, 0.f);
 		}
 		else {
-			//			float lerpfrac = 1.0f / (float)spritesNeeded;
 			float lerp = 1.0f;
 			float dtime;
 
 			for (dtime = spritesNeeded * spawnrate; dtime > 0; dtime -= spawnrate) {
-				// this is theoretically fine, till the smokegrenade ends up in a solid
-				//while( !CG_SpawnSmokeSprite( cent, lerp * cg.frametime * SMOKEBOMB_SMOKEVELOCITY ) );
 
 				// this is better
 				if (!CG_SpawnSmokeSprite(cent, lerp * cg.frametime * SMOKEBOMB_SMOKEVELOCITY))
@@ -1806,9 +1791,9 @@ void CG_AddSmokeSprites(void) {
 		halfSmokeSpriteWidth = 0.5f * smokesprite->size;
 		halfSmokeSpriteHeight = 0.5f * smokesprite->size;
 
-		VectorCopy(cg.refdef_current->viewaxis[1], tmp);
-		RotatePointAroundVector(right, cg.refdef_current->viewaxis[0], tmp, 0);
-		CrossProduct(cg.refdef_current->viewaxis[0], right, up);
+		VectorCopy(cg.refdef.viewaxis[1], tmp);
+		RotatePointAroundVector(right, cg.refdef.viewaxis[0], tmp, 0);
+		CrossProduct(cg.refdef.viewaxis[0], right, up);
 
 		VectorMA(smokesprite->pos, halfSmokeSpriteHeight, up, top);
 		VectorMA(smokesprite->pos, -halfSmokeSpriteHeight, up, bottom);
@@ -1819,7 +1804,8 @@ void CG_AddSmokeSprites(void) {
 		color[3] = smokesprite->colour[3] * 0xff;
 
 		// fadeout
-		if (smokesprite->dist > (radius * .8f * .8f)) {
+		if (smokesprite->dist > (radius * .5f * .8f)) {
+			//if( smokesprite->dist > (radius * .7f * .7f) ) { // L0 - scaling it down..
 			color[3] = (smokesprite->colour[3] - smokesprite->colour[3] * ((smokesprite->dist - (radius * .5f * .8f)) / ((radius * .5f) - (radius * .5f * .8f)))) * 0xff;
 		}
 		else {

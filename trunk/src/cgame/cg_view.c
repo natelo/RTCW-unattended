@@ -2039,7 +2039,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		DEBUGTIME
 
 		// L0 - NQ smoke
-		CG_AddSmokeSprites();
+		// If you are planning to use smoke then note that you have to
+		// sort it out since dyno planting is currently using same bits
+		// thus on 1.0 it would produce smoke when dyno is planted..
+		// Basically i'm leaving this in for any modders but commenting it out.
+		//CG_AddSmokeSprites();
 	}
 	// Rafael mg42
 	if ( !( cg.snap->ps.persistant[PERS_HWEAPON_USE] ) ) {

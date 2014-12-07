@@ -1137,9 +1137,6 @@ typedef struct {
 	// Demo
 	qboolean revertToDefaultKeys;
 	qboolean advertisementDone;
-
-	// NQ smoke
-	refdef_t *refdef_current; // Handling of some drawing elements for MV
 // -OSPx
 
 	pmoveExt_t pmext;	
