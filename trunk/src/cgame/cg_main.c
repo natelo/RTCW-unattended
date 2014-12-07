@@ -1648,6 +1648,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.selectCursor = trap_R_RegisterShaderNoMip( "ui_mp/assets/selectcursor.tga" );
 	CG_LoadingString( " - game media done" );
 
+	// L0 - NQ smoke
+	InitSmokeSprites();
 }
 
 /*
@@ -2404,6 +2406,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	// get the gamestate from the client system
 	trap_GetGameState( &cgs.gameState );
+
+	// L0 - NQ smoke
+	InitSmokeSprites();
 
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );

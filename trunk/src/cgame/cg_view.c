@@ -2037,6 +2037,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_AddLocalEntities();
 
 		DEBUGTIME
+
+		// L0 - NQ smoke
+		CG_AddSmokeSprites();
 	}
 	// Rafael mg42
 	if ( !( cg.snap->ps.persistant[PERS_HWEAPON_USE] ) ) {

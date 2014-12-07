@@ -434,6 +434,9 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene( &ent );
 	trap_R_RenderScene( &refdef );
+
+	// L0 - NQ smoke
+	CG_AddSmokeSprites();
 }
 
 /*
