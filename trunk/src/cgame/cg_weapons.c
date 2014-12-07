@@ -480,6 +480,9 @@ void CG_PyroSmokeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 		rnd = random();
 
+		// L0 - NQ Smoke
+		CG_RenderSmokeGrenadeSmoke(ent, wi);
+
 		CG_GetWindVector( dir );
 		VectorScale( dir,65,dir ); // was 75, before that 55
 
