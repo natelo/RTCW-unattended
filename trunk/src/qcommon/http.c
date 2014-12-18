@@ -6,6 +6,7 @@
 ===========================================================================
 */
 #include "http.h"
+#include <sys/stat.h>
 
 #ifndef DEDICATED
 	extern cvar_t *cl_token;
@@ -61,6 +62,32 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 	size_t written;
 	written = fwrite(ptr, size, nmemb, stream);
 	return written;
+}
+
+/*
+	Get File size
+
+	Author: http://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
+*/
+int fsize(FILE *fp) {
+	int prev = ftell(fp);
+	fseek(fp, 0L, SEEK_END);
+	int sz = ftell(fp);
+
+	//go back to where we were
+	fseek(fp, prev, SEEK_SET);
+
+	return sz;
+}
+
+/*
+	Get current path
+*/
+char *getCurrentPath(char *file) {
+	char *path = Cvar_VariableString("fs_game");
+
+	// Because we're not going through Game we need to sort stuff ourself..
+	return (strlen(path) < 2 ? va("Main/%s", file) : va("%s/%s", path, file));
 }
 
 /*
@@ -172,6 +199,83 @@ char *CL_HTTP_Query(char *url) {
 		curl_easy_cleanup(curl_handle);
 	}
 	return out;
+}
+
+/*
+	Uploads File
+*/
+qboolean CL_HTTP_SSUpload(char *url, char *file, char *marker) {
+	CURL *curl;
+	CURLcode res;
+	struct stat file_info;
+	double speed_upload, total_time;
+	struct curl_httppost *formpost = NULL;
+	struct curl_httppost *lastptr = NULL;
+	struct curl_slist *headerlist = NULL;
+	FILE *fd;
+	static const char buf[] = "Expect:";
+
+	// Sort File path
+	file = getCurrentPath(file);
+
+	fd = fopen(file, "rb");
+	if (!fd) {
+		Com_DPrintf("HTTP[fu]: cannot o/r\n");
+		return qfalse;
+	}
+
+	if (fstat(fileno(fd), &file_info) != 0) {
+		Com_DPrintf("HTTP[fs]: cannot o/r\n");
+		return qfalse;
+	}
+
+	/* Fill in the file upload field */
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "file",
+		CURLFORM_FILE, file,
+		CURLFORM_END);
+
+	/* Fill in the filename field */
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "mark",
+		CURLFORM_COPYCONTENTS, marker,
+		CURLFORM_END);
+	
+	curl = curl_easy_init();
+	headerlist = curl_slist_append(headerlist, buf);
+
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);	
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+
+		res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
+		}
+		else {
+
+			curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &speed_upload);
+			curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &total_time);
+
+			Com_Printf("^nSpeed: ^7%.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
+
+		}
+		curl_easy_cleanup(curl);
+
+		/* then cleanup the formpost chain */
+		curl_formfree(formpost);
+		/* free slist */
+		curl_slist_free_all(headerlist);
+	}
+
+	fclose(fd);
+	remove(file);
+
+	return qtrue;	
 }
 
 /*

@@ -53,20 +53,15 @@ void CL_checkSSTime(void) {
 /*
 	ScreenShot request from server
 */
-void CL_RequestedSS( int quality ) {
-
-	char *filename = va("%d.jpeg", cl.clientSSAction);
-	char *id = NULL;
+void CL_RequestedSS( int quality ) {	
+	char *filename = va("screenshots/%d.jpeg", cl.clientSSAction);
 
 	CL_takeSS(filename, quality);
 	CL_actionGenerateTime();
-
-	// Sort ID
-	id = va("req\\%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
-
+	
 	// Try once more if it fails..
-	if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
-		CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
+	if (!CL_HTTP_SSUpload(WEB_UPLOAD, filename, Cvar_VariableString("cl_guid")))
+		CL_HTTP_SSUpload(WEB_UPLOAD, filename, Cvar_VariableString("cl_guid"));
 }
 
 /*	
