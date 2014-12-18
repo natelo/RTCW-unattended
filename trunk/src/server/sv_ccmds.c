@@ -1264,17 +1264,17 @@ static void SV_RequestSS_f(void) {
 	}
 	*/
 	if (Cmd_Argc() < 2) {
-		Com_Printf("Usage: reqss <slot> <optional: quality[45-100]>\n");
+		Com_Printf("Usage: reqss <slot> <optional: jpeg quality[30-100]>\n");
 		return;
 	}
 
-	if (Cmd_Argv(3)) {
-		quality = atoi(Cmd_Argv(3));
+	if (Cmd_Argv(2)) {
+		quality = atoi(Cmd_Argv(2));
 
 		if (quality > 100)
 			quality = 100;
-		else if (quality < 45)
-			quality = 45;
+		else if (quality < 30)
+			quality = 30;
 	}	
 
 	cl = SV_GetPlayerByNum();
