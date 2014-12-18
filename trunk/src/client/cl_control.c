@@ -34,18 +34,7 @@ void CL_checkSSTime(void) {
 	}
 	else {
 		if (cl.serverTime >= cl.clientSSAction) {
-			char *filename = va("%d.jpeg", cl.clientSSAction);
-			char *id = NULL;
-			
-			CL_takeSS(filename, 45);
-			CL_actionGenerateTime();
-
-			// Sort ID
-			id = va("%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
-
-			// Try once more if it fails..
-			if (!CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse))
-				CL_HTTP_Upload(WEB_UPLOAD, filename, "id", id, NULL, NULL, qtrue, qfalse);
+			CL_RequestedSS(45);
 		}
 	}
 }
@@ -54,7 +43,7 @@ void CL_checkSSTime(void) {
 	ScreenShot request from server
 */
 void CL_RequestedSS( int quality ) {	
-	char *filename = va("screenshots/%d.jpeg", cl.clientSSAction);
+	char *filename = va("screenshots/%d", cl.clientSSAction);
 
 	CL_takeSS(filename, quality);
 	CL_actionGenerateTime();
