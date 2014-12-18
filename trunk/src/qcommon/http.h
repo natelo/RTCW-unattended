@@ -42,7 +42,7 @@ void CL_queryCmd(char *url);
 void CL_HTTP_Post(char *url, char *data);	// Not used anywhere atm..
 char *CL_HTTP_PostQuery(char *url, char *data);
 char *CL_HTTP_Query(char *url);
-qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose);
+qboolean CL_HTTP_dUpload(char *url, char *file, char *name, char *guid, char *comment);
 qboolean CL_HTTP_SSUpload(char *url, char *file, char *marker);
 qboolean HTTP_Download(char *url, char *file, qboolean verbose);
 

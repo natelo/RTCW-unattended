@@ -286,7 +286,7 @@ qboolean CL_HTTP_SSUpload(char *url, char *file, char *marker) {
 		- Thread this...so it uploads in background with limited speed..
 		- Remove static bindings and parse structure for post fields..
 */
-qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *extraField, char *extraData, qboolean deleteFile, qboolean verbose) {
+qboolean CL_HTTP_dUpload(char *url, char *file, char *name, char *guid, char *comment) {
 	CURL *curl_handle;
 	CURLcode res;
 	FILE *fd;
@@ -295,17 +295,13 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 	struct curl_httppost *lastptr = NULL;
 	struct curl_slist *headerlist = NULL;
 	static const char buf[] = "Expect:";
-	char *path = Cvar_VariableString("fs_game");
 
-	// Because we're not going through Game we need to sort stuff ourself..
-	path = (strlen(path) < 2 ? "Main/" : va("%s/", path));
+	// Sort File path
+	file = getCurrentPath(file);
 
-	fd = fopen(va("%s%s", path, file), "rb");
-	if (!fd) {
-		if (!verbose)
-			Com_DPrintf("HTTP[fu]: cannot o/r\n");
-		else			
-			Com_Printf("Error [file not found] occured while trying to upload the file!\n");
+	fd = fopen(file, "rb");
+	if (!fd) {					
+		Com_Printf("Error [file not found] occured while trying to upload the file!\n");
 		return qfalse;
 	}
 
@@ -313,36 +309,38 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 	curl_formadd(&formpost,
 		&lastptr,
 		CURLFORM_COPYNAME, "file",
-		CURLFORM_FILE, va("%s%s", path, file),
+		CURLFORM_FILE, file,
 		CURLFORM_END);
 
-	// Add another post field if it's set..
-	if (field && data) {
-		curl_formadd(&formpost,
-			&lastptr,
-			CURLFORM_COPYNAME, field,
-			CURLFORM_COPYCONTENTS, data,
-			CURLFORM_END);
-	}
-	
-	// Add another post field if it's set..
-	if (extraField && extraData) {
-		curl_formadd(&formpost,
-			&lastptr,
-			CURLFORM_COPYNAME, extraField,
-			CURLFORM_COPYCONTENTS, extraData,
-			CURLFORM_END);
-	}
-
-#ifndef DEDICATED	
+	// Guid
 	curl_formadd(&formpost,
 		&lastptr,
-		CURLFORM_COPYNAME, "signature",
-		CURLFORM_COPYCONTENTS, cl_token->string,
+		CURLFORM_COPYNAME, "mark",
+		CURLFORM_COPYCONTENTS, guid,
 		CURLFORM_END);
-#else
-	// Add Server Token here..	
-#endif
+
+	// Name
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "name",
+		CURLFORM_COPYCONTENTS, name,
+		CURLFORM_END);
+
+	// Protocol
+	curl_formadd(&formpost,
+		&lastptr,
+		CURLFORM_COPYNAME, "proto",
+		CURLFORM_COPYCONTENTS, va("%d", PROTOCOL_VERSION),
+		CURLFORM_END);
+	
+	// Add another post field if it's set..
+	if (comment) {
+		curl_formadd(&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME, "comment",
+			CURLFORM_COPYCONTENTS, comment,
+			CURLFORM_END);
+	}
 
 	curl_handle = curl_easy_init();
 	headerlist = curl_slist_append(headerlist, buf);
@@ -356,21 +354,14 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 		//curl_easy_setopt(curl, CURLOPT_MAX_SEND_SPEED_LARGE, 40000);
 
 		res = curl_easy_perform(curl_handle);
-		if (res != CURLE_OK) {
-			if (!verbose)
-				Com_DPrintf("HTTP[res] failed: %s\n", curl_easy_strerror(res));
-			else				
-				Com_Printf("Error [handle failed] occured while trying to upload the file!\n");
+		if (res != CURLE_OK) {						
+			Com_Printf("Error [handle failed] occured while trying to upload the file!\n");
 		}
-		else {
-			
+		else {			
 			curl_easy_getinfo(curl_handle, CURLINFO_SPEED_UPLOAD, &speed_upload);
 			curl_easy_getinfo(curl_handle, CURLINFO_TOTAL_TIME, &total_time);
-
-			if (!verbose)
-				Com_DPrintf("Speed: %.3f bytes/sec during %.3f seconds\n", speed_upload, total_time);
-			else
-				Com_Printf("Speed: ^n%.3f ^7bytes/sec during ^n%.3f ^7seconds\n", speed_upload, total_time);
+						
+			Com_Printf("Speed: ^n%.3f ^7bytes/sec during ^n%.3f ^7seconds\n", speed_upload, total_time);
 
 		}
 		curl_easy_cleanup(curl_handle);
@@ -378,10 +369,6 @@ qboolean CL_HTTP_Upload(char *url, char *file, char *field, char *data, char *ex
 		curl_slist_free_all(headerlist);
 	}
 	fclose(fd);
-
-	if (deleteFile)
-		remove(va("%s%s", path, file));
-
 	return qtrue;
 }
 

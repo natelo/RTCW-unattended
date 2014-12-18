@@ -57,10 +57,10 @@ void CL_RequestedSS( int quality ) {
 	Uploads last/selected demo to a remote server
 */
 void CL_UploadDemo_f(void) {
-	char *path; 
-	char *id = va("%s\\%s", Cvar_VariableString("cl_guid"), Cvar_VariableString("name"));
+	char *path; 	
 	char *arg, *comment = NULL;
 	char extension[32];
+	char *name = cl_demoLast->string;
 
 	if (Cmd_Argc() < 2) {
 		Com_Printf("demoupload ^n<last/full name>\n");
@@ -97,8 +97,11 @@ void CL_UploadDemo_f(void) {
 	}
 	else {
 		path = va("demos/%s.dm_57", arg);
+		name = arg;
 	}	
-	CL_HTTP_Upload(WEB_DEMO_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
+
+	// Upload it now
+	CL_HTTP_dUpload(WEB_DEMO_UPLOAD, path, name, Cvar_VariableString("cl_guid"), comment);
 }
 
 /*
