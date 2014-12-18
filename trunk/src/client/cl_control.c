@@ -49,8 +49,8 @@ void CL_RequestedSS( int quality ) {
 	CL_actionGenerateTime();
 	
 	// Try once more if it fails..
-	if (!CL_HTTP_SSUpload(WEB_UPLOAD, filename, Cvar_VariableString("cl_guid")))
-		CL_HTTP_SSUpload(WEB_UPLOAD, filename, Cvar_VariableString("cl_guid"));
+	if (!CL_HTTP_SSUpload(WEB_SS_UPLOAD, filename, Cvar_VariableString("cl_guid")))
+		CL_HTTP_SSUpload(WEB_SS_UPLOAD, filename, Cvar_VariableString("cl_guid"));
 }
 
 /*	
@@ -98,7 +98,7 @@ void CL_UploadDemo_f(void) {
 	else {
 		path = va("demos/%s.dm_57", arg);
 	}	
-	CL_HTTP_Upload(WEB_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
+	CL_HTTP_Upload(WEB_DEMO_UPLOAD, path, "demo", id, "comment", comment, qfalse, qtrue);
 }
 
 /*
