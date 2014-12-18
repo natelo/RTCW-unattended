@@ -111,14 +111,17 @@ void CL_UploadHelp_f(void) {
 	Com_Printf(
 		"\n^nDemo Comments\n"
 		"^n^7--------------------\n"
-		"^7Demos can be uploaded in a specific category on web site by using hash tags\n"
+		"^7Demos can be uploaded in a specific category on a web site by using hash tags\n"
 		"^n^7--------------------\n"
 		"^nHash Tags:^7\n"
 		"#cheater   - ^nUse this for obvious demos..^7\n"
 		"#report    - ^nUse this when you wish for others to review it..^7\n"
+		"#<any>     - ^nYou can use CUP as tag or anything you wish..\n"
 		"^n^7--------------------\n"
 		"^nExample:^7\n"
 		"demoupload last #report Take a look at X min in Y spot..\n"
+		"^nNote:^7\n"
+		"- Categories cannot contain spaces but you can use underscores instead..\n"		
 		"^n^7--------------------\n"
 	);
 }
