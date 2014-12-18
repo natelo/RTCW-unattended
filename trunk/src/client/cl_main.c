@@ -2763,10 +2763,14 @@ void CL_CheckAutoUpdate( void ) {
 	}
 
 	reply = CL_HTTP_PostQuery(WEB_UPDATE, va("cn=%s&ver=%s&cpu=%s", CODENAME, Q3_VERSION, CPUSTRING));
+	if (!reply)
+		return;
+
+	Cmd_TokenizeString(reply);
 
 	// If it's not silent then bail out
-	if (Q_stricmp(reply, "")) {
-		Com_Error(ERR_FATAL, reply);
+	if (!Q_stricmp(Cmd_Argv(0), "updtAvailable")) {
+		Com_Error(ERR_FATAL, Cmd_ArgsFrom(1));
 		return;
 	}
 

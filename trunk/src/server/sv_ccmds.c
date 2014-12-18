@@ -1357,7 +1357,6 @@ void SV_AddOperatorCommands( void ) {
 
 	// Server actions
 	Cmd_AddCommand("reqss", SV_RequestSS_f);
-
 // ~L0
 }
 
