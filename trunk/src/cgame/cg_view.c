@@ -1465,8 +1465,23 @@ static int CG_CalcViewValues( void ) {
 	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
 					   ps->velocity[1] * ps->velocity[1] );
 
+#ifndef RETAIL_MOD
+	VectorCopy(ps->origin, cg.refdef.vieworg);
+	// Arnout: see if we're attached to a gun
+	if ( cg.renderingThirdPerson && ps->eFlags & EF_MG42_ACTIVE ) {
+		centity_t *mg42 = &cg_entities[ps->viewlocked_entNum];
+		vec3_t forward, right, up;
 
+		AngleVectors(ps->viewangles, forward, right, up);
+		VectorMA(mg42->currentState.pos.trBase, -36, forward, cg.refdef.vieworg);
+		cg.refdef.vieworg[2] = ps->origin[2];
+}
+	else {
+		VectorCopy(ps->origin, cg.refdef.vieworg);
+	}
+#else
 	VectorCopy( ps->origin, cg.refdef.vieworg );
+#endif
 	VectorCopy( ps->viewangles, cg.refdefViewAngles );
 
 	// add error decay

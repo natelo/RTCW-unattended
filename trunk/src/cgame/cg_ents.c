@@ -408,7 +408,7 @@ static void CG_General( centity_t *cent ) {
 	if ( s1->number == cg.snap->ps.clientNum ) {
 		ent.renderfx |= RF_THIRD_PERSON;    // only draw from mirrors
 	}
-	/*
+#ifndef RETAIL_MOD
 	if ( cent->currentState.eType == ET_MG42_BARREL ) {
 		// grab angles from first person user or self if not
 		// ATVI Wolfenstein Misc #469 - don't track until viewlocked
@@ -418,9 +418,12 @@ static void CG_General( centity_t *cent ) {
 			AnglesToAxis( cent->lerpAngles, ent.axis );
 		}
 	} else {
-*/		// convert angles to axis
+#endif
+		// convert angles to axis
 		AnglesToAxis( cent->lerpAngles, ent.axis );
-//	}
+#ifndef RETAIL_MOD
+	}
+#endif
 
 	// scale gamemodels
 	if ( cent->currentState.eType == ET_GAMEMODEL ) {
@@ -1924,12 +1927,16 @@ static void CG_ProcessEntity( centity_t *cent ) {
 		if ( !cg_drawGamemodels.integer ) {
 			break;
 		}
-	//case ET_MG42_BARREL:
+#ifndef RETAIL_MOD
+	case ET_MG42_BARREL:
+#endif
 	case ET_FOOTLOCKER:
 	case ET_GENERAL:
 		CG_General( cent );
 		break;
-	//case ET_CORPSE:
+#ifndef RETAIL_MOD
+	case ET_CORPSE:
+#endif
 	case ET_PLAYER:
 		CG_Player( cent );
 		break;
@@ -1975,9 +1982,11 @@ static void CG_ProcessEntity( centity_t *cent ) {
 	case ET_BAT:
 		CG_Bat( cent );
 		break;
-//	case ET_SMOKER:
-//		CG_Smoker( cent );
-//		break;
+#ifndef RETAIL_MOD
+	case ET_SMOKER:
+		CG_Smoker( cent );
+		break;
+#endif
 	}
 }
 

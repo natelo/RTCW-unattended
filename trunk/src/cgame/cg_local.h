@@ -43,6 +43,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_public.h"
 #include "../ui/keycodes.h"	// OSPx - Demo commands
 
+// L0 - Control the build (Ucomment for 1.0 version otherwise it will be build for 1.4)
+//#define RETAIL_MOD
+
 #define POWERUP_BLINKS      5
 
 #define STATS_FADE_TIME     200.0f // OSPx - stats

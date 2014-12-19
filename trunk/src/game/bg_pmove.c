@@ -2421,6 +2421,9 @@ static void PM_Weapon( void ) {
 
 			pm->ps->weaponTime += MG42_RATE_OF_FIRE;
 			
+#ifndef RETAIL_MOD
+			BG_AnimScriptEvent(pm->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue);
+#endif
 			pm->ps->viewlocked = 2;		// this enable screen jitter when firing
 		}
 
@@ -3370,6 +3373,9 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 	short temp;
 	int i;
 	pmove_t tpm;
+#ifndef RETAIL_MOD
+	vec3_t oldViewAngles;
+#endif
 
 	// DHM - Nerve :: Added support for PMF_TIME_LOCKPLAYER
 	if ( ps->pm_type == PM_INTERMISSION || ps->pm_flags & PMF_TIME_LOCKPLAYER ) {
@@ -3385,6 +3391,10 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 		}
 		return;     // no view changes at all
 	}
+
+#ifndef RETAIL_MOD
+	VectorCopy(ps->viewangles, oldViewAngles);
+#endif
 	
 	// circularly clamp the angles with deltas
 	for ( i = 0 ; i < 3 ; i++ ) {
@@ -3401,6 +3411,80 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 		}
 		ps->viewangles[i] = SHORT2ANGLE( temp );
 	}
+
+#ifndef RETAIL_MOD
+	if (ps->eFlags & EF_MG42_ACTIVE) {
+		float yaw, oldYaw;
+		float degsSec = MG42_YAWSPEED;
+		float arcMin, arcMax, arcDiff;
+
+		yaw = ps->viewangles[YAW];
+		oldYaw = oldViewAngles[YAW];
+
+		if (yaw - oldYaw > 180) {
+			yaw -= 360;
+		}
+		if (yaw - oldYaw < -180) {
+			yaw += 360;
+		}
+
+		if (yaw > oldYaw) {
+			if (yaw - oldYaw > degsSec * pml.frametime) {
+				ps->viewangles[YAW] = oldYaw + degsSec * pml.frametime;
+
+				// Set delta_angles properly
+				ps->delta_angles[YAW] = ANGLE2SHORT(ps->viewangles[YAW]) - cmd->angles[YAW];
+			}
+		}
+		else if (oldYaw > yaw) {
+			if (oldYaw - yaw > degsSec * pml.frametime) {
+				ps->viewangles[YAW] = oldYaw - degsSec * pml.frametime;
+
+				// Set delta_angles properly
+				ps->delta_angles[YAW] = ANGLE2SHORT(ps->viewangles[YAW]) - cmd->angles[YAW];
+			}
+		}
+
+		// limit harc and varc
+
+		// pitch (varc)
+		arcMax = pm->pmext->varc;
+		arcMin = pm->pmext->varc / 2;
+		arcDiff = AngleNormalize180(ps->viewangles[PITCH] - pm->pmext->centerangles[PITCH]);
+
+
+		if (arcDiff > arcMin) {
+			ps->viewangles[PITCH] = AngleNormalize180(pm->pmext->centerangles[PITCH] + arcMin);
+
+			// Set delta_angles properly
+			ps->delta_angles[PITCH] = ANGLE2SHORT(ps->viewangles[PITCH]) - cmd->angles[PITCH];
+		}
+		else if (arcDiff < -arcMax) {
+			ps->viewangles[PITCH] = AngleNormalize180(pm->pmext->centerangles[PITCH] - arcMax);
+
+			// Set delta_angles properly
+			ps->delta_angles[PITCH] = ANGLE2SHORT(ps->viewangles[PITCH]) - cmd->angles[PITCH];
+		}
+
+		// yaw (harc)
+		arcMin = arcMax = pm->pmext->harc;
+		arcDiff = AngleNormalize180(ps->viewangles[YAW] - pm->pmext->centerangles[YAW]);
+
+
+		if (arcDiff > arcMin) {
+			ps->viewangles[YAW] = AngleNormalize180(pm->pmext->centerangles[YAW] + arcMin);
+
+			// Set delta_angles properly
+			ps->delta_angles[YAW] = ANGLE2SHORT(ps->viewangles[YAW]) - cmd->angles[YAW];
+		}
+		else if (arcDiff < -arcMax) {
+			ps->viewangles[YAW] = AngleNormalize180(pm->pmext->centerangles[YAW] - arcMax);
+
+			// Set delta_angles properly
+			ps->delta_angles[YAW] = ANGLE2SHORT(ps->viewangles[YAW]) - cmd->angles[YAW];
+		}
+	}
+#endif
 
 	tpm.trace = (void *)&trace;
 //	tpm.trace (&trace, start, tmins, tmaxs, end, ps->clientNum, MASK_PLAYERSOLID);

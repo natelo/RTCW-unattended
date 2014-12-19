@@ -2831,6 +2831,9 @@ void CG_Player( centity_t *cent ) {
 	refEntity_t head;
 	refEntity_t acc;
 
+#ifndef RETAIL_MOD
+	vec3_t playerOrigin;
+#endif
 	vec3_t lightorigin;
 
 	int clientNum,i;
@@ -2846,6 +2849,9 @@ void CG_Player( centity_t *cent ) {
 
 	shadow = qfalse;                                                // gjd added to make sure it was initialized
 	shadowPlane = 0.0;                                              // ditto
+#ifndef RETAIL_MOD
+	VectorCopy(vec3_origin, playerOrigin);
+#endif
 
 	// if set to invisible, skip
 	if ( cent->currentState.eFlags & EF_NODRAW ) {
@@ -2866,6 +2872,38 @@ void CG_Player( centity_t *cent ) {
 	if ( !ci->infoValid ) {
 		return;
 	}
+
+#ifndef RETAIL_MOD
+	// Arnout: see if we're attached to a gun
+	if (cent->currentState.eFlags & EF_MG42_ACTIVE) {
+		centity_t *mg42;
+		int num;
+
+		// find the mg42 we're attached to
+		for (num = 0; num < cg.snap->numEntities; num++) {
+			mg42 = &cg_entities[cg.snap->entities[num].number];
+			
+			if ( mg42->currentState.eType == ET_MG42_BARREL &&
+				mg42->currentState.otherEntityNum == cent->currentState.number ) {
+				// found it, clamp behind gun
+				vec3_t forward, right, up;
+
+				//AngleVectors (mg42->s.apos.trBase, forward, right, up);
+				AngleVectors( cent->lerpAngles, forward, right, up );
+				VectorMA( mg42->currentState.pos.trBase, -36, forward, playerOrigin );
+				playerOrigin[2] = cent->lerpOrigin[2];
+				break;
+			}
+
+			if (num == cg.snap->numEntities) {
+				VectorCopy(cent->lerpOrigin, playerOrigin);
+			}
+		}
+	}
+	else {
+		VectorCopy(cent->lerpOrigin, playerOrigin);
+	}
+#endif
 	
 	memset( &legs, 0, sizeof( legs ) );
 	memset( &torso, 0, sizeof( torso ) );
@@ -2932,7 +2970,11 @@ void CG_Player( centity_t *cent ) {
 	// set renderfx for accessories
 	acc.renderfx    = renderfx;
 
+#ifndef RETAIL_MOD
+	VectorCopy(playerOrigin, lightorigin);
+#else
 	VectorCopy(cent->lerpOrigin, lightorigin);
+#endif
 	lightorigin[2] += 31 + (float)cg_drawFPGun.integer;
 
 	// L0 - Keeping this in for demo preview..
@@ -2947,7 +2989,11 @@ void CG_Player( centity_t *cent ) {
 	legs.hModel = ci->legsModel;
 	legs.customSkin = ci->legsSkin;
 
+#ifndef RETAIL_MOD
+	VectorCopy(playerOrigin, legs.origin);
+#else
 	VectorCopy( cent->lerpOrigin, legs.origin );
+#endif
 
 	if ( ci->playermodelScale[0] != 0 ) {  // player scaled, adjust for the (-24) offset of player legs origin to ground
 		legs.origin[2] -= 24 * ( 1.0 - ci->playermodelScale[2] );
