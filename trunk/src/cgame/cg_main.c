@@ -543,7 +543,7 @@ cvarTable_t cvarTable[] = {
 	{ &cg_coloredCrosshairNames, "cg_coloredCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
-	{ &cg_enemyRadar, "cg_enemyRadar", "1", CVAR_ARCHIVE },
+	{ &cg_enemyRadar, "cg_enemyRadar", "0", CVAR_ARCHIVE },
 
 	{ &demo_infoWindow, "demo_infoWindow", "1", CVAR_ARCHIVE },
 	{ &demo_controlsWindow, "demo_controlsWindow", "1", CVAR_ARCHIVE},
