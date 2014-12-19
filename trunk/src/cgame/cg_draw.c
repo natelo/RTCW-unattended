@@ -3635,26 +3635,35 @@ static void CG_DrawCompass( void ) {
 	}
 
 	// draw revive medic icons
-	if ( cg.snap->ps.stats[ STAT_PLAYER_CLASS ] == PC_MEDIC ) {
-		if ( cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport ) {
+	// draw revive medic icons
+	if (cg.snap->ps.stats[STAT_PLAYER_CLASS] == PC_MEDIC) {
+		if (cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport) {
 			snap = cg.nextSnap;
-		} else {
+		}
+		else {
 			snap = cg.snap;
 		}
 
-		for ( i = 0; i < snap->numEntities; i++ ) {
+		for (i = 0; i < snap->numEntities; i++) {
 			entityState_t *ent = &snap->entities[i];
 
-			if ( ent->eType != ET_PLAYER ) {
+			if (ent->eType != ET_PLAYER)
 				continue;
-			}
 
-			if ( ( ent->eFlags & EF_DEAD ) && ent->number == ent->clientNum ) {
-				if ( !cgs.clientinfo[ent->clientNum].infoValid || cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[ent->clientNum].team ) {
-					continue;
-				}
+			if ((ent->eFlags & EF_DEAD) && ent->number == ent->clientNum) {
+				// L0 - only draw enemy bodies if client has it enabled and server allows it
+				if (cg_enemyRadar.integer == 1) {
+					if (!cgs.clientinfo[ent->clientNum].infoValid)
+						continue;
 
-				CG_DrawCompassIcon( basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicReviveShader );
+					CG_DrawCompassIcon(basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicReviveShader);
+				} // Else draw default :)
+				else if (cg_drawCompass.integer)  {
+					if (!cgs.clientinfo[ent->clientNum].infoValid || cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[ent->clientNum].team)
+						continue;
+
+					CG_DrawCompassIcon(basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicReviveShader);
+				} // ~L0 
 			}
 		}
 	}

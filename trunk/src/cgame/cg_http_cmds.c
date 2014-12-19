@@ -65,6 +65,10 @@
 	--------------------------------------
 	NOTE: A basic example...don't be naive and use sanity checks..
 */
+
+/*
+	Parse query (Really basic)
+*/
 char *CG_cmdsToPost(int firstOffset, int lastOffset) {
 	int i;
 	char *cList = NULL;

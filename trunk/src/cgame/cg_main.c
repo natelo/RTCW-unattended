@@ -309,6 +309,7 @@ vmCvar_t cg_noAmmoAutoSwitch;
 vmCvar_t cg_coloredCrosshairNames;
 vmCvar_t vp_drawnames;
 vmCvar_t cg_drawNames;
+vmCvar_t cg_enemyRadar;
 
 vmCvar_t demo_infoWindow;
 vmCvar_t demo_controlsWindow;
@@ -542,6 +543,7 @@ cvarTable_t cvarTable[] = {
 	{ &cg_coloredCrosshairNames, "cg_coloredCrosshairNames", "1", CVAR_ARCHIVE },
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
+	{ &cg_enemyRadar, "cg_enemyRadar", "1", CVAR_ARCHIVE },
 
 	{ &demo_infoWindow, "demo_infoWindow", "1", CVAR_ARCHIVE },
 	{ &demo_controlsWindow, "demo_controlsWindow", "1", CVAR_ARCHIVE},
