@@ -273,7 +273,7 @@ You or the server may be running older versions of the game. Press the auto-upda
  button if it appears on the Main Menu screen."
 
 // Comment this out for prod..
-#define _DEBUG_HTTP
+//#define _DEBUG_HTTP
 
 #define PROTOCOL_VERSION 57
 #define GAMENAME_STRING     "wolfmp"
