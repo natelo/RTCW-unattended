@@ -106,11 +106,6 @@ R_ColorShiftLightingBytes
 static void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	int shift, r, g, b;
 
-	// L0 - lock r_mapOverBrightBits..
-	if (r_mapOverBrightBits->integer > 3) {
-		ri.Cvar_Set("r_mapOverBrightBits", "3");
-	}
-
 	// shift the color data based on overbright range
 	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
 

@@ -700,13 +700,6 @@ static void Upload32(   unsigned *data,
 	// perform optional picmip operation
 	//
 	if ( picmip ) {
-
-		// L0 - Upscale limit
-		if (r_picmip->integer > 3) {		
-			ri.Cvar_Set("r_picmip", "3");
-		} // End
-
-
 		scaled_width >>= r_picmip->integer;
 		scaled_height >>= r_picmip->integer;
 	}
@@ -2375,10 +2368,7 @@ void R_SetColorMappings( void ) {
 
 	if ( r_intensity->value <= 1 ) {
 		ri.Cvar_Set( "r_intensity", "1" );
-	} // L0 - Upscale limit as well..
-	else if (r_intensity->value > 2) {
-		ri.Cvar_Set("r_intensity", "3");
-	} // End
+	} 
 
 #ifdef __linux__
 	if (r_gamma->value != -1) {

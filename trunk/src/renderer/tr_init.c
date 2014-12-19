@@ -1154,6 +1154,11 @@ void R_Register( void ) {
 		ri.Cmd_AddCommand( "cropimages", R_CropImages_f );
 	}
 	// done.
+
+	// L0 - Sort Limits
+	AssertCvarRange(r_intensity, 1, 3, qtrue);
+	AssertCvarRange(r_mapOverBrightBits, 0, 3, qtrue);
+	AssertCvarRange(r_picmip, 0, 3, qtrue);
 }
 
 /*
