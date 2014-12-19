@@ -3651,8 +3651,8 @@ static void CG_DrawCompass( void ) {
 				continue;
 
 			if ((ent->eFlags & EF_DEAD) && ent->number == ent->clientNum) {
-				// L0 - only draw enemy bodies if client has it enabled and server allows it
-				if (cg_enemyRadar.integer == 1) {
+				// L0 - only draw enemy bodies if client has it enabled and we're not in SW ..
+				if (cg_enemyRadar.integer == 1 && cgs.gametype != GT_WOLF_STOPWATCH) {
 					if (!cgs.clientinfo[ent->clientNum].infoValid)
 						continue;
 
