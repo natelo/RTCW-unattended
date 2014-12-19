@@ -312,7 +312,26 @@ void CG_DemoClick(int key) {
 			cg.demoControlsWindow = NULL;
 			trap_Cvar_Set("demo_controlsWindow", "0");
 		}
-		return;		
+		return;	
+	case K_BACKSPACE:
+		if (cgs.demoControlInfo.show != SHOW_ON) {
+			cgs.demoControlInfo.show = SHOW_ON;
+			CG_createControlsWindow();
+			trap_Cvar_Set("demo_controlsWindow", "1");
+		}
+		else {
+			cgs.demoControlInfo.show = SHOW_SHUTDOWN;
+			if (cg.time < cgs.demoControlInfo.fadeTime) {
+				cgs.demoControlInfo.fadeTime = 2 * cg.time + STATS_FADE_TIME - cgs.demoControlInfo.fadeTime;
+			}
+			else {
+				cgs.demoControlInfo.fadeTime = cg.time + STATS_FADE_TIME;
+			}
+			CG_windowFree(cg.demoControlsWindow);
+			cg.demoControlsWindow = NULL;
+			trap_Cvar_Set("demo_controlsWindow", "0");
+		}
+		return;
 	case K_SHIFT:
 		if (demo_infoWindow.integer)
 			trap_Cvar_Set("demo_infoWindow", "0");
