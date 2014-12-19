@@ -8,10 +8,13 @@
 #include <string.h>
 #include <windows.h>
 #include <winioctl.h>
+#else
+// For linux..
+#endif
 #include "../game/q_shared.h"
 
 char* getHardDriveSerial();
 char * GetMAC();
-#endif
+
 
 #endif //  __HDD_CLIENT
