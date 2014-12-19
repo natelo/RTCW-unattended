@@ -1219,6 +1219,7 @@ typedef struct {
 	qhandle_t medicReviveShader;
 	qhandle_t balloonShader;
 	qhandle_t connectionShader;
+	qhandle_t medicEnemyShader;	// L0 - For cg_enemyRadar
 
 	qhandle_t aiStateShaders[MAX_AISTATES];
 

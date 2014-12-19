@@ -3635,7 +3635,6 @@ static void CG_DrawCompass( void ) {
 	}
 
 	// draw revive medic icons
-	// draw revive medic icons
 	if (cg.snap->ps.stats[STAT_PLAYER_CLASS] == PC_MEDIC) {
 		if (cg.nextSnap && !cg.nextFrameTeleport && !cg.thisFrameTeleport) {
 			snap = cg.nextSnap;
@@ -3656,7 +3655,10 @@ static void CG_DrawCompass( void ) {
 					if (!cgs.clientinfo[ent->clientNum].infoValid)
 						continue;
 
-					CG_DrawCompassIcon(basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicReviveShader);
+					if (cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[ent->clientNum].team) // Use different shader (just grayscale..)
+						CG_DrawCompassIcon(basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicEnemyShader);
+					else
+						CG_DrawCompassIcon(basex, basey, basew, baseh, cg.snap->ps.origin, ent->pos.trBase, cgs.media.medicReviveShader);
 				} // Else draw default :)
 				else if (cg_drawCompass.integer)  {
 					if (!cgs.clientinfo[ent->clientNum].infoValid || cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[ent->clientNum].team)

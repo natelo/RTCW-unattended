@@ -1418,6 +1418,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.medicReviveShader = trap_R_RegisterShader( "sprites/medic_revive" );
 	cgs.media.voiceChatShader = trap_R_RegisterShader( "sprites/voiceChat" );
 	cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );
+	cgs.media.medicEnemyShader = trap_R_RegisterShader("sprites/medic_enemy"); // L0 - Enemy radar
 
 	for ( i = 0; i < MAX_AISTATES; i++ ) {
 		cgs.media.aiStateShaders[i] = trap_R_RegisterShader( va( "sprites/aistate%i", i + 1 ) );
