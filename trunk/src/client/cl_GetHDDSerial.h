@@ -1,6 +1,7 @@
 #ifndef __HDD_CLIENT
 #define  __HDD_CLIENT
 
+#if WIN32
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -11,5 +12,6 @@
 
 char* getHardDriveSerial();
 char * GetMAC();
+#endif
 
 #endif //  __HDD_CLIENT
