@@ -606,7 +606,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 
 		if ( checkEnt ) {
-			if ( checkEnt->s.eType == ET_GENERAL ) {
+			if ( checkEnt->s.eType == ET_GENERAL || checkEnt->s.eType == ET_MG42_BARREL ) {
 
 				// this is effectively an 'exit' brush.  they should be created with:
 				//

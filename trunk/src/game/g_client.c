@@ -352,7 +352,9 @@ void CopyToBodyQue( gentity_t *ent ) {
 	if ( ent->client->ps.eFlags & EF_HEADSHOT ) {
 		body->s.eFlags |= EF_HEADSHOT;          // make sure the dead body draws no head (if killed that way)
 
-	}	
+	}
+	body->s.eType = ET_CORPSE;
+	body->classname = "corpse";
 	body->s.powerups = 0;   // clear powerups
 	body->s.loopSound = 0;  // clear lava burning
 	body->s.number = body - g_entities;
