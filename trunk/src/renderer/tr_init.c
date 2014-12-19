@@ -992,7 +992,7 @@ void R_Register( void ) {
 #endif
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_overBrightBits = ri.Cvar_Get( "r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
-	AssertCvarRange(r_overBrightBits, 0, 1, qtrue);                                   // ydnar: limit to overbrightbits 1 (sorry 1337 players)
+	AssertCvarRange(r_overBrightBits, 0, 2, qtrue);                                   // ydnar: limit to overbrightbits 1 (sorry 1337 players)
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_mode = ri.Cvar_Get( "r_mode", "4", CVAR_ARCHIVE | CVAR_LATCH );
 	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
