@@ -134,14 +134,6 @@ gentity_t *G_TestEntityPosition( gentity_t *ent ) {
 	}
 	if ( ent->client ) {
 		trap_TraceCapsule( &tr, ent->client->ps.origin, ent->r.mins, ent->r.maxs, ent->client->ps.origin, ent->s.number, mask );
-	} else if ( ent->s.eType == ET_CORPSE ) {
-		vec3_t pos;
-		VectorCopy( ent->s.pos.trBase, pos );
-		pos[2] += 4; // move up a bit - corpses normally got their origin slightly in the ground
-		trap_Trace( &tr, pos, ent->r.mins, ent->r.maxs, pos, ent->s.number, mask );
-		// don't crush corpses against players
-//		if( tr.startsolid && g_entities[ tr.entityNum ].client )
-//			return NULL;
 	} else if ( ent->s.eType == ET_MISSILE ) {
 		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->r.ownerNum, mask );
 	} else {
@@ -1791,7 +1783,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 
 	// remove anything other than a client
 	if ( other ) {
-		if ( !other->client && other->s.eType != ET_CORPSE ) {
+		if ( !other->client ) {
 			// except CTF flags!!!!
 			if ( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {
 				Team_DroppedFlagThink( other );
@@ -1872,7 +1864,7 @@ void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) {
 
 	// remove anything other than a client
 	if ( other ) {
-		if ( !other->client && other->s.eType != ET_CORPSE ) {
+		if ( !other->client ) {
 			if ( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {
 				Team_DroppedFlagThink( other );
 				return;

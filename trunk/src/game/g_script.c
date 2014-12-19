@@ -664,7 +664,7 @@ void script_mover_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 void script_mover_blocked( gentity_t *ent, gentity_t *other ) {
 	// remove it, we must not stop for anything or it will screw up script timing
-	if ( !other->client && other->s.eType != ET_CORPSE ) {
+	if ( !other->client ) {
 		// /me slaps nerve
 		// except CTF flags!!!!
 		if ( other->s.eType == ET_ITEM && other->item->giType == IT_TEAM ) {

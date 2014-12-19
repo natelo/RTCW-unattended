@@ -893,7 +893,7 @@ void SP_target_smoke( gentity_t *ent ) {
 
 	G_SetOrigin( ent, ent->s.origin );
 	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_SMOKER;
+	ent->s.eType = ET_GENERAL;
 
 	if ( ent->spawnflags & 2 ) {
 		ent->s.density = 4;
