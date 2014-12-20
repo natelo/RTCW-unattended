@@ -15,7 +15,7 @@ gameclean:
 	rm -rf ../game/*.o
 
 ui.mp.i386.so: $(MODULES)
-	$(CC) -shared -ldl -lm -o $@ $?
+	$(CC) -s -shared -ldl -lm -o $@ $?
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
