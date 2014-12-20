@@ -1396,6 +1396,11 @@ static qboolean ParseShader( char **text ) {
 		}
 		// stage definition
 		else if ( token[0] == '{' ) {
+			if (s >= MAX_SHADER_STAGES) {
+				ri.Printf(PRINT_WARNING, "WARNING: too many stages in shader %s\n", shader.name);
+				return qfalse;
+			}
+
 			if ( !ParseStage( &stages[s], text ) ) {
 				return qfalse;
 			}
@@ -1539,7 +1544,8 @@ static qboolean ParseShader( char **text ) {
 				ri.Printf( PRINT_WARNING, "WARNING: missing shader name for 'sunshader'\n" );
 				continue;
 			}
-			tr.sunShaderName = CopyString( token );
+			//tr.sunShaderName = CopyString( token );
+			tr.sunShaderName = "sun";
 		}
 //----(SA)	added
 		else if ( !Q_stricmp( token, "lightgridmulamb" ) ) { // ambient multiplier for lightgrid
@@ -2519,6 +2525,11 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	if ( lightmapIndex >= 0 && lightmapIndex >= tr.numLightmaps ) {
 		lightmapIndex = LIGHTMAP_BY_VERTEX;
 	}
+	else if (lightmapIndex < LIGHTMAP_2D) {
+		// negative lightmap indexes cause stray pointers (think tr.lightmaps[lightmapIndex])
+		ri.Printf(PRINT_WARNING, "WARNING: shader '%s' has invalid lightmap index of %d\n", name, lightmapIndex);
+		lightmapIndex = LIGHTMAP_BY_VERTEX;
+	}
 
 	COM_StripExtension2( name, strippedName, sizeof( strippedName ) );
 
@@ -2680,6 +2691,13 @@ qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image
 	shader_t    *sh;
 
 	hash = generateHashValue( name );
+
+	// probably not necessary since this function
+	// only gets called from tr_font.c with lightmapIndex == LIGHTMAP_2D
+	// but better safe than sorry.
+	if (lightmapIndex >= tr.numLightmaps) {
+		lightmapIndex = LIGHTMAP_WHITEIMAGE;
+	}
 
 	//
 	// see if the shader is already loaded
@@ -3119,6 +3137,20 @@ static void CreateInternalShaders( void ) {
 static void CreateExternalShaders( void ) {
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue );
 	tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue );
+
+	// Hack to make fogging work correctly on flares. Fog colors are calculated
+	// in tr_flare.c already.
+	if (!tr.flareShader->defaultShader)
+	{
+		int index;
+
+		for (index = 0; index < tr.flareShader->numUnfoggedPasses; index++)
+		{
+			tr.flareShader->stages[index]->adjustColorsForFog = ACFF_NONE;
+			tr.flareShader->stages[index]->stateBits |= GLS_DEPTHTEST_DISABLE;
+		}
+	}
+
 //	tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue );	//----(SA)	let sky shader set this
 	tr.sunflareShader[0] = R_FindShader( "sunflare1", LIGHTMAP_NONE, qtrue );
 	tr.dlightShader = R_FindShader( "dlightshader", LIGHTMAP_NONE, qtrue );

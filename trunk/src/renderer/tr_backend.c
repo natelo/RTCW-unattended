@@ -1326,16 +1326,16 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
 			break;
-		case RC_STRETCH_PIC:
-			// L0 - Bloom
-			R_BloomScreen();
-			// End
+		case RC_STRETCH_PIC:			
+			R_BloomScreen();	// L0 - Bloom			
 			data = RB_StretchPic( data );
 			break;
 		case RC_ROTATED_PIC:
+			R_BloomScreen();	// L0 - Bloom
 			data = RB_RotatedPic( data );
 			break;
 		case RC_STRETCH_PIC_GRADIENT:
+			R_BloomScreen();	// L0 - Bloom
 			data = RB_StretchPicGradient( data );
 			break;
 		case RC_DRAW_SURFS:
@@ -1345,9 +1345,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			data = RB_DrawBuffer( data );
 			break;
 		case RC_SWAP_BUFFERS:
-			// L0 - Bloom
-			R_BloomScreen();
-			// End
+			R_BloomScreen();	// L0 - Bloom
 			data = RB_SwapBuffers( data );
 			break;
 

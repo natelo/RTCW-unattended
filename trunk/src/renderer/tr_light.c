@@ -320,21 +320,16 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// if NOWORLDMODEL, only use dynamic lights (menu system, etc)
-	if (tr.world && tr.world->lightGridData &&
-		(!(refdef->rdflags & RDF_NOWORLDMODEL) ||
-		((refdef->rdflags & RDF_NOWORLDMODEL) && (ent->e.renderfx & RF_LIGHTING_ORIGIN)))) {
+	if (!(refdef->rdflags & RDF_NOWORLDMODEL)
+		&& tr.world->lightGridData) {
 		R_SetupEntityLightingGrid(ent);
 	}
-	else
-	{
-		ent->ambientLight[0] = tr.identityLight * 64;
-		ent->ambientLight[1] = tr.identityLight * 64;
-		ent->ambientLight[2] = tr.identityLight * 96;
-		ent->directedLight[0] = tr.identityLight * 255;
-		ent->directedLight[1] = tr.identityLight * 232;
-		ent->directedLight[2] = tr.identityLight * 224;
-		VectorSet(ent->lightDir, -1, 1, 1.25);
-		VectorNormalize(ent->lightDir);
+	else {
+		ent->ambientLight[0] = ent->ambientLight[1] =
+			ent->ambientLight[2] = tr.identityLight * 150;
+		ent->directedLight[0] = ent->directedLight[1] =
+			ent->directedLight[2] = tr.identityLight * 150;
+		VectorCopy(tr.sunDirection, ent->lightDir);
 	}
 
 	if ( ent->e.hilightIntensity ) {
