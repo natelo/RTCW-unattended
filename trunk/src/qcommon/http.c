@@ -109,6 +109,8 @@ void CL_HTTP_Post(char *url, char *data) {
 		headers = curl_slist_append(headers, "Client: rtcwmp");
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3);
+		curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5); // If we're not done in 5 sec server is either lagging or offline thus bail out
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
 
@@ -145,6 +147,8 @@ char *CL_HTTP_PostQuery(char *url, char *data) {
 #endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3);
+		curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 10); // If we're not done in 10 sec server is either lagging of offline thus bail out
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, parseReply);
@@ -186,6 +190,8 @@ char *CL_HTTP_Query(char *url) {
 #endif
 
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3); 
+		curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5); // If we're not done in 5 sec server is either lagging of offline thus bail out
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, parseReply);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &s);
@@ -248,6 +254,7 @@ qboolean CL_HTTP_SSUpload(char *url, char *file, char *marker) {
 
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerlist);	
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
@@ -347,6 +354,7 @@ qboolean CL_HTTP_dUpload(char *url, char *file, char *name, char *guid, char *co
 
 	if (curl_handle) {
 		curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+		curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headerlist);
 		curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPPOST, formpost);
@@ -394,6 +402,7 @@ qboolean HTTP_Download(char *url, char *file, qboolean verbose) {
 
 		// TODO: Add server token and tie it to signature..
 		curl_easy_setopt(curl_handle, CURLOPT_URL, va("%s/%s",url, file));
+		curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT, 3);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, fp);
 
