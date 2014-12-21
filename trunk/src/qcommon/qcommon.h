@@ -277,7 +277,7 @@ You or the server may be running older versions of the game. Press the auto-upda
 
 #define PROTOCOL_VERSION 57
 #define GAMENAME_STRING     "wolfmp"
-#define CODENAME	"SAVINGBlazkowicz"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
+#define CODENAME	"BlazkowiczGoesRogue"	// L0 - This has to be kept with actual version so it sync's with auth server.. NOTE! one liners only..
 
 // NERVE - SMF - wolf multiplayer master servers
 #ifdef _DEBUG_HTTP
