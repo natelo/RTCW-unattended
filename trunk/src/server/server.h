@@ -356,6 +356,10 @@ extern cvar_t  *sv_showAverageBPS;          // NERVE - SMF - net debugging
 extern cvar_t	*sv_serverStreaming;
 extern cvar_t	*sv_serverToken;
 
+extern cvar_t	*sv_ssEnable;
+extern cvar_t	*sv_ssTime;
+extern cvar_t	*sv_ssQuality;
+
 extern cvar_t	*project_developer;
 extern cvar_t	*project_url;
 // ~L0

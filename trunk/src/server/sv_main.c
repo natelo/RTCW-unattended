@@ -82,6 +82,11 @@ cvar_t  *sv_showAverageBPS;     // NERVE - SMF - net debugging
 cvar_t	*sv_serverStreaming;
 cvar_t	*sv_serverToken;
 
+// Auto ScreenShots 
+cvar_t	*sv_ssEnable;
+cvar_t	*sv_ssTime;
+cvar_t	*sv_ssQuality;
+
 // -> Projects info
 cvar_t	*project_developer;
 cvar_t	*project_url;
@@ -1031,8 +1036,8 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		}
 
 		// Make sure it's a legit request..
-		if (sv_serverToken->string != "" &&
-			sv_serverToken->string != "none" &&
+		if (Q_stricmp(sv_serverToken->string, "") &&
+			Q_stricmp(sv_serverToken->string, "none") &&
 			!Q_stricmp(Cmd_Argv(1), sv_serverToken->string) 
 		)
 		SVC_AuthRequest(from, Cmd_Argv(2), Cmd_ArgsFrom(3));
