@@ -84,7 +84,8 @@ cvar_t	*sv_serverToken;
 
 // Auto ScreenShots 
 cvar_t	*sv_ssEnable;
-cvar_t	*sv_ssTime;
+cvar_t	*sv_ssMinTime;
+cvar_t	*sv_ssMaxTime;
 cvar_t	*sv_ssQuality;
 
 // -> Projects info
@@ -1399,6 +1400,9 @@ void SV_Frame( int msec ) {
 
 	// send a heartbeat to the master if needed
 	SV_MasterHeartbeat( HEARTBEAT_GAME );
+
+	// L0 - Take SS if needed
+	autoSSTime();
 }
 
 //============================================================================

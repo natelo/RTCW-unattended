@@ -677,6 +677,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	Hunk_SetMark();
 
+	// L0 - Set SS time
+	svs.ssTime = svs.time + sv_ssMinTime->integer;
+
 	Cvar_Set( "sv_serverRestarting", "0" );
 
 	Com_Printf( "-----------------------------------\n" );
@@ -888,7 +891,8 @@ void SV_Init( void ) {
 	sv_serverToken = Cvar_Get("sv_serverToken", "", CVAR_ARCHIVE);
 
 	sv_ssEnable = Cvar_Get("sv_ssEnable", "0", CVAR_ARCHIVE);
-	sv_ssTime = Cvar_Get("sv_ssTime", "300", CVAR_ARCHIVE);
+	sv_ssMinTime = Cvar_Get("sv_ssMinTime", "600", CVAR_ARCHIVE);
+	sv_ssMaxTime = Cvar_Get("sv_ssMaxTime", "1200", CVAR_ARCHIVE);
 	sv_ssQuality = Cvar_Get("sv_ssQuality", "45", CVAR_ARCHIVE);
 
 	Cvar_Get("project_developer", "Nate 'L0", CVAR_ROM | CVAR_SERVERINFO);

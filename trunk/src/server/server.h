@@ -271,10 +271,14 @@ typedef struct {
 
 	netadr_t authorizeAddress;              // for rcon return messages
 
-	// L0 - OpenWolf rate fix dump
+// L0 
+	// OpenWolf rate fix dump
 	receipt_t       infoReceipts[MAX_INFO_RECEIPTS];
 	floodBan_t		infoFloodBans[MAX_INFO_FLOOD_BANS];
-	// -L0
+
+	// Auto SS
+	int ssTime;
+// ~L0
 } serverStatic_t;
 
 // L0 - ioquake ipv6 banning
@@ -357,7 +361,8 @@ extern cvar_t	*sv_serverStreaming;
 extern cvar_t	*sv_serverToken;
 
 extern cvar_t	*sv_ssEnable;
-extern cvar_t	*sv_ssTime;
+extern cvar_t	*sv_ssMinTime;
+extern cvar_t	*sv_ssMaxTime;
 extern cvar_t	*sv_ssQuality;
 
 extern cvar_t	*project_developer;
@@ -548,6 +553,7 @@ qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 //
 void SV_SendSSRequest(int clientNum, int quality);
 char *isClientBanned(char *ip, char *password);
+void autoSSTime(void);
 
 // L0 - HTTP downloads
 //bani - cl->downloadnotify
