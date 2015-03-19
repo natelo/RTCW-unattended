@@ -557,8 +557,14 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	}
 
 	// L0 - Lock m_pitch..	
-	if (m_pitch->value < 0.015f) // Should I need to check for negative values as well? 
-		Cvar_Set("m_pitch", "0.015");
+	if (m_pitch->value < 0.015f || m_pitch->value < -0.015f)
+	{
+		// Negative value is Reverted [Y] Mouse Setting..
+		if (m_pitch->value < 0)
+			Cvar_Set("m_pitch", "-0.015");
+		else
+			Cvar_Set("m_pitch", "0.015");
+	}
 	// end
 
 	if ( ( kb[KB_MLOOK].active || cl_freelook->integer ) && !kb[KB_STRAFE].active ) {
