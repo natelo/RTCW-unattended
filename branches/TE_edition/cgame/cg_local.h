@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../ui/keycodes.h"	// OSPx - Demo commands
 
 // L0 - Control the build (Ucomment for 1.0 version otherwise it will be build for 1.4)
-//#define RETAIL_MOD
+//#define RETAIL_MOD // NOTE: TE is build as 1.4 since it's client-server..
 
 #define POWERUP_BLINKS      5
 
@@ -1753,6 +1753,9 @@ typedef struct {
 	int noChat;
 	int noVoice;
 	qboolean freezeDemo;
+
+	// L0
+	tournamentMode_t tournamentMode;
 } cgs_t;
 
 //==============================================================================
@@ -1963,6 +1966,9 @@ extern vmCvar_t cg_coloredCrosshairNames;
 extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
 extern vmCvar_t cg_enemyRadar;
+
+// Mappings
+extern vmCvar_t int_ui_blackout;
 
 extern vmCvar_t demo_infoWindow;
 extern vmCvar_t demo_controlsWindow;

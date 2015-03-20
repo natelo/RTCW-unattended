@@ -769,6 +769,13 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand("thompson");
 	trap_AddCommand("sten");
 
+	// Speclock
+	trap_AddCommand("speclock");
+	trap_AddCommand("specunlock");
+	trap_AddCommand("specinvite");
+	trap_AddCommand("specuninvite");
+	trap_AddCommand("specuninviteall");
+
 	// Web stuff.. 
 	trap_AddCommand("webbans");	
 	trap_AddCommand("webreports");

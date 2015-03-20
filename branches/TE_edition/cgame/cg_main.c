@@ -311,6 +311,9 @@ vmCvar_t vp_drawnames;
 vmCvar_t cg_drawNames;
 vmCvar_t cg_enemyRadar;
 
+// Mappings
+vmCvar_t int_ui_blackout;
+
 vmCvar_t demo_infoWindow;
 vmCvar_t demo_controlsWindow;
 vmCvar_t demo_popupWindow;
@@ -544,6 +547,8 @@ cvarTable_t cvarTable[] = {
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
 	{ &cg_enemyRadar, "cg_enemyRadar", "0", CVAR_ARCHIVE },
+
+	{ &int_ui_blackout, "ui_blackout", "0", CVAR_ROM },
 
 	{ &demo_infoWindow, "demo_infoWindow", "1", CVAR_ARCHIVE },
 	{ &demo_controlsWindow, "demo_controlsWindow", "1", CVAR_ARCHIVE},
