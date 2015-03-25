@@ -557,7 +557,7 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	}
 
 	// L0 - Lock m_pitch..	
-	if (m_pitch->value < 0.015f || m_pitch->value < -0.015f)
+	if (m_pitch->value < 0.015f && m_pitch->value < -0.015f)
 	{
 		// Negative value is Reverted [Y] Mouse Setting..
 		if (m_pitch->value < 0)
