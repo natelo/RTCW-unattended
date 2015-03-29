@@ -133,8 +133,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef WIN32
 
-#define MAC_STATIC
-
 #undef QDECL
 #define QDECL   __cdecl
 
@@ -292,6 +290,12 @@ typedef int clipHandle_t;
 #define     SND_CUTOFF_ALL      0x008   // Cut off all sounds on this channel
 #define     SND_NOCUT           0x010   // Don't cut off.  Always let finish (overridden by SND_CUTOFF_ALL)
 
+// L0 
+#define PAD(base, alignment)	(((base)+(alignment)-1) & ~((alignment)-1))
+#define PADLEN(base, alignment)	(PAD((base), (alignment)) - (base))
+
+#define PADP(base, alignment)	((void *) PAD((intptr_t) (base), (alignment)))
+// ~L0
 
 #ifndef NULL
 #define NULL ( (void *)0 )

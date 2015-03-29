@@ -2538,37 +2538,17 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	//
 	// see if the shader is already loaded
 	//
-#if 1
-	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
-		// index by name
-
-		// Ridah, modified this so we don't keep trying to load an invalid lightmap shader
-/*
-		if ( sh->lightmapIndex == lightmapIndex &&
-			!Q_stricmp(sh->name, strippedName)) {
-			// match found
-			return sh;
-		}
-*/
-		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
-			 !Q_stricmp( sh->name, strippedName ) ) {
-			// match found
-			return sh;
-		}
-	}
-#else
-	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
+	for (sh = hashTable[hash]; sh; sh = sh->next) {
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
 		// have to check all default shaders otherwise for every call to R_FindShader
 		// with that same strippedName a new default shader is created.
-		if ( ( sh->lightmapIndex == lightmapIndex || sh->defaultShader ) &&
-			 !Q_stricmp( sh->name, strippedName ) ) {
+		if ((sh->lightmapIndex == lightmapIndex || sh->defaultShader) &&
+			!Q_stricmp(sh->name, strippedName)) {
 			// match found
 			return sh;
 		}
 	}
-#endif
 
 	// make sure the render thread is stopped, because we are probably
 	// going to have to upload an image

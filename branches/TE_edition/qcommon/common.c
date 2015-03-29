@@ -36,9 +36,9 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_NUM_ARGVS   50
 
 #define MIN_DEDICATED_COMHUNKMEGS 1
-#define MIN_COMHUNKMEGS 42 // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
-#define DEF_COMHUNKMEGS "56" // RF, increased this, some maps are exceeding 56mb // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
-#define DEF_COMZONEMEGS "16" // JPW NERVE cut this back too was 30
+#define MIN_COMHUNKMEGS 64 // JPW NERVE changed this to 42 for MP, was 56 for team arena and 75 for wolfSP
+#define DEF_COMHUNKMEGS "128" // RF, increased this, some maps are exceeding 56mb // JPW NERVE changed this for multiplayer back to 42, 56 for depot/mp_cpdepot, 42 for everything else
+#define DEF_COMZONEMEGS "32" // JPW NERVE cut this back too was 30
 
 int com_argc;
 char    *com_argv[MAX_NUM_ARGVS + 1];
@@ -925,7 +925,7 @@ void *Z_TagMalloc( int size, int tag ) {
 	//
 	size += sizeof( memblock_t ); // account for size of block header
 	size += 4;                  // space for memory trash tester
-	size = ( size + 3 ) & ~3;     // align to 32 bit boundary
+	size = PAD(size, sizeof(intptr_t));		// align to 32/64 bit boundary
 
 	base = rover = zone->rover;
 	start = base->prev;
@@ -1766,7 +1766,8 @@ void *Hunk_AllocateTempMemory( int size ) {
 
 	Hunk_SwapBanks();
 
-	size = ( ( size + 3 ) & ~3 ) + sizeof( hunkHeader_t );
+	//size = ( ( size + 3 ) & ~3 ) + sizeof( hunkHeader_t );
+	size = PAD(size, sizeof(intptr_t)) + sizeof(hunkHeader_t);
 
 	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
 		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );

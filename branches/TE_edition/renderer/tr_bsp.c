@@ -104,10 +104,13 @@ R_ColorShiftLightingBytes
 ===============
 */
 static void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
-	int shift, r, g, b;
+	int shift, r, g, b, bits;
+
+	// L0 - Sort limits
+	bits = (r_mapOverBrightBits->integer > 3) ? 3 : r_mapOverBrightBits->integer;
 
 	// shift the color data based on overbright range
-	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
+	shift = bits - tr.overbrightBits;
 
 	// shift the data based on overbright range
 	r = in[0] << shift;
@@ -141,7 +144,7 @@ R_LoadLightmaps
 static void R_LoadLightmaps( lump_t *l ) {
 	byte        *buf, *buf_p;
 	int len;
-	MAC_STATIC byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+	byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int i, j;
 	float maxIntensity = 0;
 	double sumIntensity = 0;
@@ -179,7 +182,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 				float g = buf_p[j * 3 + 1];
 				float b = buf_p[j * 3 + 2];
 				float intensity;
-				float out[3];
+				float out[3] = { 0.0, 0.0, 0.0 };
 
 				intensity = 0.33f * r + 0.685f * g + 0.063f * b;
 
@@ -278,22 +281,22 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shader_t    *shader;
 	dshader_t   *dsh;
 
-	shaderNum = LittleLong( shaderNum );
-	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
-		ri.Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
+	int _shaderNum = LittleLong(shaderNum);
+	if (_shaderNum < 0 || _shaderNum >= s_worldData.numShaders) {
+		ri.Error(ERR_DROP, "ShaderForShaderNum: bad num %i", _shaderNum);
 	}
-	dsh = &s_worldData.shaders[ shaderNum ];
+	dsh = &s_worldData.shaders[_shaderNum];
 
 	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		lightmapNum = LIGHTMAP_BY_VERTEX;
 	}
 
-// JPW NERVE removed per atvi request
-/*
-	if ( r_fullbright->integer ) {
-		lightmapNum = LIGHTMAP_WHITEIMAGE;
-	}
-*/
+	// JPW NERVE removed per atvi request
+	/*
+		if ( r_fullbright->integer ) {
+			lightmapNum = LIGHTMAP_WHITEIMAGE;
+		}
+	*/
 	shader = R_FindShader( dsh->shader, lightmapNum, qtrue );
 
 	// if the shader had errors, just use default shader
@@ -378,7 +381,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	numIndexes = LittleLong( ds->numIndexes );
 
 	// create the srfSurfaceFace_t
-	sfaceSize = ( int ) &( (srfSurfaceFace_t *)0 )->points[numPoints];
+	sfaceSize = ( size_t )&((srfSurfaceFace_t *)0)->points[numPoints];
 	ofsIndexes = sfaceSize;
 	sfaceSize += sizeof( int ) * numIndexes;
 
@@ -428,7 +431,7 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	srfGridMesh_t   *grid;
 	int i, j;
 	int width, height, numPoints;
-	MAC_STATIC drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
+	drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
 	int lightmapNum;
 	vec3_t bounds[2];
 	vec3_t tmpVec;
@@ -1569,6 +1572,9 @@ static void R_LoadSubmodels( lump_t *l ) {
 		model = R_AllocModel();
 
 		assert( model != NULL );            // this should never happen
+		if (model == NULL) {
+			ri.Error(ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
+		}
 
 		model->type = MOD_BRUSH;
 		model->bmodel = out;
@@ -2227,6 +2233,8 @@ void RE_LoadWorldMap( const char *name ) {
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadPlanes( &header->lumps[LUMP_PLANES] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
+	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
+	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
 	R_LoadSurfaces( &header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadMarksurfaces( &header->lumps[LUMP_LEAFSURFACES] );
@@ -2235,11 +2243,6 @@ void RE_LoadWorldMap( const char *name ) {
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadSubmodels( &header->lumps[LUMP_MODELS] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
-
-	// moved fog lump loading here, so fogs can be tagged with a model num
-	R_LoadFogs(&header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES]);
-	ri.Cmd_ExecuteText(EXEC_NOW, "updatescreen\n");
-
 	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
 	ri.Cmd_ExecuteText( EXEC_NOW, "updatescreen\n" );
 	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );

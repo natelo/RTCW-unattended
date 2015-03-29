@@ -935,7 +935,6 @@ void RB_StageIteratorSky( void ) {
 
 	backEnd.refdef.rdflags |= RDF_DRAWINGSKY;
 
-
 	// go through all the polygons and project them onto
 	// the sky box to see which blocks on each side need
 	// to be drawn
