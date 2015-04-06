@@ -218,14 +218,13 @@ typedef struct {
 	int downloadSize;           // how many bytes we got
 	char downloadList[MAX_INFO_STRING];        // list of paks we need to download
 // L0 - HTTP downloads
-	int downloadFlags;			// misc download behaviour flags sent by the server
-	
-	qboolean bWWWDl;			// we have a www download going
+	int downloadFlags;         // misc download behaviour flags sent by the server
+
+	qboolean bWWWDl;    // we have a www download going
 	qboolean bWWWDlAborting;    // disable the CL_WWWDownload until server gets us a gamestate (used for aborts)
-	char redirectedList[MAX_INFO_STRING];	// list of files that we downloaded through a redirect since last FS_ComparePaks
-	char badChecksumList[MAX_INFO_STRING];	// list of files for which wwwdl redirect is broken (wrong checksum)
+	char redirectedList[MAX_INFO_STRING];        // list of files that we downloaded through a redirect since last FS_ComparePaks
+	char badChecksumList[MAX_INFO_STRING];        // list of files for which wwwdl redirect is broken (wrong checksum)
 // ~L0
-	qboolean downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
 
 	// demo information
 	char demoName[MAX_QPATH];

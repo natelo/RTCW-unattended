@@ -167,14 +167,14 @@ typedef struct client_s {
 	qboolean downloadEOF;               // We have sent the EOF block
 	int downloadSendTime;               // time we last got an ack from the client
 
-	// L0 - HTTP downloads
+// L0 - HTTP downloads
 	qboolean bDlOK;					// passed from cl_wwwDownload CVAR_USERINFO, wether this client supports www dl
 	char downloadURL[MAX_OSPATH];	// the URL we redirected the client to
 	qboolean bWWWDl;				// we have a www download going
 	qboolean bWWWing;				// the client is doing an ftp/http download
 	qboolean bFallback;				// last www download attempt failed, fallback to regular download
 									// note: this is one-shot, multiple downloads would cause a www download to be attempted again
-	// End
+// ~L0
 
 	int deltaMessage;                   // frame last client usercmd message
 	int nextReliableTime;               // svs.time when another reliable command will be allowed

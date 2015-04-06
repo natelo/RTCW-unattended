@@ -754,7 +754,6 @@ void SV_BeginDownload_f( client_t *cl ) {
 		cl->downloadnotify = DLNOTIFY_ALL;
 	} // End
 
-
 	// cl->downloadName is non-zero now, SV_WriteDownloadToClient will see this and open
 	// the file itself
 	Q_strncpyz( cl->downloadName, Cmd_Argv( 1 ), sizeof( cl->downloadName ) );
@@ -894,7 +893,6 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 	// L0 - HTTP downloads
 	if (cl->bWWWing) {
 		return; // The client acked and is downloading with ftp/http
-
 	} // End
 
 	// CVE-2006-2082
@@ -966,9 +964,11 @@ void SV_WriteDownloadToClient( client_t *cl, msg_t *msg ) {
 				Com_sprintf( errorMessage, sizeof( errorMessage ), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName );
 			}
 			
-			*cl->downloadName = 0;
+			// L0 - HTTP downloads 			
 			SV_BadDownload(cl, msg);
 			MSG_WriteString(msg, errorMessage); // (could SV_DropClient isntead?)
+			// End
+
 			return;
 		}
 
@@ -1452,7 +1452,6 @@ void SV_UserinfoChanged( client_t *cl ) {
 	// End
 }
 
-
 /*
 ==================
 SV_UpdateUserinfo_f
@@ -1481,7 +1480,7 @@ static ucmd_t ucmds[] = {
 	{"nextdl", SV_NextDownload_f},
 	{"stopdl", SV_StopDownload_f},
 	{"donedl", SV_DoneDownload_f},
-	{"wwwdl", SV_WWWDownload_f },
+	{"wwwdl", SV_WWWDownload_f },	// L0 - HTTP downloads
 	{NULL, NULL}
 };
 
