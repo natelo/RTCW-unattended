@@ -163,12 +163,11 @@ void CL_setCDKey(void) {
 	char *hashed;
 
 	serial = getHardDriveSerial();
-	if (!strlen(serial)) {
-		serial = GetMAC();
-
-		if (!strlen(serial)) {
-			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
-		}
+	if (!strlen(serial)) {		
+		Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+	}
+	else if (!GetMAC()) {
+		Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFAII");
 	}
 
 	hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
@@ -209,13 +208,11 @@ void CL_checkCDKey(void) {
 		fclose(cdkeyFile);
 
 		serial = getHardDriveSerial();
-
 		if (!strlen(serial)) {
-			serial = GetMAC();
-
-			if (!strlen(serial)) {
-				Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
-			}
+			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+		}
+		else if (!GetMAC()) {
+			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFAII");
 		}
 
 		hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
