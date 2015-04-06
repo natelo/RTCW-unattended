@@ -1041,7 +1041,9 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( s1->angles, cent->lerpAngles );
 
 // L0 - NQ smoke
-	CG_RenderSmokeGrenadeSmoke(cent, weapon);
+	if (s1->weapon == WP_SMOKE_GRENADE || s1->weapon == WP_ROCKET_LAUNCHER) {
+		CG_RenderSmokeGrenadeSmoke(cent, weapon);
+	}
 // End
 
 	// add trails

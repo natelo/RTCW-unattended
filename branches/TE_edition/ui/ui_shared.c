@@ -3956,6 +3956,8 @@ static bind_t g_bindings[] =
 	{ "getstatus", -1, -1, -1, -1 },
 	{ "gib", -1, -1, -1, -1 },
 	{ "kill", -1, -1, -1, -1 },
+	{ "ready", K_F3, -1, K_F3, -1, -1 },
+	{ "notready", K_F4, -1, K_F4, -1, -1 },
 	// -OSPx
 
 	{"weapon 1",     -1,             -1, -1, -1},

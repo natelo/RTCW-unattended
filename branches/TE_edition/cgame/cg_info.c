@@ -563,9 +563,9 @@ void CG_createControlsWindow(void) {
 }
 
 /*
-Basic info and not even a window..
+	Basic info and not even a window..
 
-NOTE: Ugly inlines :|
+	NOTE: Ugly inlines :|
 */
 void CG_demoView(void) {
 
@@ -584,3 +584,101 @@ void CG_demoView(void) {
 		CG_DrawStringExt(42, 420, s2, colorWhite, qfalse, qtrue, TINYCHAR_WIDTH - 1, TINYCHAR_HEIGHT - 1, 0);
 	}
 }
+
+/*
+	Tournament Overlay
+*/
+void CG_tournamentOverlay(void) {
+	int x, y;	
+	char *str;
+
+	if (cgs.tournamentMode == TOURNY_FULL && cg.tournamentInfo.inProgress && cg_tournamentHUD.integer) {
+
+		// Don't draw timer if client is checking scoreboard
+		if (CG_DrawScoreboard())
+			return;
+
+		x = TOURINFO_RIGHT;
+		y = TOURINFO_TOP - (2 * (TOURINFO_TEXTSIZE + 1));
+
+		// Round
+		str = va("^n%d/%d", (cg.tournamentInfo.resultAxis + cg.tournamentInfo.resultAllied + 1), cg.tournamentInfo.rounds);
+		CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+			y + 1,
+			str,
+			colorWhite, qfalse, qtrue,
+			TOURINFO_TEXTSIZE - 1,
+			TOURINFO_TEXTSIZE - 1, 0);
+
+		// Axis
+		{	
+			y += 2 * (TOURINFO_TEXTSIZE + 1);
+			CG_DrawPic(TOURINFO_RIGHT - (2 * TOURINFO_TEXTSIZE), y, 2 * TOURINFO_TEXTSIZE, TOURINFO_TEXTSIZE, trap_R_RegisterShaderNoMip("ui_mp/assets/ger_flag.tga"));
+
+			y += TOURINFO_TEXTSIZE + 1;
+			str = va("W: ^7%2d", cg.tournamentInfo.resultAxis);
+			CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+				y,
+				str,
+				colorOrange, qfalse, qtrue,
+				TOURINFO_TEXTSIZE - 1,
+				TOURINFO_TEXTSIZE - 1, 0);
+
+			y += TOURINFO_TEXTSIZE + 1;
+			str = va("T: ^7%2d", cg.tournamentInfo.timeoutAxis);
+			CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+				y,
+				str,
+				colorOrange, qfalse, qtrue,
+				TOURINFO_TEXTSIZE - 1,
+				TOURINFO_TEXTSIZE - 1, 0);
+			
+			if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_SPECTATOR) {
+				y += TOURINFO_TEXTSIZE + 1;
+				str = va("Re: ^7%2d", (int)CG_CalculateReinfTimeSpecs(TEAM_RED));
+				CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+					y,
+					str,
+					colorOrange, qfalse, qtrue,
+					TOURINFO_TEXTSIZE - 1,
+					TOURINFO_TEXTSIZE - 1, 0);
+			}
+		}
+
+		// Allies
+		{
+			y += 2 * (TOURINFO_TEXTSIZE + 1);
+			CG_DrawPic(TOURINFO_RIGHT - (2 * TOURINFO_TEXTSIZE), y, 2 * TOURINFO_TEXTSIZE, TOURINFO_TEXTSIZE, trap_R_RegisterShaderNoMip("ui_mp/assets/usa_flag.tga"));
+
+			y += TOURINFO_TEXTSIZE + 1;
+			str = va("W: ^7%2d", cg.tournamentInfo.resultAllied);
+			CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+				y,
+				str,
+				colorOrange, qfalse, qtrue,
+				TOURINFO_TEXTSIZE - 1,
+				TOURINFO_TEXTSIZE - 1, 0);
+
+			y += TOURINFO_TEXTSIZE + 1;
+			str = va("T: ^7%2d", cg.tournamentInfo.timeoutAllied);
+			CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+				y,
+				str,
+				colorOrange, qfalse, qtrue,
+				TOURINFO_TEXTSIZE - 1,
+				TOURINFO_TEXTSIZE - 1, 0);
+
+			if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_SPECTATOR) {
+				y += TOURINFO_TEXTSIZE + 1;
+				str = va("Re: ^7%2d", (int)CG_CalculateReinfTimeSpecs(TEAM_BLUE));
+				CG_DrawStringExt(x - (CG_DrawStrlen(str) * (TOURINFO_TEXTSIZE - 1)) - 2,
+					y,
+					str,
+					colorOrange, qfalse, qtrue,
+					TOURINFO_TEXTSIZE - 1,
+					TOURINFO_TEXTSIZE - 1, 0);
+			}
+		}
+	}
+}
+

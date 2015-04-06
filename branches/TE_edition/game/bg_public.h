@@ -107,6 +107,17 @@ typedef enum {
 	CLDMG_MAX
 } clientDamage_t;
 
+// OSPx
+
+// Random reinforcement seed settings
+#define MAX_REINFSEEDS  8
+#define REINF_RANGE     16      // (0 to n-1 second offset)
+#define REINF_BLUEDELT  3       // Allies shift offset
+#define REINF_REDDELT   2       // Axis shift offset
+extern const unsigned int aReinfSeeds[MAX_REINFSEEDS];
+
+// -OSPx
+
 // RF
 #define MAX_TAGCONNECTS     32
 
@@ -172,6 +183,12 @@ typedef enum {
 
 #define CS_WOLFINFO             36      // NERVE - SMF
 
+// OSPx
+#define CS_REINFSEEDS           37      // Reinforcement seeds
+#define CS_READY				38		// Ready
+#define CS_PAUSED				39		// Pause
+// -OSPx
+
 #define CS_MODELS               64
 #define CS_SOUNDS               ( CS_MODELS + MAX_MODELS )
 #define CS_PLAYERS              ( CS_SOUNDS + MAX_SOUNDS )
@@ -224,6 +241,11 @@ typedef enum {
 	TOURNY_BASIC,
 	TOURNY_FULL
 } tournamentMode_t;
+
+typedef enum {
+	CGT_NONE,
+	CGT_DM
+} customGameType_t;
 // ~L0
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
@@ -395,6 +417,7 @@ typedef enum {
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001      // don't draw a foe marker over players with EF_DEAD
 #define EF_NONSOLID_BMODEL  0x00000002      // bmodel is visible, but not solid
+#define	EF_POISONED			EF_NONSOLID_BMODEL	// L0 - Poison
 #define EF_TELEPORT_BIT     0x00000004      // toggled every time the origin abruptly changes
 #define EF_MONSTER_EFFECT   0x00000008      // draw an aiChar dependant effect for this character
 #define EF_CAPSULE          0x00000010      // use capsule for collisions
@@ -456,9 +479,10 @@ typedef enum {
 	PW_BLUEFLAG,
 	PW_BALL,
 
-	// OSPx
-	PW_BLACKOUT = 14,	// Specklock
-	// -OSPx
+// OSPx	
+	PW_READY,				// Ready
+	PW_BLACKOUT = 17,		// Specklock
+// -OSPx
 
 	PW_NUM_POWERUPS
 } powerup_t;
@@ -1191,14 +1215,18 @@ typedef enum {
 	MOD_LOPER_GROUND,
 	MOD_LOPER_HIT,
 
-// JPW NERVE multiplayer class-specific MODs
-	MOD_LT_AMMO,
-	MOD_LT_AIRSTRIKE,
-	MOD_ENGINEER,   // not sure if we'll use
-	MOD_MEDIC,      // these like this or not
-//
-	MOD_BAT
+// L0 - New MODs
+	MOD_ADMIN,
+	MOD_SELFKILL,
+	MOD_KNIFETHROW,
+	MOD_CHICKEN,
+	MOD_POISONED,
+	MOD_GOOMBA,
+	MOD_ARTILLERY,
+	MOD_SWITCHTEAM,
+// End
 
+	MOD_BAT
 } meansOfDeath_t;
 
 
@@ -1726,5 +1754,12 @@ int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event );
 extern animStringItem_t animStateStr[];
 extern animStringItem_t animBodyPartsStr[];
 
-// L0 - Crosshairs
+// L0  
+
+// Crosshairs
 void BG_setCrosshair(char *colString, float *col, float alpha, char *cvarName);
+
+// Color escape handling
+int BG_cleanName(const char *pszIn, char *pszOut, unsigned int dwMaxLength, qboolean fCRLF);
+
+// ~L0

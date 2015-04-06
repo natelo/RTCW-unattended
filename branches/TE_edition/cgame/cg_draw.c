@@ -917,31 +917,6 @@ static float CG_DrawTeamOverlay( float y ) {
 }
 
 /*
-=================
-OSPx 
-Reinforcements Offset
-=================
-*/
-char *CG_CalculateReinfTime( void ) {
-	int respawn = 0;
-	char *s = "0.00";
-
-	if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED) {
-		respawn = (int)(1 + (float)(cg_redlimbotime.integer - (cg.time % cg_redlimbotime.integer)) * 0.001f);
-	}
-	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE)     {
-		respawn = (int)(1 + (float)(cg_bluelimbotime.integer - (cg.time % cg_bluelimbotime.integer)) * 0.001f);
-	}
-
-	if (respawn)
-	{
-		s = va("%d", respawn);
-	}
-	
-	return s;
-}
-
-/*
 ========================
 OSPx 
 Respawn Timer
@@ -964,9 +939,9 @@ static float CG_DrawRespawnTimer(float y) {
 	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_SPECTATOR)
 		str = "";
 	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED)
-		str = va("Re: %-3s", CG_CalculateReinfTime());
+		str = va("Re: %-3d", CG_CalculateReinfTime());
 	else if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE)
-		str = va("Re: %-3s", CG_CalculateReinfTime());
+		str = va("Re: %-3d", CG_CalculateReinfTime());
 
 	w = CG_DrawStrlen(str) * TINYCHAR_WIDTH;
 
@@ -986,22 +961,34 @@ static float CG_DrawRespawnTimer(float y) {
 ========================
 OSPx
 Counts time in
-
-NOTE: Don't try to read this mess..it will break you.
 ========================
 */
 void CG_startCounter(void ) {
-	char *seconds = ((cg.timein % 60 < 10) ? va("0%d", cg.timein % 60) : va("%d", cg.timein % 60));
-	int minutes = cg.timein / 60;
-	char *hours = ((minutes / 60 < 10) ? ( minutes / 60 ? va("0%d:", minutes / 60) : "" ) : va("%d:", minutes / 60));
-	char *str = va("^nT: ^7%s%s:%s", (hours ? va("%s", hours) : ""), ( minutes ? (minutes < 10 ? va("0%d", minutes) : va("%d", minutes)): "00" ), seconds);
-
 	// Don't draw timer if client is checking scoreboard
 	if (CG_DrawScoreboard() || !cg.demoPlayback || (cg.demoPlayback && !demo_showTimein.integer))
 		return;
 	
 	// It is aligned under Respawn timer..
-	CG_DrawStringExt(16, 243, str, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH-3, SMALLCHAR_HEIGHT-4, 0);	
+	CG_DrawStringExt(16, 243, va("^nT: ^7%s", CG_CalculateTimeIn()), colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH - 3, SMALLCHAR_HEIGHT - 4, 0);
+	return;
+}
+
+/*
+========================
+OSPx
+Counts time in but for playing rather than demo (different po
+========================
+*/
+void CG_gameStartCounter(void) {
+	char *str;
+
+	// Don't draw timer if client is checking scoreboard
+	if (CG_DrawScoreboard() || cg.demoPlayback || !cg_showPlayingTimer.integer)
+		return;
+
+	// It is aligned under Respawn timer..
+	str = va("^nTime spent on this Map: ^7%s", CG_CalculateTimeIn());
+	CG_DrawStringExt(TOURINFO_RIGHT - (CG_DrawStrlen(str) * (SMALLCHAR_WIDTH - 4)) - 3, 470, str, colorWhite, qfalse, qfalse, SMALLCHAR_WIDTH - 4, SMALLCHAR_HEIGHT - 7, 0);
 	return;
 }
 
@@ -1038,9 +1025,12 @@ static void CG_DrawUpperRight( void ) {
 	if (cg_drawReinforcementTime.integer) {
 		y = CG_DrawRespawnTimer(y);
 	}
-
-	// OSPx - Time Counter
+	
+	// OSPx - Time Counter (demos)
 	CG_startCounter();
+
+	// OSPx - Time Counter (playing)
+	CG_gameStartCounter();
 }
 
 /*
@@ -1062,6 +1052,7 @@ static void CG_DrawTeamInfo( void ) {
 	vec4_t hcolor;
 	int chatHeight;
 	float alphapercent;
+	float chatAlpha = (float)cg_chatAlpha.value;
 
 #define CHATLOC_Y 385 // bottom end
 #define CHATLOC_X 0
@@ -1106,21 +1097,29 @@ static void CG_DrawTeamInfo( void ) {
 				hcolor[0] = 1;
 				hcolor[1] = 0;
 				hcolor[2] = 0;
-//			hcolor[3] = 0.33;
 			} else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
 				hcolor[0] = 0;
 				hcolor[1] = 0;
 				hcolor[2] = 1;
-//			hcolor[3] = 0.33;
 			} else {
 				hcolor[0] = 0;
 				hcolor[1] = 1;
 				hcolor[2] = 0;
-//			hcolor[3] = 0.33;
 			}
 
-			hcolor[3] = 0.33f * alphapercent;
+// L0 - Wanted to do this for years..
+			if (chatAlpha > 1.0f) {
+				chatAlpha = 1.0f;
+			}
+			else if (chatAlpha < 0.f) {
+				chatAlpha = 0.f;
+			}
 
+			if (!Q_stricmp(cg_chatBackgroundColor.string, ""))
+				hcolor[3] = chatAlpha * alphapercent;
+			else // Abuse this..
+				BG_setCrosshair(cg_chatBackgroundColor.string, hcolor, chatAlpha * alphapercent, "cg_chatBackgroundColor");
+// End
 			trap_R_SetColor( hcolor );
 			CG_DrawPic( CHATLOC_X, CHATLOC_Y - ( cgs.teamChatPos - i ) * TINYCHAR_HEIGHT, 640, TINYCHAR_HEIGHT, cgs.media.teamStatusBar );
 
@@ -1656,7 +1655,122 @@ static void CG_DrawCenterString( void ) {
 	trap_R_SetColor( NULL );
 }
 
+/*
+===================
+OSPx - Cg_PopinPrint
 
+Pops in messages
+===================
+*/
+#define CP_PMWIDTH 84
+void CG_PopinPrint(const char *str, int y, int charWidth, qboolean blink) {
+	char    *s;
+	int i, len;                         // NERVE - SMF
+	qboolean neednewline = qfalse;      // NERVE - SMF
+
+	Q_strncpyz(cg.popinPrint, str, sizeof(cg.popinPrint));
+
+	// Turn spaces into newlines, if we've run over the linewidth
+	len = strlen(cg.popinPrint);
+	for (i = 0; i < len; i++) {
+
+		// Subtract a few chars here so long words still get displayed properly
+		if (i % (CP_PMWIDTH - 20) == 0 && i > 0) {
+			neednewline = qtrue;
+		}
+		if (cg.popinPrint[i] == ' ' && neednewline) {
+			cg.popinPrint[i] = '\n';
+			neednewline = qfalse;
+		}
+	}
+	// -NERVE - SMF
+
+	cg.popinPrintTime = cg.time;
+	cg.popinPrintY = y + 45;
+	cg.popinPrintCharWidth = charWidth;
+	cg.popinBlink = blink;
+
+	// count the number of lines for centering
+	cg.popinPrintLines = 1;
+	s = cg.popinPrint;
+	while (*s) {
+		if (*s == '\n') {
+			cg.popinPrintLines++;
+		}
+		s++;
+	}
+}
+
+/*
+===================
+L0 - CG_DrawPopinString
+===================
+*/
+static void CG_DrawPopinString(void) {
+	char    *start;
+	int l;
+	int y;
+	int x;
+	float   *color;
+
+	if (!cg.popinPrintTime) {
+		return;
+	}
+
+	color = CG_FadeColor(cg.popinPrintTime, 1000 * 3);
+	if (!color) {
+		cg.popinPrintTime = 0;
+		return;
+	}
+
+	trap_R_SetColor(color);
+	start = cg.popinPrint;
+
+	// Specs see prints at different possition...
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+	{
+		y = (cg.popinPrintY + 75) - cg.popinPrintLines * TINYCHAR_HEIGHT / 2;
+		x = 3 + (cg.popinPrintLines * TINYCHAR_HEIGHT / 2);
+	}
+	else
+	{
+		y = (cg.popinPrintY - 7) - cg.popinPrintLines * TINYCHAR_HEIGHT / 2;
+		x = 25 + (cg.popinPrintLines * TINYCHAR_HEIGHT / 2);
+	}
+
+	if (cg.popinBlink)
+		color[3] = fabs(sin(cg.time * 0.001)) * cg_hudAlpha.value;
+
+	while (1) {
+		char linebuffer[1024];
+
+		for (l = 0; l < CP_PMWIDTH; l++) {          // NERVE - SMF - added CP_LINEWIDTH
+			if (!start[l] || start[l] == '\n') {
+				break;
+			}
+			linebuffer[l] = start[l];
+		}
+		linebuffer[l] = 0;
+
+		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR)
+			CG_DrawStringExt(x, y, linebuffer, color, qfalse, qfalse,
+			TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+		else
+			CG_DrawStringExt(x, y, linebuffer, color, qfalse, qfalse,
+			TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+
+		y += cg.popinPrintCharWidth * 1.5;
+
+		while (*start && (*start != '\n')) {
+			start++;
+		}
+		if (!*start) {
+			break;
+		}
+		start++;
+	}
+	trap_R_SetColor(NULL);
+}
 
 /*
 ================================================================================
@@ -2394,6 +2508,35 @@ static void CG_DrawIntermission( void ) {
 		return;
 	}
 
+// OSPx
+	// Auto Actions
+	if (!cg.demoPlayback) {
+		static int doScreenshot = 0, doDemostop = 0;
+
+		if (!cg.latchAutoActions) {
+			cg.latchAutoActions = qtrue;
+
+			// Some instantly open console to check the stats..
+			if (cg_autoAction.integer & AA_SCREENSHOT || cgs.tournamentMode == TOURNY_FULL) {
+				doScreenshot = cg.time + 250;
+			}
+			if (cg_autoAction.integer & AA_DEMORECORD || cgs.tournamentMode == TOURNY_FULL) {
+				doDemostop = cg.time + 3000;
+			}
+		}
+
+		if (doScreenshot > 0 && doScreenshot < cg.time) {
+			CG_autoScreenShot_f();
+			doScreenshot = 0;
+		}
+
+		if (doDemostop > 0 && doDemostop < cg.time) {
+			trap_SendConsoleCommand("stoprecord\n");
+			doDemostop = 0;
+		}
+	}
+// ~OSPx
+
 	cg.scoreFadeTime = cg.time;
 	CG_DrawScoreboard();
 }
@@ -2520,6 +2663,57 @@ static void CG_DrawSpectatorMessage( void ) {
 
 /*
 =================
+OSPx
+
+Reinforcement Offset
+=================
+*/
+float CG_CalculateReinfTime_Float(void) {
+	team_t team;
+	int dwDeployTime;
+
+	team = cgs.clientinfo[cg.snap->ps.clientNum].team;
+
+	dwDeployTime = (team == TEAM_RED) ? cg_redlimbotime.integer : cg_bluelimbotime.integer;
+	return (1 + (dwDeployTime - ((cgs.aReinfOffset[team] + cg.time - cgs.levelStartTime) % dwDeployTime)) * 0.001f);
+}
+
+int CG_CalculateReinfTime(void) {
+	return((int)CG_CalculateReinfTime_Float());
+}
+
+/*
+=================
+L0
+
+Reinforcement Timer for Specs in tournament mode
+=================
+*/
+float CG_CalculateReinfTimeSpecs(team_t team) {
+	int dwDeployTime;
+	
+	dwDeployTime = (team == TEAM_RED) ? cg_redlimbotime.integer : cg_bluelimbotime.integer;
+	return ((1 + (dwDeployTime - ((cgs.aReinfOffset[team] + cg.time - cgs.levelStartTime) % dwDeployTime)) * 0.001f) );
+}
+
+/*
+=================
+L0
+
+NOTE: Don't try to read this mess..it will break you.
+=================
+*/
+char *CG_CalculateTimeIn(void) {
+	char *seconds = ((cg.timein % 60 < 10) ? va("0%d", cg.timein % 60) : va("%d", cg.timein % 60));
+	int minutes = cg.timein / 60;
+	char *hours = ((minutes / 60 < 10) ? (minutes / 60 ? va("0%d:", minutes / 60) : "") : va("%d:", minutes / 60));
+	char *str = va("%s%s:%s", (hours ? va("%s", hours) : ""), (minutes ? (minutes < 10 ? va("0%d", minutes) : va("%d", minutes)) : "00"), seconds);
+
+	return str;
+}
+
+/*
+=================
 CG_DrawLimboMessage
 =================
 */
@@ -2557,14 +2751,12 @@ static void CG_DrawLimboMessage( void ) {
 	}
 
 	// JPW NERVE
-	if ( cg.snap->ps.persistant[PERS_RESPAWNS_LEFT] == 0 ) {
-		str = CG_TranslateString( "No more reinforcements this round." );
-	} else if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) {
-		str = va( CG_TranslateString( "Reinforcements deploy in %d seconds." ),
-				  (int)( 1 + (float)( cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer ) ) * 0.001f ) );
-	} else {
-		str = va( CG_TranslateString( "Reinforcements deploy in %d seconds." ),
-				  (int)( 1 + (float)( cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer ) ) * 0.001f ) );
+	if (cg.snap->ps.persistant[PERS_RESPAWNS_LEFT] == 0) {
+		str = CG_TranslateString("No more reinforcements this round.");
+	}
+	else {
+		// OSPx - Reinforcement Offset
+		str = va(CG_TranslateString("Reinforcements deploy in %d seconds."), CG_CalculateReinfTime());
 	}
 
 	CG_DrawSmallStringColor( INFOTEXT_STARTX, 104, str, color );
@@ -2597,14 +2789,12 @@ static qboolean CG_DrawFollow( void ) {
 	if ( cg.snap->ps.pm_flags & PMF_LIMBO ) {
 		color[1] = 0.0;
 		color[2] = 0.0;
-		if ( cg.snap->ps.persistant[PERS_RESPAWNS_LEFT] == 0 ) {
-			sprintf( deploytime, CG_TranslateString( "No more deployments this round" ) );
-		} else if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) {
-			sprintf( deploytime, CG_TranslateString( "Deploying in %d seconds" ),
-					 (int)( 1 + (float)( cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer ) ) * 0.001f ) );
-		} else {
-			sprintf( deploytime, CG_TranslateString( "Deploying in %d seconds" ),
-					 (int)( 1 + (float)( cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer ) ) * 0.001f ) );
+		if (cg.snap->ps.persistant[PERS_RESPAWNS_LEFT] == 0) {
+			sprintf(deploytime, CG_TranslateString("No more deployments this round"));
+		}
+		else {
+			// OSPx - Reinforcement Offset
+			sprintf(deploytime, CG_TranslateString("Deploying in %d seconds"), CG_CalculateReinfTime());
 		}
 
 		CG_DrawStringExt( INFOTEXT_STARTX, 68, deploytime, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 80 );
@@ -2625,6 +2815,57 @@ static qboolean CG_DrawFollow( void ) {
 	return qtrue;
 }
 
+/*
+=================
+OSPx - CG_DrawPause
+
+Deals with client views/prints when paused.
+=================
+*/
+static void CG_PausePrint(void) {
+	const char  *s, *s2;
+	float color[4];
+	int w;
+
+	// Not in warmup...
+	if (cg.warmup)
+		return;
+
+	if (cgs.match_paused == PAUSE_ON) {
+		s = va("%s", CG_TranslateString("^nMatch is Paused!"));
+		s2 = va("%s", CG_TranslateString(va("Timeout expires in ^n%i ^7seconds", cgs.match_resumes - cgs.match_expired)));
+
+		color[3] = fabs(sin(cg.time * 0.001)) * cg_hudAlpha.value;
+
+		if (cg.time > cgs.match_stepTimer) {
+			cgs.match_expired++;
+			cgs.match_stepTimer = cg.time + 1000;
+		}
+		//cgs.fadeAlpha = .1;
+	}
+	else if (cgs.match_paused == PAUSE_RESUMING) {
+		s = va("%s", CG_TranslateString("^3Prepare to fight!"));
+		s2 = va("%s", CG_TranslateString(va("Resuming Match in ^3%d", 8 - cgs.match_expired)));
+
+		color[3] = fabs(sin(cg.time * 0.002)) * cg_hudAlpha.value;
+
+		if (cg.time > cgs.match_stepTimer) {
+			cgs.match_expired++;
+			cgs.match_stepTimer = cg.time + 1000;
+		}
+	}
+	else {
+		return;
+	}
+
+	color[0] = color[1] = color[2] = 1.0;
+
+	w = CG_DrawStrlen(s);
+	CG_DrawStringExt(320 - w * 6, 100, s, color, qfalse, qtrue, 12, 18, 0);
+
+	w = CG_DrawStrlen(s2);
+	CG_DrawStringExt(320 - w * 6, 120, s2, colorWhite, qfalse, qtrue, 12, 18, 0);
+}
 
 /*
 =================
@@ -2639,6 +2880,26 @@ static void CG_DrawWarmup( void ) {
 
 	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
 		return;     // (SA) don't bother with this stuff in sp
+	}
+
+	// OSPx - Ready
+	if (cgs.gamestate == GS_WARMUP && cgs.readyState != CREADY_NONE) {
+		cw = 10;
+
+		s = CG_TranslateString(va("^nWARMUP:^7 Waiting on ^n%i ^7%s", cgs.minclients, cgs.minclients == 1 ? "player" : "players"));
+		w = CG_DrawStrlen(s);
+		CG_DrawStringExt(320 - w * 6, 120, s, colorWhite, qfalse, qtrue, 12, 18, 0);
+
+		// Show only to real active clients..
+		if (!cg.demoPlayback && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR &&
+			(!(cg.snap->ps.pm_flags & PMF_FOLLOW) || (cg.snap->ps.pm_flags & PMF_LIMBO)))
+		{
+			s1 = CG_TranslateString("Type ^n\\ready ^7in the console to start");
+			w = CG_DrawStrlen(s1);
+			CG_DrawStringExt(320 - w * cw / 2, 160, s1, colorWhite,
+				qfalse, qtrue, cw, (int)(cw * 1.5), 0);
+		}
+		return;
 	}
 
 	sec = cg.warmup;
@@ -2675,9 +2936,9 @@ static void CG_DrawWarmup( void ) {
 	}
 
 	if ( cgs.gametype == GT_WOLF_STOPWATCH ) {
-		s = va( "%s %i", CG_TranslateString( "(^3WARMUP^7) Match begins in:^3" ), sec + 1 );
+		s = va( "%s %i", CG_TranslateString( "(^nWARMUP^7) Match begins in:^3" ), sec + 1 );
 	} else {
-		s = va( "%s %i", CG_TranslateString( "(^3WARMUP^7) Match begins in:^3" ), sec + 1 );
+		s = va( "%s %i", CG_TranslateString( "(^nWARMUP^7) Match begins in:^3" ), sec + 1 );
 	}
 
 	w = CG_DrawStrlen( s );
@@ -2821,6 +3082,12 @@ static void CG_DrawFlashFade( void ) {
 					CG_DrawStringExt(INFOTEXT_STARTX, nOffset, str, color, qtrue, qfalse, 10, 10, 0);
 					nOffset += 12;
 				}
+			}
+
+			if (cg.snap->ps.powerups[PW_BLACKOUT] & TEAM_RED && cg.snap->ps.powerups[PW_BLACKOUT] & TEAM_BLUE &&
+				cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
+				str = va(format, teams[i]);
+				CG_DrawStringExt(INFOTEXT_STARTX, 470, "We are testing a TE version of the mod, type in console ^7/login spec ^nto bypass speclock..", color, qfalse, qfalse, 5, 5, 0);
 			}
 		}
 	}
@@ -3007,7 +3274,22 @@ static void CG_DrawFlashLightning( void ) {
 	}
 }
 
+/*
+==============
+L0 - Poison
+CG_DrawFlashPoison
+==============
+*/
+static void CG_DrawFlashPoison(void) {
 
+	if (!cg.snap)
+		return;
+
+	// Maybe I should replace shader for paused state as it obscures chat a little?!
+	if (cg.snap->ps.eFlags & EF_POISONED) {
+		CG_DrawPic(0, 0, 640, 480, cgs.media.poisonOverlay);
+	}
+}
 
 /*
 ==============
@@ -3030,7 +3312,8 @@ static void CG_DrawFlashBlend( void ) {
 	CG_DrawFlashLightning();
 	CG_DrawFlashFire();
 	CG_DrawFlashDamage();
-	CG_DrawFlashFade();
+	CG_DrawFlashFade();	
+	CG_DrawFlashPoison();	// L0 - Poison
 }
 
 // NERVE - SMF
@@ -3234,6 +3517,10 @@ void CG_DrawObjectiveIcons() {
 	if (cgs.gamestate != GS_PLAYING) {
 		fade = Q_fabs(sin(cg.time * 0.002)) * cg_hudAlpha.value;
 		s = va("^3Warmup");
+	}
+	else if (cgs.coustomGameType > CGT_NONE) {
+		s = "^nDM";
+		fade = cg_hudAlpha.value;
 	} else if (msec < 0) {
 		fade = Q_fabs( sin( cg.time * 0.002 ) ) * cg_hudAlpha.value;
 		s = va( "0:00" );
@@ -3775,7 +4062,9 @@ static void CG_Draw2D( void ) {
 			// DHM - Nerve :: Don't draw icon in upper-right when switching weapons
 			//CG_DrawWeaponSelect();
 
-			CG_DrawPickupItem();
+			// OSPx - In warmup we print ready intel there..
+			if (!cgs.gamestate == GS_WARMUP || cg_drawPickupItems.integer )
+				CG_DrawPickupItem();
 		}
 		if ( cgs.gametype >= GT_TEAM ) {
 			CG_DrawTeamInfo();
@@ -3797,6 +4086,12 @@ static void CG_Draw2D( void ) {
 	// don't draw center string if scoreboard is up
 	if ( !CG_DrawScoreboard() ) {
 		CG_DrawCenterString();
+
+		// OSPx - Pause		
+		CG_PausePrint();
+
+		// OSPx - Pop in print..
+		CG_DrawPopinString();
 
 		CG_DrawFollow();
 		CG_DrawWarmup();
@@ -3823,6 +4118,10 @@ static void CG_Draw2D( void ) {
 
 	// OSPx - window updates
 	CG_windowDraw();
+
+	// L0 - Tourney HUD
+	if (cgs.tournamentMode > TOURNY_NONE)
+		CG_tournamentOverlay();
 
 	// Ridah, draw flash blends now
 	CG_DrawFlashBlend();

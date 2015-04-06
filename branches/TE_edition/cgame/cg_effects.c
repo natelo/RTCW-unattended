@@ -1506,7 +1506,7 @@ void CG_RumbleEfx( float pitch, float yaw ) {
 #define MAX_SMOKESPRITES 512
 #define SMOKEBOMB_DISTANCEBETWEENSPRITES 16.f
 #define SMOKEBOMB_SPAWNRATE 10
-#define SMOKEBOMB_SMOKEVELOCITY ((320.f - 16.f)/8)/1000.f	// units per msec
+#define SMOKEBOMB_SMOKEVELOCITY ((640.f - 16.f)/8)/1000.f	// units per msec
 
 typedef struct smokesprite_s {
 	struct smokesprite_s *next;
@@ -1669,7 +1669,6 @@ void CG_RenderSmokeGrenadeSmoke(centity_t *cent, const weaponInfo_t *weapon) {
 	}
 
 	if (cent->currentState.effect1Time > 16) {
-		//int volume = 16 + ((cent->currentState.effect1Time/640.f)*(100-16));
 
 		if (!cent->dl_atten ||
 			cent->currentState.pos.trType != TR_STATIONARY ||
@@ -1805,7 +1804,6 @@ void CG_AddSmokeSprites(void) {
 
 		// fadeout
 		if (smokesprite->dist > (radius * .5f * .8f)) {
-			//if( smokesprite->dist > (radius * .7f * .7f) ) { // L0 - scaling it down..
 			color[3] = (smokesprite->colour[3] - smokesprite->colour[3] * ((smokesprite->dist - (radius * .5f * .8f)) / ((radius * .5f) - (radius * .5f * .8f)))) * 0xff;
 		}
 		else {

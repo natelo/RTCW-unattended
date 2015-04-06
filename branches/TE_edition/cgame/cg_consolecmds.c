@@ -525,6 +525,34 @@ static void CG_DumpLocation_f( void ) {
 }
 
 /*
+
+	OSPx - New stuff
+
+*/
+const char *aMonths[12] = {
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
+// currentime
+void CG_currentTime_f(void) {
+	qtime_t ct;
+
+	trap_RealTime(&ct);
+	CG_Printf("[cgnotify]Current time: ^3%02d:%02d:%02d (%02d %s %d)\n", ct.tm_hour, ct.tm_min, ct.tm_sec, ct.tm_mday, aMonths[ct.tm_mon], 1900 + ct.tm_year);
+}
+
+// Dynamically names a demo and sets up the recording
+void CG_autoRecord_f(void) {	// Due rtcw bug we need to sync"h" first..but to avoid any bugs we set it to 0 first..
+	trap_SendConsoleCommand(va("g_synchronousclients 0;g_synchronousclients 1;record %s;g_synchronousclients 0\n", CG_generateFilename()));
+}
+
+// Dynamically names a screenshot[JPEG]
+void CG_autoScreenShot_f(void) {
+	trap_SendConsoleCommand(va("screenshot%s %s\n", ((cg_useScreenshotJPEG.integer) ? "JPEG" : ""), CG_generateFilename()));
+}
+
+/*
 ===================
 OSPx 
 
@@ -652,6 +680,9 @@ static consoleCommand_t commands[] = {
 	// OSPx
 	{ "+zoomView", CG_zoomViewSet_f },
 	{ "-zoomView", CG_zoomViewRevert_f },
+	{ "currentTime", CG_currentTime_f },
+	{ "autoRecord", CG_autoRecord_f },
+	{ "autoScreenshot", CG_autoScreenShot_f },
 	{ "+vstr", CG_vstrDown_f },
 	{ "-vstr", CG_vstrUp_f },
 	{ "webbans", CG_getBans_f },
@@ -717,7 +748,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand( "kill" );
 	trap_AddCommand( "say" );
 	trap_AddCommand( "say_team" );
-	trap_AddCommand( "say_limbo" );           // NERVE - SMF
+	trap_AddCommand( "say_limbo" );           // NERVE - SMF	
 	trap_AddCommand( "tell" );
 //	trap_AddCommand ("vsay");
 //	trap_AddCommand ("vsay_team");
@@ -768,13 +799,25 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand("mp40");
 	trap_AddCommand("thompson");
 	trap_AddCommand("sten");
+	trap_AddCommand("commands");
+	trap_AddCommand("say_admin");
+	trap_AddCommand("a");
+	trap_AddCommand("private");
+	trap_AddCommand("smoke");
 
-	// Speclock
+	// Tournament stuff
 	trap_AddCommand("speclock");
 	trap_AddCommand("specunlock");
 	trap_AddCommand("specinvite");
 	trap_AddCommand("specuninvite");
 	trap_AddCommand("specuninviteall");
+	trap_AddCommand("pause");
+	trap_AddCommand("timeout");
+	trap_AddCommand("unpause");
+	trap_AddCommand("timein");
+	trap_AddCommand("ready");
+	trap_AddCommand("notready");
+	//trap_AddCommand("readyteam"); // Easy to screw up with autocomplete..
 
 	// Web stuff.. 
 	trap_AddCommand("webbans");	

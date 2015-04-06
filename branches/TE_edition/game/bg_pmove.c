@@ -3382,6 +3382,11 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 		return;     // no view changes at all
 	}
 
+	// OSPx - Don't bother with this..
+	if (ps->pm_type == PM_FREEZE) {
+		return;
+	}
+
 	if ( ps->pm_type != PM_SPECTATOR && ps->stats[STAT_HEALTH] <= 0 ) {
 
 		// DHM - Nerve :: Allow players to look around while 'wounded' or lock to a medic if nearby

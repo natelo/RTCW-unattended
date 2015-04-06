@@ -3868,6 +3868,11 @@ CG_LastWeaponUsed_f
 void CG_LastWeaponUsed_f( void ) {
 	int lastweap;
 
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
+		return;
+	}
+
 	if ( cg.time - cg.weaponSelectTime < cg_weaponCycleDelay.integer ) {
 		return; // force pause so holding it down won't go too fast
 
@@ -3900,6 +3905,11 @@ CG_NextWeaponInBank_f
 */
 void CG_NextWeaponInBank_f( void ) {
 
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
+		return;
+	}
+
 	if ( cg.time - cg.weaponSelectTime < cg_weaponCycleDelay.integer ) {
 		return; // force pause so holding it down won't go too fast
 
@@ -3928,9 +3938,13 @@ CG_PrevWeaponInBank_f
 */
 void CG_PrevWeaponInBank_f( void ) {
 
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
+		return;
+	}
+
 	if ( cg.time - cg.weaponSelectTime < cg_weaponCycleDelay.integer ) {
 		return; // force pause so holding it down won't go too fast
-
 	}
 	// this cvar is an option that lets the player use his weapon switching keys (probably the mousewheel)
 	// for zooming (binocs/snooper/sniper/etc.)
@@ -3958,6 +3972,10 @@ CG_NextWeapon_f
 void CG_NextWeapon_f( void ) {
 
 	if ( !cg.snap ) {
+		return;
+	}
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
 		return;
 	}
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
@@ -4007,6 +4025,10 @@ void CG_PrevWeapon_f( void ) {
 	if ( !cg.snap ) {
 		return;
 	}
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
+		return;
+	}
 	if ( cg.snap->ps.pm_flags & PMF_FOLLOW ) {
 		return;
 	}
@@ -4050,6 +4072,11 @@ void CG_WeaponBank_f( void ) {
 	int curbank = 0, curcycle = 0, bank = 0, cycle = 0;
 
 	if ( !cg.snap ) {
+		return;
+	}
+
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
 		return;
 	}
 
@@ -4123,6 +4150,11 @@ void CG_Weapon_f( void ) {
 	qboolean banked = qfalse;
 
 	if ( !cg.snap ) {
+		return;
+	}
+
+	// OSPx - Pause
+	if (cg.snap->ps.pm_type == PM_FREEZE) {
 		return;
 	}
 

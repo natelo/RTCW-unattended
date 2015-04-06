@@ -820,7 +820,18 @@ typedef struct specName_s
 	int         lastInvisibleTime;
 	qboolean    visible;
 	float		alpha;
-}specName_t;
+} specName_t;
+
+// L0 - Tournament info
+typedef struct {
+	int rounds;
+	int timeouts;
+	int timeoutAxis;
+	int timeoutAllied;
+	int resultAxis;
+	int resultAllied;
+	qboolean inProgress;
+} cg_tournamentInfo_t;
 
 typedef struct {
 	int clientFrame;                // incremented each frame
@@ -1140,6 +1151,21 @@ typedef struct {
 	// Demo
 	qboolean revertToDefaultKeys;
 	qboolean advertisementDone;
+
+	// Pop In prints
+	int popinPrintTime;
+	int popinPrintCharWidth;
+	int popinPrintY;
+	char popinPrint[1024];
+	int popinPrintLines;
+	qboolean popinBlink;
+
+	// Auto Actions
+	qboolean	latchAutoActions;
+
+	// Tournament
+	int tourTotalTeam[TEAM_NUM_TEAMS];
+	cg_tournamentInfo_t tournamentInfo;
 // -OSPx
 
 	pmoveExt_t pmext;	
@@ -1636,8 +1662,21 @@ typedef struct {
 	qhandle_t selectCursor;
 	qhandle_t sizeCursor;
 
+	// Country Flags
+	qhandle_t countryFlags;
+
+	// Poison
+	qhandle_t poisonOverlay;
+
 } cgMedia_t;
 
+// OSPx - Pause states
+typedef enum {
+	PAUSE_NONE,
+	PAUSE_ON,
+	PAUSE_RESUMING
+} cPauseSts_t;
+// -OSPx
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1754,8 +1793,22 @@ typedef struct {
 	int noVoice;
 	qboolean freezeDemo;
 
-	// L0
+// L0
 	tournamentMode_t tournamentMode;
+	customGameType_t coustomGameType;
+
+	// Reinforcements
+	int aReinfOffset[TEAM_NUM_TEAMS];
+
+	// Pause
+	cPauseSts_t match_paused;
+	int match_resumes;
+	int match_expired;
+	int match_stepTimer;
+
+	// Ready
+	int readyState;
+// ~L0
 } cgs_t;
 
 //==============================================================================
@@ -1966,6 +2019,14 @@ extern vmCvar_t cg_coloredCrosshairNames;
 extern vmCvar_t	vp_drawnames;
 extern vmCvar_t	cg_drawNames;
 extern vmCvar_t cg_enemyRadar;
+extern vmCvar_t	cg_showFlags;
+extern vmCvar_t cg_tournamentHUD;
+extern vmCvar_t cg_showPlayingTimer;
+extern vmCvar_t cg_drawPickupItems;
+extern vmCvar_t cg_autoAction;
+extern vmCvar_t cg_useScreenshotJPEG;
+extern vmCvar_t cg_chatAlpha;
+extern vmCvar_t cg_chatBackgroundColor;
 
 // Mappings
 extern vmCvar_t int_ui_blackout;
@@ -1983,6 +2044,7 @@ extern vmCvar_t	demo_noAdvertisement;
 //
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
+char *CG_generateFilename(void);
 
 float CG_Cvar_Get( const char *cvar );
 
@@ -2080,6 +2142,9 @@ void CG_SaveTransTable();
 void CG_ReloadTranslation();
 // -NERVE - SMF
 
+// OSPx - Country Flags
+void CG_DrawPicST(float x, float y, float width, float height, float s0, float t0, float s1, float t1, qhandle_t hShader);
+
 //
 // cg_draw.c, cg_newDraw.c
 //
@@ -2090,6 +2155,8 @@ extern char systemChat[256];
 extern char teamChat1[256];
 extern char teamChat2[256];
 extern char cg_fxflags;  // JPW NERVE
+float CG_CalculateReinfTimeSpecs(team_t team);
+char *CG_CalculateTimeIn(void);
 
 void CG_AddLagometerFrameInfo( void );
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
@@ -2424,10 +2491,12 @@ void CG_DrawInformation( void );
 void CG_DemoClick(int key);
 void CG_createControlsWindow(void);
 void CG_demoView(void);
+void CG_tournamentOverlay(void);
 
 //
 // cg_scoreboard.c
 //
+qboolean cf_draw(float x, float y, float fade, int clientNum);
 qboolean CG_DrawScoreboard( void );
 void CG_DrawTourneyScoreboard( void );
 
@@ -2437,6 +2506,10 @@ void CG_DrawTourneyScoreboard( void );
 qboolean CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 void CG_ScoresUp_f(void);
+// OSPx
+extern const char *aMonths[12];
+void CG_autoRecord_f(void);
+void CG_autoScreenShot_f(void);
 
 //
 // cg_servercmds.c
@@ -2450,6 +2523,7 @@ void CG_SendMoveSpeed( animation_t *animList, int numAnims, char *modelName );
 void CG_LoadVoiceChats();               // NERVE - SMF
 void CG_PlayBufferedVoiceChats();       // NERVE - SMF
 void CG_AddToNotify( const char *str );
+void CG_ParseReinforcementTimes(const char *pszReinfSeedString);	// OSPx
 
 //
 // cg_playerstate.c
@@ -2495,6 +2569,7 @@ void        trap_Error( const char *fmt );
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter
 int         trap_Milliseconds( void );
+int         trap_RealTime(qtime_t *qtime); // OSPx - So it's more acessible
 
 // console variable interaction
 void        trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
@@ -2725,3 +2800,34 @@ void trap_ReqSS( int quality );
 void trap_HTTP_Submit_cmd(char *url, char *cmd);	
 void trap_HTTP_Post_cmd(char *url, char *cmd);
 void trap_HTTP_Query_cmd(char *url);	
+
+// - Reinforcement offset
+int CG_CalculateReinfTime(void);
+float CG_CalculateReinfTime_Float(void);
+
+// PopIn
+void CG_PopinPrint(const char *str, int y, int charWidth, qboolean blink);
+
+// Ready
+#define CREADY_NONE		0x00
+#define CREADY_AWAITING	0x01
+#define CREADY_PENDING	0x02
+
+// Tournament Overlay
+#define TOURINFO_TEXTSIZE	10
+#define TOURINFO_RIGHT		640 - 3
+#define TOURINFO_TOP		100
+#define TOURINFO_PLAYERS	32	
+
+// OSP's Autoaction values
+#define AA_DEMORECORD   0x01
+#define AA_SCREENSHOT   0x02
+
+// Should be in bg_ but due 1.0 backwards compatibility it's here..
+#define MAX_NETNAME		36
+
+// Macros
+#define Pri( x ) CG_Printf( "[cgnotify]%s", CG_LocalizeServerCommand( x ) )
+#define CPri( x ) CG_CenterPrint( CG_LocalizeServerCommand( x ), SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.2 ), SMALLCHAR_WIDTH );
+
+// ~L0

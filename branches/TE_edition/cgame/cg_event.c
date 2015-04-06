@@ -95,8 +95,8 @@ static void CG_Obituary( entityState_t *ent ) {
 	char        *message2;
 	const char  *targetInfo;
 	const char  *attackerInfo;
-	char targetName[32];
-	char attackerName[32];
+	char targetName[MAX_NETNAME];
+	char attackerName[MAX_NETNAME];
 	clientInfo_t    *ci, *ca; // JPW NERVE ca = attacker
 
 	// Ridah, no obituaries in single player
@@ -358,6 +358,12 @@ static void CG_Obituary( entityState_t *ent ) {
 			message = "was blasted by";
 			message2 = "'s support fire"; // JPW NERVE changed since it gets called for both air strikes and artillery
 			break;
+		// L0 - Poison
+		case MOD_POISONED:
+			message = "tasted";
+			message2 = "'s poison";
+			break;
+		// End
 // jpw
 // (SA) leaving a sample of two part obit's
 //		case MOD_ROCKET:

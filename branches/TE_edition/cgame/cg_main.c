@@ -310,6 +310,14 @@ vmCvar_t cg_coloredCrosshairNames;
 vmCvar_t vp_drawnames;
 vmCvar_t cg_drawNames;
 vmCvar_t cg_enemyRadar;
+vmCvar_t cg_showFlags;
+vmCvar_t cg_tournamentHUD;
+vmCvar_t cg_showPlayingTimer;
+vmCvar_t cg_drawPickupItems;
+vmCvar_t cg_autoAction;
+vmCvar_t cg_useScreenshotJPEG;
+vmCvar_t cg_chatAlpha;
+vmCvar_t cg_chatBackgroundColor;
 
 // Mappings
 vmCvar_t int_ui_blackout;
@@ -427,7 +435,7 @@ cvarTable_t cvarTable[] = {
 	{ &cg_forceModel, "", "0", CVAR_ARCHIVE  },                           // DHM - Nerve
 	{ &cg_coronafardist, "cg_coronafardist", "1536", CVAR_ARCHIVE },
 	{ &cg_coronas, "cg_coronas", "1", CVAR_ARCHIVE },
-	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
+	{ &cg_predictItems, "cg_predictItems", "0", CVAR_ARCHIVE },
 	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "2", CVAR_ARCHIVE },
 	{ &cg_uselessNostalgia, "cg_uselessNostalgia", "0", CVAR_ARCHIVE }, // JPW NERVE
@@ -547,6 +555,14 @@ cvarTable_t cvarTable[] = {
 	{ &vp_drawnames, "vp_drawnames", "0", CVAR_ARCHIVE | CVAR_CHEAT },
 	{ &cg_drawNames, "cg_drawNames", "1", CVAR_ROM },
 	{ &cg_enemyRadar, "cg_enemyRadar", "0", CVAR_ARCHIVE },
+	{ &cg_showFlags, "cg_showFlags", "1", CVAR_ARCHIVE },
+	{ &cg_tournamentHUD, "cg_tournamentHUD", "1", CVAR_ARCHIVE },
+	{ &cg_showPlayingTimer, "cg_showPlayingTimer", "1", CVAR_ARCHIVE },
+	{ &cg_drawPickupItems, "cg_drawPickupItems", "0", CVAR_ARCHIVE },
+	{ &cg_autoAction, "cg_autoAction", "0", CVAR_ARCHIVE },
+	{ &cg_useScreenshotJPEG, "cg_useScreenshotJPEG", "1", CVAR_ARCHIVE },
+	{ &cg_chatAlpha, "cg_chatAlpha", "0.33", CVAR_ARCHIVE },
+	{ &cg_chatBackgroundColor, "cg_chatBackgroundColor", "", CVAR_ARCHIVE },
 
 	{ &int_ui_blackout, "ui_blackout", "0", CVAR_ROM },
 
@@ -625,9 +641,10 @@ CG_UpdateCvars
 void CG_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
+	qboolean fSetFlags = qfalse;	// OSPx - Auto Actions
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Update( cv->vmCvar );
+	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
+		trap_Cvar_Update(cv->vmCvar);
 
 // OSPx 
 		// Crosshairs
@@ -659,7 +676,6 @@ void CG_UpdateCvars( void ) {
 		autoReloadModificationCount = cg_autoReload.modificationCount;
 	}
 }
-
 
 int CG_CrosshairPlayer( void ) {
 	if ( cg.time > ( cg.crosshairClientTime + 1000 ) ) {
@@ -751,6 +767,22 @@ const char *CG_Argv( int arg ) {
 	return buffer;
 }
 
+/*
+================
+OSPx - Name generation for SS's and Demo's
+================
+*/
+// Standard naming for screenshots/demos
+char *CG_generateFilename(void) {
+	qtime_t ct;
+	const char *pszServerInfo = CG_ConfigString(CS_SERVERINFO);
+
+	trap_RealTime(&ct);
+	return(va("%s.%02d.%d/%02d.%02d.%02d-%s",
+		aMonths[ct.tm_mon], ct.tm_mday, 1900 + ct.tm_year,
+		ct.tm_hour, ct.tm_min, ct.tm_sec,
+		Info_ValueForKey(pszServerInfo, "mapname")));
+}
 
 //========================================================================
 void CG_SetupDlightstyles( void ) {
@@ -1328,6 +1360,12 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
 	cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
+
+	// OSPx - Country Flags (by mcwf)
+	cgs.media.countryFlags = trap_R_RegisterShaderNoMip("gfx/flags/world_flags");
+
+	// L0 - Poison
+	cgs.media.poisonOverlay = trap_R_RegisterShader("gfx/misc/poisonoverlay");
 
 	// powerup shaders
 //	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad" );
@@ -2426,6 +2464,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
 	cgs.levelStartTime = atoi( s );
+
+// OSPx
+	// Reinforcements offset
+	CG_ParseReinforcementTimes(CG_ConfigString(CS_REINFSEEDS));
+// -OSPx
 
 // JPW NERVE -- pick a direction for smoke drift on the client -- cheap trick because it can be different on different clients, but who cares?
 	cgs.smokeWindDir = crandom();

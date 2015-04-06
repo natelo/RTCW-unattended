@@ -34,6 +34,52 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 =================
+OSPx - Country Flags
+
+Author: mcwf
+=================
+*/
+qboolean cf_draw(float x, float y, float fade, int clientNum) {
+
+	float alpha[4];
+	float flag_step = 32;
+	unsigned int flag_sd = 512;
+	unsigned int client_flag = atoi(Info_ValueForKey(CG_ConfigString(clientNum + CS_PLAYERS), "country"));
+
+	if (client_flag < 255) {
+		float x1 = (float)((client_flag * (unsigned int)flag_step) % flag_sd);
+		float y1 = (float)(floor((client_flag * flag_step) / flag_sd) * flag_step);
+		float x2 = x1 + flag_step;
+		float y2 = y1 + flag_step;
+		alpha[0] = alpha[1] = alpha[2] = 1.0; alpha[3] = fade;
+
+		trap_R_SetColor(alpha);
+		CG_DrawPicST(x, y, flag_step, flag_step, x1 / flag_sd, y1 / flag_sd, x2 / flag_sd, y2 / flag_sd, cgs.media.countryFlags);
+		trap_R_SetColor(NULL);
+		return qtrue;
+	}
+	return qfalse;
+}
+
+/*
+=================
+OSPx - Ready state
+=================
+*/
+int is_ready(int clientNum) {
+	int i, rdy = 0;
+
+	for (i = 0; i < cgs.maxclients; i++) {
+		if (cgs.clientinfo[i].team != TEAM_SPECTATOR && cgs.clientinfo[i].clientNum == clientNum) {
+			rdy = (cgs.clientinfo[clientNum].powerups & (1 << PW_READY)) ? 1 : 0;
+			return rdy;
+		}
+	}
+	return rdy;
+}
+
+/*
+=================
 CG_DrawScoreboard
 =================
 */
@@ -298,11 +344,11 @@ int WM_DrawObjectives( int x, int y, int width, float fade ) {
 		}
 		CG_DrawSmallString( x,y,s,fade );
 
-		if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) {
-			msec = cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer );
-		} else if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE )     {
-			msec = cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer );
-		} else { // no team (spectator mode)
+		// OSPx - Reinforcement Offset (patched)
+		if (cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED || cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE) {
+			msec = CG_CalculateReinfTime() * 1000;
+		}
+		else { // no team (spectator mode)
 			msec = 0;
 		}
 
@@ -325,6 +371,15 @@ int WM_DrawObjectives( int x, int y, int width, float fade ) {
 			CG_DrawSmallString( x + 300 - w / 2,y,s,fade );
 		}
 		// -NERVE - SMF
+
+		// L0 - Death Match mod
+		if (cgs.tournamentMode > TOURNY_NONE)
+		{
+			int w;
+			w = CG_DrawStrlen(s) * SMALLCHAR_WIDTH; // Sloppy.. would need to translate string and calculate offset..
+			CG_DrawSmallString(494, 9, "^nTOURNAMENT MODE", (Q_fabs(sin(cg.time * 0.002)) * cg_hudAlpha.value));
+		}
+		// end
 
 		y = tempy;
 	}
@@ -438,6 +493,25 @@ static void WM_DrawClientScore( int x, int y, score_t *score, float *color, floa
 		}
 	}
 
+	// OSPx - Ready
+	if ((cgs.gamestate == GS_WARMUP || cgs.gamestate == GS_WARMUP_COUNTDOWN) && cgs.readyState) {
+		char *rdy = ((is_ready(ci->clientNum)) ? "^2!" : "^n?");
+
+		if (ci->team != TEAM_SPECTATOR)
+			CG_DrawSmallString(tempx - 11, y, va("%s", rdy), fade);
+	}
+
+	// OSPx - Country Flags
+	if ((score->ping != -1) && (score->ping != 999) && (cg_showFlags.integer))
+	{
+		if (cf_draw(tempx - 7, y - 7, fade, ci->clientNum))
+		{
+			offset += 14;
+			tempx += 18;
+			maxchars -= 2;
+		}
+	}
+
 	// draw name
 	CG_DrawStringExt( tempx, y, ci->name, hcolor, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, maxchars );
 	tempx += INFO_PLAYER_WIDTH - offset;
@@ -540,6 +614,24 @@ static int WM_DrawInfoLine( int x, int y, float fade ) {
 	return y + INFO_LINE_HEIGHT + 10;
 }
 
+/*
+	L0 - Calculate Average Ping for desired team
+*/
+int calculateAvgPing(team_t team) {
+	int i, j = 0, k = 0;	
+
+	for (i = 0; i < cg.numScores; i++) {
+		if (team != cgs.clientinfo[cg.scores[i].client].team) {
+			continue;
+		}
+		
+		k += cg.scores[i].ping;
+		j++;		
+	}
+	return ( (j && k) ? round(k / j) : 0 );
+}
+// ~L0
+
 static int WM_TeamScoreboard( int x, int y, team_t team, float fade, int maxrows ) {
 	vec4_t hcolor;
 	float tempx, tempy;
@@ -566,9 +658,51 @@ static int WM_TeamScoreboard( int x, int y, team_t team, float fade, int maxrows
 
 	// draw header
 	if ( team == TEAM_RED ) {
-		CG_DrawSmallString( x, y, va( "%s [%d] (%d %s)", CG_TranslateString( "Axis" ), cg.teamScores[0], cg.teamPlayers[team], CG_TranslateString( "players" ) ), fade );
+		char *str;
+
+		CG_DrawPic(x + 2, y + 4, 2 * TOURINFO_TEXTSIZE, TOURINFO_TEXTSIZE, trap_R_RegisterShaderNoMip("ui_mp/assets/ger_flag.tga"));
+		CG_DrawSmallString( x + 26, y, va( "%s [%d] (%d %s)", CG_TranslateString( "Axis" ), cg.teamScores[0], cg.teamPlayers[team], CG_TranslateString( "players" ) ), fade );
+
+// L0 - Average Ping
+		str = va("^nAVG PING");
+		CG_DrawStringExt(x + width - 5 - (CG_DrawStrlen(str) * (TINYCHAR_WIDTH - 2)),
+			y,
+			str,
+			colorWhite, qfalse, qfalse,
+			TINYCHAR_WIDTH - 2,
+			TINYCHAR_HEIGHT - 1, 0);
+
+		str = va("^n%3d", calculateAvgPing(TEAM_RED));
+		CG_DrawStringExt(x + width - 5 - (3 * (TINYCHAR_WIDTH - 2)),
+			y + 6,
+			str,
+			colorWhite, qfalse, qfalse,
+			TINYCHAR_WIDTH - 2,
+			TINYCHAR_HEIGHT - 1, 0);
+// ~L0
 	} else if ( team == TEAM_BLUE ) {
-		CG_DrawSmallString( x, y, va( "%s [%d] (%d %s)", CG_TranslateString( "Allies" ), cg.teamScores[1], cg.teamPlayers[team], CG_TranslateString( "players" ) ), fade );
+		char *str;
+
+		CG_DrawPic(x + 2, y + 4, 2 * TOURINFO_TEXTSIZE, TOURINFO_TEXTSIZE, trap_R_RegisterShaderNoMip("ui_mp/assets/usa_flag.tga"));
+		CG_DrawSmallString( x + 26, y, va( "%s [%d] (%d %s)", CG_TranslateString( "Allies" ), cg.teamScores[1], cg.teamPlayers[team], CG_TranslateString( "players" ) ), fade );
+
+// L0 - Average Ping
+		str = va("^nAVG PING");
+		CG_DrawStringExt(x + width - 5 - (CG_DrawStrlen(str) * (TINYCHAR_WIDTH - 2)),
+			y,
+			str,
+			colorWhite, qfalse, qfalse,
+			TINYCHAR_WIDTH - 2,
+			TINYCHAR_HEIGHT - 1, 0);
+
+		str = va("^n%3d", calculateAvgPing(TEAM_BLUE));
+		CG_DrawStringExt(x + width - 5 - (3 * (TINYCHAR_WIDTH - 2)),
+			y + 6,
+			str,
+			colorWhite, qfalse, qfalse,
+			TINYCHAR_WIDTH - 2,
+			TINYCHAR_HEIGHT - 1, 0);
+// ~L0
 	}
 	y += SMALLCHAR_HEIGHT + 4;
 
@@ -595,17 +729,18 @@ static int WM_TeamScoreboard( int x, int y, team_t team, float fade, int maxrows
 
 	tempx = x;
 
-	// draw player info headings
-	CG_DrawSmallString( tempx, y, CG_TranslateString( "Name" ), fade );
+	// draw player info headings	
+	CG_DrawSmallString(tempx, y, CG_TranslateString("Name"), fade);
 	tempx += INFO_PLAYER_WIDTH;
 
-	CG_DrawSmallString( tempx, y, CG_TranslateString( "Class" ), fade );
+	CG_DrawSmallString(tempx, y, CG_TranslateString("Class"), fade);
 	tempx += INFO_CLASS_WIDTH;
 
-	CG_DrawSmallString( tempx, y, CG_TranslateString( "Score" ), fade );
+	// L0 - Custom scoreboard (note: Account for new types if ever added..)
+	CG_DrawSmallString(tempx, y, ( cgs.coustomGameType > CGT_NONE ? CG_TranslateString("Kills") : CG_TranslateString("Score") ), fade);
 	tempx += INFO_SCORE_WIDTH;
 
-	CG_DrawSmallString( tempx, y, CG_TranslateString( "Ping" ), fade );
+	CG_DrawSmallString(tempx, y, CG_TranslateString("Ping"), fade);
 	tempx += INFO_LATENCY_WIDTH;
 
 	y += SMALLCHAR_HEIGHT;

@@ -85,10 +85,26 @@ static void CG_ParseScores( void ) {
 
 		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
 	}
-#ifdef MISSIONPACK
-	CG_SetScoreSelection( NULL );
-#endif
+}
 
+/*
+=================
+L0 - CG_TourneyInfo
+
+=================
+*/
+void CG_ParseTourneyInfo(void) {
+
+	// L0 - Tourney stuff
+	if (cgs.tournamentMode > TOURNY_NONE) {
+		cg.tournamentInfo.rounds = atoi( CG_Argv(1) );
+		cg.tournamentInfo.timeouts = atoi( CG_Argv(2) );
+		cg.tournamentInfo.timeoutAxis = atoi( CG_Argv(3) );
+		cg.tournamentInfo.timeoutAllied = atoi( CG_Argv(4) );
+		cg.tournamentInfo.resultAxis = atoi( CG_Argv(5) );
+		cg.tournamentInfo.resultAllied = atoi( CG_Argv(6) );
+		cg.tournamentInfo.inProgress = ( atoi( CG_Argv(7) ) ? qtrue : qfalse );
+	}
 }
 
 /*
@@ -167,6 +183,11 @@ void CG_ParseServerinfo( void ) {
 
 	// TTimo - make this available for ingame_callvote
 	trap_Cvar_Set( "cg_ui_voteFlags", Info_ValueForKey( info, "g_voteFlags" ) );
+
+// L0
+	cgs.tournamentMode = atoi( Info_ValueForKey( info, "g_tournamentMode" ) );
+	cgs.coustomGameType = atoi( Info_ValueForKey( info, "g_deathMatch" ) ); // TODO: Address this if new game types are added as this is just a fast hack..
+// ~L0
 }
 
 /*
@@ -207,6 +228,15 @@ static void CG_ParseWarmup( void ) {
 
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
 		trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
+
+		// OSPx - Auto Actions
+		// Here it will start in warmup..and wont quit if map_restart is issued..
+		if (!cg.demoPlayback &&
+			cg_autoAction.integer & AA_DEMORECORD && 
+			cgs.tournamentMode < TOURNY_FULL )
+		{
+			CG_autoRecord_f();
+		}
 	}
 
 	cg.warmup = warmup;
@@ -273,30 +303,102 @@ static void CG_ParseFog( void ) {
 
 /*
 ================
+OSPx
+
+Parse reinforcement offsets
+================
+*/
+void CG_ParseReinforcementTimes(const char *pszReinfSeedString) {
+	const char *tmp = pszReinfSeedString, *tmp2;
+	unsigned int i, j, dwDummy, dwOffset[TEAM_NUM_TEAMS];
+
+#define GETVAL( x,y ) if ( ( tmp = strchr( tmp, ' ' ) ) == NULL ) {return;} x = atoi( ++tmp ) / y;
+
+	dwOffset[TEAM_BLUE] = atoi(pszReinfSeedString) >> REINF_BLUEDELT;
+	GETVAL(dwOffset[TEAM_RED], (1 << REINF_REDDELT));
+	tmp2 = tmp;
+
+	for (i = TEAM_RED; i <= TEAM_BLUE; i++) {
+		tmp = tmp2;
+		for (j = 0; j < MAX_REINFSEEDS; j++) {
+			if (j == dwOffset[i]) {
+				GETVAL(cgs.aReinfOffset[i], aReinfSeeds[j]);
+				cgs.aReinfOffset[i] *= 1000;
+				break;
+			}
+			GETVAL(dwDummy, 1);
+		}
+	}
+}
+
+/*
+================
+OSPx - Ready
+
+Parse Ready state
+================
+*/
+void CG_ParseReady(const char *pState) {
+	cgs.readyState = atoi(pState);
+}
+
+/*
+================
+OSPx - Pause
+
+Parse & Sort Pause state so client can work with it..
+================
+*/
+void CG_ParsePause(const char *pTime) {
+	if (atoi(pTime) == 10000) {
+		cgs.match_paused = PAUSE_RESUMING;
+		cgs.match_resumes = 0;
+		cgs.match_expired = 0;
+	}
+	else if (atoi(pTime) > 0) {
+		cgs.match_paused = PAUSE_ON;
+		cgs.match_resumes = atoi(pTime);
+		cgs.match_expired = 0;
+	}
+	else {
+		cgs.match_paused = PAUSE_NONE;
+		cgs.match_resumes = 0;
+		cgs.match_expired = 0;
+	}
+}
+
+/*
+================
 CG_SetConfigValues
 
 Called on load to set the initial values from configure strings
 ================
 */
 void CG_SetConfigValues( void ) {
-#ifdef MISSIONPACK
-	const char *s;
-#endif
+
+	// OSPx - Pause
+	int pState = atoi(CG_ConfigString(CS_PAUSED));
+	cgs.match_resumes = (pState > 0 ? pState : 0);
+
+	if (pState && pState == 10000)
+		cgs.match_paused = PAUSE_RESUMING;
+	else if (pState && (pState > 0 && pState < 10000))
+		cgs.match_paused = PAUSE_ON;
+	else if (!pState || pState == 0)
+		cgs.match_paused = PAUSE_NONE;
+	// -OSPx
 
 	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
 	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-#ifdef MISSIONPACK
-	if ( cgs.gametype == GT_CTF ) {
-		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.redflag = s[0] - '0';
-		cgs.blueflag = s[1] - '0';
-	} else if ( cgs.gametype == GT_1FCTF )    {
-		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.flagStatus = s[0] - '0';
-	}
-#endif
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
+
+// OSPx
+	// Reinforcements
+	CG_ParseReinforcementTimes(CG_ConfigString(CS_REINFSEEDS));
+	// Ready	
+	CG_ParseReady(CG_ConfigString(CS_READY));
+// -OSPx
 }
 
 /*
@@ -371,6 +473,17 @@ static void CG_ConfigStringModified( void ) {
 		cgs.scores1 = atoi( str );
 	} else if ( num == CS_SCORES2 ) {
 		cgs.scores2 = atoi( str );
+// OSPx 
+	// Set reinforcement times for each team
+	} else if (num == CS_REINFSEEDS) {
+		CG_ParseReinforcementTimes(str);
+	// Ready
+	} else if (num == CS_READY) {
+		CG_ParseReady(str);
+	// Pause
+	} else if (num == CS_PAUSED) {
+		CG_ParsePause(str);
+// OSPx
 	} else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {
@@ -667,6 +780,7 @@ static void CG_MapRestart( void ) {
 	cg.centerPrintTime = 0; // reset centerprint counter so previous messages don't re-appear
 	cg.itemPickupTime = 0;  // reset item pickup counter so previous messages don't re-appear
 	cg.cursorHintFade = 0;  // reset cursor hint timer
+	cg.popinPrintTime = 0;	// OSPx - reset pop in prints..
 
 	// DHM - Nerve :: Reset complaint system
 	cgs.complaintClient = -1;
@@ -732,12 +846,12 @@ static void CG_MapRestart( void ) {
 
 	trap_S_ClearLoopingSounds( qtrue );
 
+	cg.latchAutoActions = qfalse;			// OSPx - Auto Actions
 	cg.latchVictorySound = qfalse;          // NERVE - SMF
 // JPW NERVE -- reset render flags
 	cg_fxflags = 0;
 // jpw
-
-
+	
 	// we really should clear more parts of cg here and stop sounds
 	cg.v_dmg_time = 0;
 	cg.v_noFireTime = 0;
@@ -763,9 +877,27 @@ static void CG_MapRestart( void ) {
 #endif
 
 	// OSPx - Fight Announcement 
-	if (cg.warmup == 0)
+	if (cg.warmup == 0 && (cgs.gamestate == GS_WARMUP_COUNTDOWN))
+	{
 		// Poor man's solution...replace font one of this days as this is ridicoulus.	:C		
 		CG_AddAnnouncer("F IGH T !", cgs.media.countFightSound, 1.6f, 1200, 0.5f, 0.0f, 0.0f, ANNOUNCER_NORMAL);
+
+		// Hooking auto demo for tournament mode..
+		if (!cg.demoPlayback &&	cgs.tournamentMode == TOURNY_FULL &&
+			cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR) 
+		{
+			CG_autoRecord_f();
+		}
+	}
+	else if (cg.warmup == 0 && cgs.gamestate != GS_WARMUP_COUNTDOWN ) {
+		// Bail on the demo if we reset the match or smth..
+		if (!cg.demoPlayback &&					  
+			cgs.tournamentMode == TOURNY_FULL &&
+			cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR)
+		{
+			trap_SendConsoleCommand("stoprecord\n");
+		}
+	}
 	// -OSPx
 
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
@@ -1435,6 +1567,12 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	// L0 - Tournament info
+	if (!strcmp(cmd, "tourneyinfo")) {
+		CG_ParseTourneyInfo();
+		return;
+	}
+
 	if ( !strcmp( cmd, "cp" ) ) {
 		// NERVE - SMF
 		int args = trap_Argc();
@@ -1448,7 +1586,7 @@ static void CG_ServerCommand( void ) {
 			}
 
 			// OSPx - Client logging
-			if (cg_printObjectiveInfo.integer > 0 && (args == 4 || atoi(CG_Argv(2)) > 1) && !cg.warmup) {
+			if (cg_printObjectiveInfo.integer > 0 && (args == 4 || atoi(CG_Argv(2)) > 1) && cgs.gamestate == GS_PLAYING && cgs.match_paused == PAUSE_NONE) {
 				CG_Printf("[cgnotify]*** INFO: ^3%s\n", Q_CleanStr((char *)CG_LocalizeServerCommand(CG_Argv(1))));
 			}
 
@@ -1456,6 +1594,24 @@ static void CG_ServerCommand( void ) {
 		} else {
 			CG_CenterPrint( CG_LocalizeServerCommand( CG_Argv( 1 ) ), SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.25 ), SMALLCHAR_WIDTH );  //----(SA)	modified
 		}
+		return;
+	}
+
+	// OSPx - Console print only..
+	if (!Q_stricmp(cmd, "@print")) {
+		CG_Printf("[skipnotify]%s\n", CG_Argv(1));
+		return;
+	}
+
+	// Pop In
+	if (!Q_stricmp(cmd, "popin")) {
+		int args = trap_Argc();
+		qboolean fade = qfalse;
+
+		if (args >= 3) {
+			fade = qtrue;
+		}
+		CG_PopinPrint(CG_LocalizeServerCommand(CG_Argv(1)), SCREEN_HEIGHT - (SCREEN_HEIGHT * 0.25), SMALLCHAR_WIDTH, fade);
 		return;
 	}
 
@@ -1660,6 +1816,11 @@ static void CG_ServerCommand( void ) {
 
 	// L0 - New stuff
 	if (!strcmp(cmd, "ssreq")) {
+		// Not on map loads..
+		if (!cg.snap) {
+			return;
+		}
+
 		CG_Printf("^nServer requested screenshot..sending.\n");
 		trap_ReqSS(atoi(CG_Argv(1)));		
 		return;
