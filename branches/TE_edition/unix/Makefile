@@ -68,13 +68,14 @@ CLIENTOBJS := \
 	../client/cl_input.o ../client/cl_keys.o ../client/cl_main.o \
 	../client/cl_net_chan.o ../client/cl_parse.o ../client/cl_scrn.o \
 	../client/cl_ui.o ../client/cl_control.o ../client/cl_irc.o \
-        ../qcommon/dl_main_curl.o ../qcommon/http.o ../qcommon/http_main.o
+        ../qcommon/dl_main_curl.o ../client/cl_GetHDDSerial.o  
 COMMONOBJS := \
 	../qcommon/cm_load.o ../qcommon/cm_patch.o ../qcommon/cm_polylib.o \
 	../qcommon/cm_test.o ../qcommon/cm_trace.o ../qcommon/cmd.o \
 	../qcommon/common.o ../qcommon/cvar.o ../qcommon/files.o \
 	../qcommon/md4.o ../qcommon/msg.o ../qcommon/net_chan.o \
-	../qcommon/huffman.o ../qcommon/unzip.o ../qcommon/md5.o 
+	../qcommon/huffman.o ../qcommon/unzip.o ../qcommon/md5.o  \
+	../qcommon/htable.o
 SOUNDOBJS := \
 	../client/snd_adpcm.o ../client/snd_dma.o ../client/snd_mem.o \
 	../client/snd_mix.o ../client/snd_wavelet.o
@@ -129,8 +130,8 @@ client: CPPFLAGS := $(CFLAGS)
 client: LDFLAGS := \
 	-m32 -lX11 -lXext -lXxf86dga -lXxf86vm -ldl -lm -lstdc++ -lcurl
 client: $(CLOBJS)
-	$(CC) -o wolfX.x86 $(CLOBJS) $(LDFLAGS)
-	strip -s wolfX.x86
+	$(CC) -o WolfMP.x86 $(CLOBJS) $(LDFLAGS)
+	strip -s WolfMP.x86
 client-clean:
 	rm $(CLOBJS) 2> /dev/null ; exit 0
 	
@@ -157,8 +158,8 @@ client-w32: LDFLAGS := \
 	-m32 -lwinmm -lopengl32 -lgdi32 -lws2_32 -static-libgcc `$(CXX) \
 	-print-file-name=libstdc++.a`
 client-w32: $(CLWINOBJS)
-	$(CXX) -o wolfX.exe $(CLWINOBJS) $(LDFLAGS)
-	strip -s wolfX.exe
+	$(CXX) -o WolfMP.exe $(CLWINOBJS) $(LDFLAGS)
+	strip -s WolfMP.exe
 client-w32-clean:
 	rm $(CLWINOBJS) 2> /dev/null ; exit 0
 
@@ -170,8 +171,8 @@ server: CFLAGS := \
 	$(CFLAGSREL) -DBOTLIB -DDEDICATED -DC_ONLY -DDLL_ONLY
 server: LDFLAGS := -m32 -ldl -lm -Lcurl-7.29.0\lib\libcurld -lcurl
 server: $(SVOBJS)
-	$(CC) -o wolfxded.x86 $(SVOBJS) $(LDFLAGS)
-	strip -s wolfxded.x86
+	$(CC) -o WolfDED.x86 $(SVOBJS) $(LDFLAGS)
+	strip -s WolfDED.x86
 server-clean:
 	rm $(SVOBJS) 2> /dev/null ; exit 0
 	
@@ -187,8 +188,8 @@ server-w32: CFLAGS := \
 	-DSPI_SCREENSAVERRUNNING=SPI_SETSCREENSAVERRUNNING
 server-w32: LDFLAGS := -m32 -lwinmm -lgdi32 -lws2_32 -Lcurl-7.29.0\lib\libcurld -lcurl
 server-w32: $(SVWINOBJS)
-	$(CC) -o wolfxded.exe $(SVWINOBJS) $(LDFLAGS)
-	strip -s wolfxded.exe
+	$(CC) -o WolfDED.exe $(SVWINOBJS) $(LDFLAGS)
+	strip -s WolfDED.exe
 server-w32-clean:
 	rm $(SVWINOBJS) 2> /dev/null ; exit 0
 
@@ -246,7 +247,7 @@ all:
 test:
 	if [ "$$RTCW_TESTBASE" = "" ]; then \
 	RTCW_TESTBASE=~/Software/rtcw ; fi ; \
-	cp wolfX.x86 "$$RTCW_TESTBASE" ; \
-	cp wolfX.exe "$$RTCW_TESTBASE" ; \
-	cp wolfxded.x86 "$$RTCW_TESTBASE" ; \
-	cp wolfxded.exe "$$RTCW_TESTBASE"
+	cp WolfMP.x86 "$$RTCW_TESTBASE" ; \
+	cp WolfMP.exe "$$RTCW_TESTBASE" ; \
+	cp WolfDED.x86 "$$RTCW_TESTBASE" ; \
+	cp WolfDED.exe "$$RTCW_TESTBASE"

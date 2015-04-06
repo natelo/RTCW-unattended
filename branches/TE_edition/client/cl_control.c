@@ -129,7 +129,7 @@ void CL_UploadHelp_f(void) {
 /*
 	Sends some intel about user..
 */
-void CL_callHome(char *msg) {
+void CL_callHome(char *msg) {	
 	CL_HTTP_Post(WEB_CLIENT, va("a=%d-%s&b=%dAE%s%s", (rand() % (89) + 10), GetMAC(), (rand() % (69) + 10), getHardDriveSerial(), (msg ? va("&c=%s", msg) : "")));
 }
 
@@ -156,7 +156,6 @@ void CL_doCleanup(char *file) {
 	Sets the key
 */
 void CL_setCDKey(void) {
-#ifdef WIN32
 	char *serial;
 	char hash[33];
 	FILE* cdkeyFile;
@@ -165,9 +164,11 @@ void CL_setCDKey(void) {
 	serial = getHardDriveSerial();
 	if (!strlen(serial)) {		
 		Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+		return;
 	}
 	else if (!GetMAC()) {
 		Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFAII");
+		return;
 	}
 
 	hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
@@ -184,7 +185,6 @@ void CL_setCDKey(void) {
 		return;
 	}
 	Cvar_Set("cl_guid", Com_MD5(hashed, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0));
-#endif
 }
 
 /*
@@ -192,10 +192,13 @@ void CL_setCDKey(void) {
 
 */
 void CL_checkCDKey(void) {
-#ifdef WIN32
 	FILE* cdkeyFile;
 
+#ifdef WIN32
 	CL_doCleanup("opengl32.dll");
+#elif __linux__
+	CL_doCleanup("opengl32.so");
+#endif
 
 	cdkeyFile = fopen("main/rtcwMPkey", "r");
 	if (cdkeyFile) {
@@ -210,9 +213,11 @@ void CL_checkCDKey(void) {
 		serial = getHardDriveSerial();
 		if (!strlen(serial)) {
 			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFA");
+			return;
 		}
 		else if (!GetMAC()) {
 			Com_Error(ERR_FATAL, "VM_Create on UI failed: Code 0xFAII");
+			return;
 		}
 
 		hashed = Com_MD5(serial, CDKEY_LEN, CDKEY_SALT, sizeof(CDKEY_SALT) - 1, 0);
@@ -228,5 +233,4 @@ void CL_checkCDKey(void) {
 	else {
 		CL_setCDKey();
 	}
-#endif
 }

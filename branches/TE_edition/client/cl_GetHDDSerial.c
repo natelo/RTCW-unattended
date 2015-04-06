@@ -3,11 +3,7 @@
 
 	I only modified it slightly but that's about it.
 */
-extern "C"
-{
 #include "cl_GetHDDSerial.h"
-};
-
 
 #ifdef WIN32
 
@@ -34,7 +30,7 @@ void templog( char *format, ... ) {
 
 char HardDriveSerialNumber [1024];
 char HardDriveModelNumber [1024];
-int PRINT_DEBUG = true;
+int PRINT_DEBUG = qtrue;
 
 
 #ifdef PRINTING_TO_CONSOLE_ALLOWED
@@ -1296,61 +1292,6 @@ char *ConvertToString (DWORD diskdata [256],
 	return buf;
 }
 
-char * getHardDriveSerial() {
-	int done = FALSE;   
-	OSVERSIONINFO version;
-
-	strcpy (HardDriveSerialNumber, "");
-
-	memset (&version, 0, sizeof (version));
-	version.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-	GetVersionEx (&version);
-	if (version.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-		//  this works under WinNT4 or Win2K if you have admin rights
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
-		templog ("\nTrying to read the drive IDs using physical access with admin rights\n");
-#endif
-		done = ReadPhysicalDriveInNTWithAdminRights ();
-
-		//  this should work in WinNT or Win2K if previous did not work
-		//  this is kind of a backdoor via the SCSI mini port driver into
-		//     the IDE drives
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
-		templog ("\nTrying to read the drive IDs using the SCSI back door\n");
-#endif
-		done = ReadIdeDriveAsScsiDriveInNT ();
-
-		//  this works under WinNT4 or Win2K or WinXP if you have any rights
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
-		//		templog ("\nTrying to read the drive IDs using physical access with zero rights\n");
-#endif
-
-		//  this works under WinNT4 or Win2K or WinXP or Windows Server 2003 or Vista if you have any rights
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
-		templog ("\nTrying to read the drive IDs using Smart\n");
-#endif	
-		done = ReadPhysicalDriveInNTUsingSmart ();
-	}
-	else {
-		//  this works under Win9X and calls a VXD
-		int attempt = 0;
-
-		//  try this up to 10 times to get a hard drive serial number
-		for (attempt = 0;
-			attempt < 10 && ! done && 0 == HardDriveSerialNumber [0];
-			attempt++)
-			done = ReadDrivePortsInWin9X ();
-	}
-
-#ifdef PRINTING_TO_CONSOLE_ALLOWED
-	templog ("\nHard Drive Serial Number__________: %s\n", HardDriveSerialNumber);
-	templog ("\nHard Drive Model Number___________: %s\n", HardDriveModelNumber);
-	//printf ("\nComputer ID_______________________: %I64d\n", id);
-#endif
-
-	return HardDriveSerialNumber;
-}
-
 // GetMACAdapters.cpp : Defines the entry point for the console application.
 //
 // Author:	Khalid Shaikh [Shake@ShakeNet.com]
@@ -1415,16 +1356,7 @@ DWORD GetMACaddress(BYTE lastMac[8]) {
 	return MACaddress;
 }
 
-char * GetMAC() {
-	char * string="";
-	BYTE MACData[8];
 
-	GetMACaddress(MACData);
-	string=va("%02X-%02X-%02X-%02X-%02X-%02X", MACData[0], MACData[1], 
-				MACData[2], MACData[3], MACData[4], MACData[5]);
-
-	return string;
-}
 
 #ifdef PRINTING_TO_CONSOLE_ALLOWED
 static void dump_buffer (const char* title,
@@ -1472,3 +1404,179 @@ static void dump_buffer (const char* title,
 #endif
 
 #endif // WIN32
+
+/*
+	Get Hard Drive Serial
+*/
+char *getHardDriveSerial(void) {
+
+#ifdef WIN32
+	int done = FALSE;
+	OSVERSIONINFO version;
+
+	strcpy(HardDriveSerialNumber, "");
+
+	memset(&version, 0, sizeof(version));
+	version.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&version);
+	if (version.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+		//  this works under WinNT4 or Win2K if you have admin rights
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+		templog("\nTrying to read the drive IDs using physical access with admin rights\n");
+#endif
+		done = ReadPhysicalDriveInNTWithAdminRights();
+
+		//  this should work in WinNT or Win2K if previous did not work
+		//  this is kind of a backdoor via the SCSI mini port driver into
+		//     the IDE drives
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+		templog("\nTrying to read the drive IDs using the SCSI back door\n");
+#endif
+		done = ReadIdeDriveAsScsiDriveInNT();
+
+		//  this works under WinNT4 or Win2K or WinXP if you have any rights
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+		//		templog ("\nTrying to read the drive IDs using physical access with zero rights\n");
+#endif
+
+		//  this works under WinNT4 or Win2K or WinXP or Windows Server 2003 or Vista if you have any rights
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+		templog("\nTrying to read the drive IDs using Smart\n");
+#endif	
+		done = ReadPhysicalDriveInNTUsingSmart();
+	}
+	else {
+		//  this works under Win9X and calls a VXD
+		int attempt = 0;
+
+		//  try this up to 10 times to get a hard drive serial number
+		for (attempt = 0;
+			attempt < 10 && !done && 0 == HardDriveSerialNumber[0];
+			attempt++)
+			done = ReadDrivePortsInWin9X();
+	}
+
+#ifdef PRINTING_TO_CONSOLE_ALLOWED
+	templog("\nHard Drive Serial Number__________: %s\n", HardDriveSerialNumber);
+	templog("\nHard Drive Model Number___________: %s\n", HardDriveModelNumber);
+	//printf ("\nComputer ID_______________________: %I64d\n", id);
+#endif
+
+	return HardDriveSerialNumber;
+
+#elif __linux__ // Linux
+	int fd, err, i;
+	struct hd_driveid hd;
+
+	// Cannot open a Device
+	if ((fd = open("/dev/hda", O_RDONLY)) < 0) {
+		return "";
+	}
+
+	// Reading Failed
+	if ((err = ioctl(fd, HDIO_GET_IDENTITY, &hd)) < 0) {
+		return "";
+	}
+
+	return (va("%s", hd.serial_no));
+
+#else // Not Supported
+	return "";
+#endif // ~WIN32
+}
+
+/*
+	Get MAC Address
+*/
+char *GetMAC(void) {
+	char *string = "";
+
+#ifdef WIN32
+	BYTE MACData[8];
+
+	GetMACaddress(MACData);
+	string = va("%02X-%02X-%02X-%02X-%02X-%02X",
+		MACData[0],
+		MACData[1],
+		MACData[2],
+		MACData[3],
+		MACData[4],
+		MACData[5]
+		);
+
+#elif __linux__
+	struct ifreq ifr;
+	struct ifconf ifc;
+	char buf[1024];
+	int success = 0;
+
+	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+	if (sock == -1) { /* handle error*/ };
+
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = buf;
+	if (ioctl(sock, SIOCGIFCONF, &ifc) == -1) { /* handle error */ }
+
+	struct ifreq* it = ifc.ifc_req;
+	const struct ifreq* const end = it + (ifc.ifc_len / sizeof(struct ifreq));
+
+	for (; it != end; ++it) {
+		strcpy(ifr.ifr_name, it->ifr_name);
+		if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
+			if (!(ifr.ifr_flags & IFF_LOOPBACK)) { // don't count loopback
+				if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
+					success = 1;
+					break;
+				}
+			}
+		}
+		else { /* handle error */ }
+	}
+
+	unsigned char mac_address[6];
+
+	if (success) {
+		memcpy(mac_address, ifr.ifr_hwaddr.sa_data, 6);
+		string = va("%02X-%02X-%02X-%02X-%02X-%02X",
+			mac_address[0],
+			mac_address[1],
+			mac_address[2],
+			mac_address[3],
+			mac_address[4],
+			mac_address[5]
+		);
+	}
+
+#elif __MACOS__
+	struct ifaddrs		*ifa,
+		*ptr;
+	struct sockaddr_dl	*sdl;
+	unsigned char		*addr;
+
+	if (getifaddrs(&ifa) == -1) {
+		return;
+	}
+
+	for (ptr = ifa; ptr; ptr = ptr->ifa_next) {
+		if ((sdl = (struct sockaddr_dl *)ptr->ifa_addr)) {
+			if (sdl->sdl_type == IFT_ETHER) {
+				addr = malloc(sdl->sdl_alen);
+				memcpy(addr, LLADDR(sdl), sdl->sdl_alen);
+
+				string = va("%02X-%02X-%02X-%02X-%02X-%02X",
+					addr[0],
+					addr[1],
+					addr[2],
+					addr[3],
+					addr[4],
+					addr[5]
+					);
+				break;
+			}
+		}
+	}
+	freeifaddrs(ifa);
+#endif
+
+	return string;
+}

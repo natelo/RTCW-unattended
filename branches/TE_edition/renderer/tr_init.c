@@ -38,10 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 glconfig_t glConfig;
 glstate_t glState;
 
-#ifdef __linux__
-extern const char *glx_extensions_string;
-#endif
-
 static void GfxInfo_f( void );
 
 cvar_t  *r_flareSize;
@@ -862,9 +858,6 @@ void GfxInfo_f( void ) {
 	ri.Printf( PRINT_ALL, "GL_RENDERER: %s\n", glConfig.renderer_string );
 	ri.Printf( PRINT_ALL, "GL_VERSION: %s\n", glConfig.version_string );	
 	//ri.Printf( PRINT_ALL, "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-#ifdef __linux__
-	ri.Printf(PRINT_ALL, "GLX_EXTENSIONS: %s\n", glx_extensions_string);
-#endif
 	ri.Printf( PRINT_ALL, "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	//ri.Printf( PRINT_ALL, "GL_MAX_ACTIVE_TEXTURES_ARB: %d\n", glConfig.maxActiveTextures );
 	ri.Printf( PRINT_ALL, "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );

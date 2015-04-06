@@ -206,7 +206,7 @@
     <ClCompile Include="qcommon\http_main.c">
       <Filter>http</Filter>
     </ClCompile>
-    <ClCompile Include="client\cl_GetHDDSerial.cpp">
+    <ClCompile Include="client\cl_GetHDDSerial.c">
       <Filter>Control</Filter>
     </ClCompile>
   </ItemGroup>
