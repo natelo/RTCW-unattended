@@ -99,6 +99,15 @@ cvar_t  *sv_wwwBaseURL;		// base URL for redirect
 							// this gets you a better throughput, but you loose the ability to control the download usage
 cvar_t *sv_wwwDlDisconnected;
 cvar_t *sv_wwwFallbackURL;	// URL to send to if an http/ftp fails or is refused client side
+
+// Anti-Wallhack
+#ifdef FEATURE_ANTICHEAT
+cvar_t *wh_active;
+cvar_t *wh_bbox_horz;
+cvar_t *wh_bbox_vert;
+cvar_t *wh_add_xy;
+cvar_t *wh_check_fov;
+#endif
 // End
 
 void SVC_GameCompleteStatus( netadr_t from );       // NERVE - SMF
@@ -613,7 +622,7 @@ void SVC_Info( netadr_t from ) {
 		return;
 	}
 
-	// don't count privateclients
+	// don't count private clients
 	count = 0;
 	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {

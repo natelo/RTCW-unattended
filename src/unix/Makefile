@@ -83,7 +83,8 @@ SERVEROBJS := \
 	../server/sv_bot.o ../server/sv_ccmds.o ../server/sv_client.o \
 	../server/sv_game.o ../server/sv_init.o ../server/sv_main.o \
 	../server/sv_net_chan.o ../server/sv_snapshot.o \
-	../server/sv_world.o ../server/sv_control.o ../qcommon/http.o ../qcommon/http_main.o
+	../server/sv_world.o ../server/sv_control.o ../qcommon/http.o ../qcommon/http_main.o \
+	../server/sv_wallhack.o
 # ../qcommon/vm_x86.c is not used and not nice to port to mingw
 VMOBJS := \
 	../qcommon/vm.o ../qcommon/vm_interpreted.o
@@ -168,7 +169,7 @@ client-w32-clean:
 server: CC := gcc
 server: NASM := nasm
 server: CFLAGS := \
-	$(CFLAGSREL) -DBOTLIB -DDEDICATED -DC_ONLY -DDLL_ONLY
+	$(CFLAGSREL) -DBOTLIB -DDEDICATED -DC_ONLY -DDLL_ONLY -DFEATURE_ANTICHEAT
 server: LDFLAGS := -m32 -ldl -lm -Lcurl-7.29.0\lib\libcurld -lcurl
 server: $(SVOBJS)
 	$(CC) -o WolfDED.x86 $(SVOBJS) $(LDFLAGS)
