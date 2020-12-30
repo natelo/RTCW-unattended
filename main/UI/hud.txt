@@ -1,0 +1,9 @@
+// L0 - This is written by hand...(Painful...I know....)
+//
+// It matches closely to default but has the potential to be re-done later on..
+//
+
+// Define it
+{
+	loadMenu { "ui_mp/hud.menu" }
+}

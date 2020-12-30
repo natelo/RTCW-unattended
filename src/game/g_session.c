@@ -1,31 +1,3 @@
-/*
-===========================================================================
-
-Return to Castle Wolfenstein multiplayer GPL Source Code
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company. 
-
-This file is part of the Return to Castle Wolfenstein multiplayer GPL Source Code (RTCW MP Source Code).  
-
-RTCW MP Source Code is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-RTCW MP Source Code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with RTCW MP Source Code.  If not, see <http://www.gnu.org/licenses/>.
-
-In addition, the RTCW MP Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the RTCW MP Source Code.  If not, please request a copy in writing from id Software at the address below.
-
-If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
-
-===========================================================================
-*/
-
 #include "g_local.h"
 
 
@@ -47,30 +19,86 @@ Called on game shutdown
 ================
 */
 void G_WriteClientSessionData( gclient_t *client ) {
-	const char  *s;
-	const char  *var;
+	const char	*s;
+	const char	*var;
 
-	s = va( "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
-			client->sess.sessionTeam,
-			client->sess.spectatorTime,
-			client->sess.spectatorState,
-			client->sess.spectatorClient,
-			client->sess.wins,
-			client->sess.losses,
-			client->sess.playerType,        // DHM - Nerve
-			client->sess.playerWeapon,      // DHM - Nerve
-			client->sess.playerItem,        // DHM - Nerve
-			client->sess.playerSkin,        // DHM - Nerve
-			client->sess.spawnObjectiveIndex, // DHM - Nerve
-			client->sess.latchPlayerType,   // DHM - Nerve
-			client->sess.latchPlayerWeapon, // DHM - Nerve
-			client->sess.latchPlayerItem,   // DHM - Nerve
-			client->sess.latchPlayerSkin    // DHM - Nerve
-			);
+	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i %i",		// DHM - Nerve
+		client->sess.sessionTeam,
+		client->sess.spectatorTime,
+		client->sess.spectatorState,
+		client->sess.spectatorClient,
+		client->sess.wins,
+		client->sess.losses,
+		client->sess.playerType,			// DHM - Nerve
+		client->sess.playerWeapon,			// DHM - Nerve
+		client->sess.playerItem,			// DHM - Nerve
+		client->sess.playerSkin,			// DHM - Nerve
+		client->sess.spawnObjectiveIndex,	// DHM - Nerve
+		client->sess.latchPlayerType,		// DHM - Nerve
+		client->sess.latchPlayerWeapon,		// DHM - Nerve
+		client->sess.latchPlayerItem,		// DHM - Nerve
+		client->sess.latchPlayerSkin,		// DHM - Nerve
+
+		// L0 - New stuff
+		client->sess.admin,
+		client->sess.incognito,
+		client->sess.ip[0],
+		client->sess.ip[1],
+		client->sess.ip[2],
+		client->sess.ip[3],
+		client->sess.guid &&
+			( !client->sess.guid || !Q_stricmp( client->sess.guid, "" ) ) ? "NOGUID" : client->sess.guid,
+		client->sess.ignored,
+		client->sess.selectedWeapon,
+		client->sess.clientFlags,
+		client->sess.specInvited,
+		client->sess.specLocked,
+		client->sess.uci
+
+		);
 
 	var = va( "session%i", client - level.clients );
 
 	trap_Cvar_Set( var, s );
+}
+
+/*
+================
+OSPx - G_ClientSwap
+
+Client swap handling
+================
+*/
+void G_ClientSwap(gclient_t *client) {
+	int flags = 0;
+
+	if (client->sess.sessionTeam == TEAM_RED) {
+		client->sess.sessionTeam = TEAM_BLUE;
+	}
+	else if (client->sess.sessionTeam == TEAM_BLUE) {
+		client->sess.sessionTeam = TEAM_RED;
+	}
+
+	// Swap spec invites as well
+	if (client->sess.specInvited & TEAM_RED) {
+		flags |= TEAM_BLUE;
+	}
+	if (client->sess.specInvited & TEAM_BLUE) {
+		flags |= TEAM_RED;
+	}
+
+	client->sess.specInvited = flags;
+
+	// Swap spec follows as well
+	flags = 0;
+	if (client->sess.specLocked & TEAM_RED) {
+		flags |= TEAM_BLUE;
+	}
+	if (client->sess.specLocked & TEAM_BLUE) {
+		flags |= TEAM_RED;
+	}
+
+	client->sess.specLocked = flags;
 }
 
 /*
@@ -81,42 +109,58 @@ Called on a reconnect
 ================
 */
 void G_ReadSessionData( gclient_t *client ) {
-	char s[MAX_STRING_CHARS];
-	const char  *var;
+	char	s[MAX_STRING_CHARS];
+	const char	*var;
 	qboolean test;
 
 	var = va( "session%i", client - level.clients );
-	trap_Cvar_VariableStringBuffer( var, s, sizeof( s ) );
+	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
-			(int *)&client->sess.sessionTeam,
-			&client->sess.spectatorTime,
-			(int *)&client->sess.spectatorState,
-			&client->sess.spectatorClient,
-			&client->sess.wins,
-			&client->sess.losses,
-			&client->sess.playerType,       // DHM - Nerve
-			&client->sess.playerWeapon,     // DHM - Nerve
-			&client->sess.playerItem,       // DHM - Nerve
-			&client->sess.playerSkin,       // DHM - Nerve
-			&client->sess.spawnObjectiveIndex, // DHM - Nerve
-			&client->sess.latchPlayerType,  // DHM - Nerve
-			&client->sess.latchPlayerWeapon, // DHM - Nerve
-			&client->sess.latchPlayerItem,  // DHM - Nerve
-			&client->sess.latchPlayerSkin   // DHM - Nerve
-			);
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i",		// DHM - Nerve
+		(int *)&client->sess.sessionTeam,
+		&client->sess.spectatorTime,
+		(int *)&client->sess.spectatorState,
+		&client->sess.spectatorClient,
+		&client->sess.wins,
+		&client->sess.losses,
+		&client->sess.playerType,			// DHM - Nerve
+		&client->sess.playerWeapon,			// DHM - Nerve
+		&client->sess.playerItem,			// DHM - Nerve
+		&client->sess.playerSkin,			// DHM - Nerve
+		&client->sess.spawnObjectiveIndex,	// DHM - Nerve
+		&client->sess.latchPlayerType,		// DHM - Nerve
+		&client->sess.latchPlayerWeapon,	// DHM - Nerve
+		&client->sess.latchPlayerItem,		// DHM - Nerve
+		&client->sess.latchPlayerSkin,		// DHM - Nerve
+
+		// L0 - New stuff
+		(int *)&client->sess.admin,
+		&client->sess.incognito,		
+		(int *)&client->sess.ip[0],			
+		(int *)&client->sess.ip[1],			
+		(int *)&client->sess.ip[2],			
+		(int *)&client->sess.ip[3],
+		client->sess.guid,
+		&client->sess.ignored,
+		&client->sess.selectedWeapon,
+		&client->sess.clientFlags,
+		&client->sess.specInvited,
+		&client->sess.specLocked,
+		&client->sess.uci
+
+		);
 
 	// NERVE - SMF
-	if ( g_altStopwatchMode.integer ) {
+	if ( g_altStopwatchMode.integer )	
 		test = qtrue;
-	} else {
+	else
 		test = g_currentRound.integer == 1;
-	}
 
 	if ( g_gametype.integer == GT_WOLF_STOPWATCH && level.warmupTime > 0 && test ) {
 		if ( client->sess.sessionTeam == TEAM_RED ) {
 			client->sess.sessionTeam = TEAM_BLUE;
-		} else if ( client->sess.sessionTeam == TEAM_BLUE )   {
+		}
+		else if ( client->sess.sessionTeam == TEAM_BLUE ) {
 			client->sess.sessionTeam = TEAM_RED;
 		}
 	}
@@ -126,7 +170,8 @@ void G_ReadSessionData( gclient_t *client ) {
 
 		if ( client->sess.sessionTeam == TEAM_RED ) {
 			client->sess.sessionTeam = TEAM_BLUE;
-		} else if ( client->sess.sessionTeam == TEAM_BLUE )   {
+		}
+		else if ( client->sess.sessionTeam == TEAM_BLUE ) {
 			client->sess.sessionTeam = TEAM_RED;
 		}
 	}
@@ -141,15 +186,15 @@ Called on a first-time connect
 ================
 */
 void G_InitSessionData( gclient_t *client, char *userinfo ) {
-	clientSession_t *sess;
-	const char      *value;
+	clientSession_t	*sess;
+	const char		*value;
 
 	sess = &client->sess;
 
 	// initial team determination
 	if ( g_gametype.integer >= GT_TEAM ) {
 		// always spawn as spectator in team games
-		sess->sessionTeam = TEAM_SPECTATOR;
+		sess->sessionTeam = TEAM_SPECTATOR;	
 	} else {
 		value = Info_ValueForKey( userinfo, "team" );
 		if ( value[0] == 's' ) {
@@ -160,8 +205,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 			default:
 			case GT_FFA:
 			case GT_SINGLE_PLAYER:
-				if ( g_maxGameClients.integer > 0 &&
-					 level.numNonSpectatorClients >= g_maxGameClients.integer ) {
+				if ( g_maxGameClients.integer > 0 && 
+					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 					sess->sessionTeam = TEAM_SPECTATOR;
 				} else {
 					sess->sessionTeam = TEAM_FREE;
@@ -187,9 +232,19 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	sess->latchPlayerWeapon = sess->playerWeapon = 0;
 	sess->latchPlayerItem = sess->playerItem = 0;
 	sess->latchPlayerSkin = sess->playerSkin = 0;
-
 	sess->spawnObjectiveIndex = 0;
 	// dhm - end
+
+	// L0 - New stuff
+	sess->admin = ADM_NONE;		// Start as non-admin
+	sess->incognito = 0;		// Incognito for admins
+	sess->ignored = 0;			// Starts as non-ignored (unless forced elsewhere)
+	sess->selectedWeapon = 0;	// Starts with default
+	sess->clientFlags = 0;		// Will be overwritten in clientConnect..
+	sess->specInvited = 0;
+	sess->specLocked = 0;
+	sess->uci = 255;
+	// End
 
 	G_WriteClientSessionData( client );
 }
@@ -205,15 +260,42 @@ void G_InitWorldSession( void ) {
 	char s[MAX_STRING_CHARS];
 	int gt;
 
-	trap_Cvar_VariableStringBuffer( "session", s, sizeof( s ) );
-	gt = atoi( s );
+	trap_Cvar_VariableStringBuffer("session", s, sizeof(s));
+	gt = atoi(s);
 
 	// if the gametype changed since the last session, don't use any
 	// client sessions
-	if ( g_gametype.integer != gt ) {
+	if (g_gametype.integer != gt) {
 		level.newSession = qtrue;
-		G_Printf( "Gametype changed, clearing session data.\n" );
+		G_Printf("Gametype changed, clearing session data.\n");
 	}
+	// OSPx - Stats
+	else {
+		char *data[256];
+		qboolean test = (g_altStopwatchMode.integer != 0 || g_currentRound.integer == 1);
+
+		Q_Tokenize(s, data, " ");
+
+		// Get team stuff		
+		teamInfo[TEAM_RED].spec_lock = atoi(data[1]) ? qtrue : qfalse;
+		teamInfo[TEAM_BLUE].spec_lock = atoi(data[2]) ? qtrue : qfalse;
+
+		teamInfo[TEAM_RED].team_lock = atoi(data[3]) ? qtrue : qfalse;
+		teamInfo[TEAM_BLUE].team_lock = atoi(data[4]) ? qtrue : qfalse;
+
+		teamInfo[TEAM_RED].team_score = atoi(data[5]);
+		teamInfo[TEAM_BLUE].team_score = atoi(data[6]);
+
+		// Make sure spec locks follow the right teams
+		if (g_gametype.integer == GT_WOLF_STOPWATCH && g_gamestate.integer != GS_PLAYING && test) {
+			G_swapTeamLocks();
+		}
+
+		if (g_swapteams.integer) {
+			G_swapTeamLocks();
+		}
+
+	} // -OSPx
 }
 
 /*
@@ -223,9 +305,20 @@ G_WriteSessionData
 ==================
 */
 void G_WriteSessionData( void ) {
-	int i;
+	int		i;
 
-	trap_Cvar_Set( "session", va( "%i", g_gametype.integer ) );
+	// OSPx - Speclock
+	trap_Cvar_Set("session",
+		va("%i %i %i %i %i %i %i",
+			g_gametype.integer,
+			(teamInfo[TEAM_RED].spec_lock ? 1 : 0),
+			(teamInfo[TEAM_BLUE].spec_lock ? 1 : 0),
+			(teamInfo[TEAM_RED].team_lock ? 1 : 0),
+			(teamInfo[TEAM_BLUE].team_lock ? 1 : 0),
+			teamInfo[TEAM_RED].team_score,
+			teamInfo[TEAM_BLUE].team_score
+		)
+	);
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
