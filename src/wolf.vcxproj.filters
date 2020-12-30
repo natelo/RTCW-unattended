@@ -209,6 +209,9 @@
     <ClCompile Include="client\cl_GetHDDSerial.c">
       <Filter>Control</Filter>
     </ClCompile>
+    <ClCompile Include="server\sv_wallhack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="A3D\a3dWrapperdp.h">
