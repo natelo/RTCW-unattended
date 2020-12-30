@@ -1,9 +1,0 @@
-﻿Build started 29.3.2015 17:07:34.
-     1>Project "E:\Projects\Programming\RTCW 1.0 Client\src\curl-7.29.0\lib\curl.vcxproj" on node 3 (Build target(s)).
-     1>Lib:
-         curl.vcxproj -> E:\Projects\Programming\RTCW 1.0 Client\src\curl-7.29.0\lib\.\Debug\libcurl.lib
-     1>Done Building Project "E:\Projects\Programming\RTCW 1.0 Client\src\curl-7.29.0\lib\curl.vcxproj" (Build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:00.40
