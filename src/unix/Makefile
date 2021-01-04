@@ -208,22 +208,22 @@ CURLCONF := \
 	--disable-nonblocking --disable-manual
 
 curl: 
-	cd ../curl-7.29.0 && sh configure $(CURLCONF)
-	cd ../curl-7.29.0 && make
-	mv ../curl-7.29.0/lib/.libs/libcurl.a ../curl-7.29.0/lib/.libs/libcurl_linux.a
-	cp -R ../curl-7.29.0/include/curl ../curl-7.29.0/include/curl_linux
+	cd ../../libs/curl-7.29.0 && sh configure $(CURLCONF)
+	cd ../../libs/curl-7.29.0 && make
+	mv ../../libs/curl-7.29.0/lib/.libs/libcurl.a ../../libs/curl-7.29.0/lib/.libs/libcurl_linux.a
+	cp -R ../../libs/curl-7.29.0/include/curl ../../libs/curl-7.29.0/include/curl_linux
 
 curl-w32:
-	cd ../curl-7.29.0 && CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
+	cd ../../libs/curl-7.29.0 && CC=i586-mingw32msvc-gcc RANLIB=i586-mingw32msvc-ranlib \
 	CPPFLAGS=-DCURL_STATICLIB sh configure $(CURLCONF) --host=mingw32
-	cd ../curl-7.29.0 && make
-	mv ../curl-7.29.0/lib/.libs/libcurl.a ../curl-7.29.0/lib/.libs/libcurl_w32.a
-	cp -R ../curl-7.29.0/include/curl ../curl-7.29.0/include/curl_w32
+	cd ../../libs/curl-7.29.0 && make
+	mv ../../libs/curl-7.29.0/lib/.libs/libcurl.a ../../libs/curl-7.29.0/lib/.libs/libcurl_w32.a
+	cp -R ../../libs/curl-7.29.0/include/curl ../../libs/curl-7.29.0/include/curl_w32
 
 curl-clean:
-	cd ../curl && make clean
-	rm -rf ../curl/include/curl_linux
-	rm -rf ../curl/include/curl_w32
+	cd ../../libs/curl && make clean
+	rm -rf ../../libs/curl/include/curl_linux
+	rm -rf ../../libs/curl/include/curl_w32
 
 #####################################################################
 
@@ -247,7 +247,7 @@ all:
 # FIXME: could be more clever
 test:
 	if [ "$$RTCW_TESTBASE" = "" ]; then \
-	RTCW_TESTBASE=~/Software/rtcw ; fi ; \
+	RTCW_TESTBASE=~/rtcw ; fi ; \
 	cp WolfMP.x86 "$$RTCW_TESTBASE" ; \
 	cp WolfMP.exe "$$RTCW_TESTBASE" ; \
 	cp WolfDED.x86 "$$RTCW_TESTBASE" ; \
