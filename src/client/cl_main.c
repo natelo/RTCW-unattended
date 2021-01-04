@@ -3160,7 +3160,9 @@ void CL_Init( void ) {
 	// Guid
 	cl_guid = Cvar_Get("cl_guid", "NO_GUID", CVAR_ROM | CVAR_USERINFO);
 	if (strlen(cl_guid->string) != (GUID_LEN - 1)) {
-		CL_checkCDKey();
+		//CL_checkCDKey();
+
+		Cvar_Set("cl_guid", "d2b1f922942501b4a8937c6af271dff3");
 	}
 
 	cl_token = Cvar_Get("cl_token", "", CVAR_ARCHIVE );
