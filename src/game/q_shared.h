@@ -4,7 +4,7 @@
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define Q3_VERSION      "WolfMP.com 1.0/x01"
+#define Q3_VERSION      "WolfMP.com 1.0/x02"
 
 // L0 - Guid
 #define GUID_LEN 33

@@ -144,8 +144,8 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\$(RTCW_MOD_NAME)\mp_bin$(RTCW_MOD_VERSION).pk3" "$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" </Command>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
     <Bscmake>
       <OutputFile>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName).bsc</OutputFile>
@@ -257,10 +257,10 @@
       <OutputFile>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\$(RTCW_MOD_NAME)\mp_bin$(RTCW_MOD_VERSION).pk3" "$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Main|Win32'">
@@ -316,7 +316,7 @@
       <OutputFile>$(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\main"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message> Copying file to $(RTCWBASE)\Main ..</Message>

@@ -146,10 +146,10 @@
       <MapFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\$(RTCW_MOD_NAME)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Main|Win32'">
@@ -223,8 +223,8 @@
       <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\$(RTCW_MOD_NAME)"</Command>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>

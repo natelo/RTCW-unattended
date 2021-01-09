@@ -142,8 +142,8 @@
       <MapFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\$(RTCW_MOD_NAME)\mp_bin$(RTCW_MOD_VERSION).pk3" "$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" </Command>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Main|Win32'">
@@ -212,8 +212,8 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
-      <Message> Copying file to $(RTCWBASE)\Main ..</Message>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\$(RTCW_MOD_NAME)\mp_bin$(RTCW_MOD_VERSION).pk3" "$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\$(TargetName)$(TargetExt)" </Command>
+      <Message> Copying file to $(RTCWBASE)\$(RTCW_MOD_NAME) ..</Message>
     </PostBuildEvent>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
