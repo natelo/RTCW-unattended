@@ -75,7 +75,7 @@
       <ObjectFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\</ObjectFileName>
       <ProgramDataBaseFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -130,7 +130,7 @@
       <AssemblerListingLocation>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\</AssemblerListingLocation>
       <ObjectFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\</ObjectFileName>
       <ProgramDataBaseFileName>$(SolutionDir)Builds\$(Configuration)\$(ProjectName)\</ProgramDataBaseFileName>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <BrowseInformation>true</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>

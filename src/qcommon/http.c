@@ -230,7 +230,7 @@ qboolean CL_HTTP_SSUpload(char *url, char *file, char *marker) {
 		return qfalse;
 	}
 
-	if (fstat(fileno(fd), &file_info) != 0) {
+	if (fstat(_fileno(fd), &file_info) != 0) {
 		Com_DPrintf("HTTP[fs]: cannot o/r\n");
 		return qfalse;
 	}

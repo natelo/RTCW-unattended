@@ -2738,16 +2738,16 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			}
 		} else {
 			if ( weaponNum == WP_FLAMETHROWER ) {
-				vec3_t angles;
-				AxisToAngles( flash.axis, angles );
+				vec3_t flameAngles;
+				AxisToAngles( flash.axis, flameAngles);
 // JPW NERVE
 				weaponNum = BG_FindAmmoForWeapon( WP_FLAMETHROWER );
 				if ( ps ) {
 					if ( ps->ammoclip[weaponNum] ) {
-						CG_FireFlameChunks( cent, flash.origin, angles, 1.0, qfalse );
+						CG_FireFlameChunks( cent, flash.origin, flameAngles, 1.0, qfalse );
 					}
 				} else {
-					CG_FireFlameChunks( cent, flash.origin, angles, 1.0, qfalse );
+					CG_FireFlameChunks( cent, flash.origin, flameAngles, 1.0, qfalse );
 				}
 // jpw
 			}
@@ -4662,12 +4662,12 @@ void CG_FireWeapon( centity_t *cent ) {
 				trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, firesound[c] );
 
 				if ( fireEchosound && fireEchosound[c] ) { // check for echo
-					centity_t   *cent;
+					centity_t   *pCent;
 					vec3_t porg, gorg, norm;    // player/gun origin
 					float gdist;
 
-					cent = &cg_entities[ent->number];
-					VectorCopy( cent->currentState.pos.trBase, gorg );
+					pCent = &cg_entities[ent->number];
+					VectorCopy(pCent->currentState.pos.trBase, gorg );
 					VectorCopy( cg.refdef.vieworg, porg );
 					VectorSubtract( gorg, porg, norm );
 					gdist = VectorNormalize( norm );

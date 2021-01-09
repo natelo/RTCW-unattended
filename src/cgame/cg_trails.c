@@ -719,9 +719,9 @@ void CG_AddTrailToScene( trailJunc_t *trail, int iteration, int numJuncs ) {
 		if ( !( trail->flags & TJFL_NOPOLYMERGE ) ) {
 			trap_R_AddPolysToScene( trail->shader, 3, &outVerts[0], numOutVerts / 3 );
 		} else {
-			int k;
-			for ( k = 0; k < numOutVerts / 3; k++ ) {
-				trap_R_AddPolyToScene( trail->shader, 3, &outVerts[k * 3] );
+			int m;
+			for ( m = 0; m < numOutVerts / 3; m++ ) {
+				trap_R_AddPolyToScene( trail->shader, 3, &outVerts[m * 3] );
 			}
 		}
 	} else
