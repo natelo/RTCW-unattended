@@ -15,95 +15,95 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="extractfuncs.c">
+    <ClCompile Include="..\src\extractfuncs\extractfuncs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="l_log.c">
+    <ClCompile Include="..\src\extractfuncs\l_log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="l_memory.c">
+    <ClCompile Include="..\src\extractfuncs\l_memory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="l_precomp.c">
+    <ClCompile Include="..\src\extractfuncs\l_precomp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="l_script.c">
+    <ClCompile Include="..\src\extractfuncs\l_script.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\botlib\be_interface.h">
+    <ClInclude Include="..\src\botlib\be_interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\botlib.h">
+    <ClInclude Include="..\src\game\botlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_bsp_ent.h">
+    <ClInclude Include="..\src\bspc\l_bsp_ent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_bsp_q2.h">
+    <ClInclude Include="..\src\bspc\l_bsp_q2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_cmd.h">
+    <ClInclude Include="..\src\bspc\l_cmd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_log.h">
+    <ClInclude Include="..\src\bspc\l_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="l_log.h">
+    <ClInclude Include="..\src\extractfuncs\l_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_math.h">
+    <ClInclude Include="..\src\bspc\l_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_mem.h">
+    <ClInclude Include="..\src\bspc\l_mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="l_memory.h">
+    <ClInclude Include="..\src\extractfuncs\l_memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_poly.h">
+    <ClInclude Include="..\src\bspc\l_poly.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="l_precomp.h">
+    <ClInclude Include="..\src\extractfuncs\l_precomp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_qfiles.h">
+    <ClInclude Include="..\src\bspc\l_qfiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\botlib\l_script.h">
+    <ClInclude Include="..\src\botlib\l_script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="l_script.h">
+    <ClInclude Include="..\src\extractfuncs\l_script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_threads.h">
+    <ClInclude Include="..\src\bspc\l_threads.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\l_utils.h">
+    <ClInclude Include="..\src\bspc\l_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\q2files.h">
+    <ClInclude Include="..\src\bspc\q2files.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\q_shared.h">
+    <ClInclude Include="..\src\game\q_shared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\qbsp.h">
+    <ClInclude Include="..\src\bspc\qbsp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\bspc\qfiles.h">
+    <ClInclude Include="..\src\bspc\qfiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\game\surfaceflags.h">
+    <ClInclude Include="..\src\game\surfaceflags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\qcommon\unzip.h">
+    <ClInclude Include="..\src\qcommon\unzip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="extractfuncs.bat">
+    <CustomBuild Include="..\src\extractfuncs\extractfuncs.bat">
       <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>
