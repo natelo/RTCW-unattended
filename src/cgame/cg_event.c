@@ -2123,7 +2123,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		ByteToDir( es->eventParm, dir );
 		CG_MissileHitWall( es->weapon, 0, position, dir, 0 ); // (SA) modified to send missilehitwall surface parameters
 		break;
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	case EV_MG42BULLET_HIT_WALL:
 		DEBUGNAME( "EV_MG42BULLET_HIT_WALL" );
 		ByteToDir( es->eventParm, dir );

@@ -26,7 +26,6 @@
 #pragma warning(disable : 4115)
 #pragma warning(disable : 4125)		// decimal digit terminates octal escape sequence
 #pragma warning(disable : 4127)		// conditional expression is constant
-#pragma warning(disable : 4136)
 #pragma warning(disable	: 4152)		// nonstandard extension, function/data pointer conversion in expression
 #pragma warning(disable : 4201)
 #pragma warning(disable : 4214)
@@ -39,6 +38,9 @@
 #pragma warning(disable : 4702)		// unreachable code
 #pragma warning(disable : 4711)		// selected for automatic inline expansion
 #pragma warning(disable : 4220)		// varargs matches remaining parameters
+#ifndef _DEBUG
+	#pragma warning(disable : 4996)		// 'may be unsafe/disable deprecation'
+#endif
 #endif
 
 #if defined(ppc) || defined(__ppc) || defined(__ppc__) || defined(__POWERPC__)
@@ -1132,7 +1134,11 @@ typedef enum
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
-#define	MAX_POWERUPS			16
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
+	#define	MAX_POWERUPS			17
+#else
+	#define	MAX_POWERUPS			16
+#endif
 #define	MAX_WEAPONS				64	// (SA) and yet more!
 
 // Ridah, increased this

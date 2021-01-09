@@ -455,8 +455,13 @@ typedef enum {
 	PW_BALL,
 
 // OSPx	
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	PW_READY,			// Ready
-	PW_BLACKOUT = 17,	// Specklock
+	PW_BLACKOUT,		// Specklock
+#else 
+	PW_READY = 17,		// Ready
+	PW_BLACKOUT,		// Specklock
+#endif
 // -OSPx
 
 	PW_NUM_POWERUPS

@@ -1498,7 +1498,7 @@ static int CG_CalcViewValues( void ) {
 	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
 					   ps->velocity[1] * ps->velocity[1] );
 
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	VectorCopy(ps->origin, cg.refdef.vieworg);
 	// Arnout: see if we're attached to a gun
 	if ( cg.renderingThirdPerson && ps->eFlags & EF_MG42_ACTIVE ) {

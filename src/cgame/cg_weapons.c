@@ -195,7 +195,7 @@ void CG_MachineGunEjectBrass( centity_t *cent ) {
 
 // JPW NERVE new brass handling behavior because the SP stuff just doesn't cut it for MP
 	if ( cent->currentState.eFlags & EF_MG42_ACTIVE ) {
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 		offset[0] = 25;
 		offset[1] = -4;
 		offset[2] = 28;
@@ -4345,7 +4345,7 @@ void CG_MG42EFX( centity_t *cent ) {
 	// Arnout: complete overhaul of this one
 	centity_t *mg42;
 	int num;
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	vec3_t forward, point;
 	refEntity_t flash;
 #endif
@@ -4353,7 +4353,7 @@ void CG_MG42EFX( centity_t *cent ) {
 	// find the mg42 we're attached to
 	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
 		mg42 = &cg_entities[ cg.snap->entities[ num ].number ];
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 		if ( mg42->currentState.eType == ET_MG42_BARREL &&
 			 mg42->currentState.otherEntityNum == cent->currentState.number ) {
 			// found it, clamp behind gun

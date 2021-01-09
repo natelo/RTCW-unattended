@@ -2831,7 +2831,7 @@ void CG_Player( centity_t *cent ) {
 	refEntity_t head;
 	refEntity_t acc;
 
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	vec3_t playerOrigin;
 #endif
 	vec3_t lightorigin;
@@ -2849,7 +2849,7 @@ void CG_Player( centity_t *cent ) {
 
 	shadow = qfalse;                                                // gjd added to make sure it was initialized
 	shadowPlane = 0.0;                                              // ditto
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	VectorCopy(vec3_origin, playerOrigin);
 #endif
 
@@ -2873,7 +2873,7 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	// Arnout: see if we're attached to a gun
 	if (cent->currentState.eFlags & EF_MG42_ACTIVE) {
 		centity_t *mg42;
@@ -2970,7 +2970,7 @@ void CG_Player( centity_t *cent ) {
 	// set renderfx for accessories
 	acc.renderfx    = renderfx;
 
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	VectorCopy(playerOrigin, lightorigin);
 #else
 	VectorCopy(cent->lerpOrigin, lightorigin);
@@ -2989,7 +2989,7 @@ void CG_Player( centity_t *cent ) {
 	legs.hModel = ci->legsModel;
 	legs.customSkin = ci->legsSkin;
 
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 	VectorCopy(playerOrigin, legs.origin);
 #else
 	VectorCopy( cent->lerpOrigin, legs.origin );

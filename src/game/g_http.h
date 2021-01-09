@@ -10,7 +10,7 @@ Hold declarations and structures of all the HTTP related functionality..
 #define _G_HTTP
 
 // So if it's ported it can be set here..
-#ifndef RETAIL_MOD
+#ifndef ONEZERO_BACKWARDS_COMPABITILITY
 #define STATS_VERSION GAME_VERSION " 1.4"
 #else
 #define STATS_VERSION GAME_VERSION " 1.0"

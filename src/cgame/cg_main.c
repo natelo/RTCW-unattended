@@ -641,7 +641,6 @@ CG_UpdateCvars
 void CG_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
-	qboolean fSetFlags = qfalse;	// OSPx - Auto Actions
 
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 		trap_Cvar_Update(cv->vmCvar);
