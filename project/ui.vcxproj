@@ -189,7 +189,8 @@
       <MapFileName>$(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName).map</MapFileName>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\main\mp_bin.pk3" "$(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt)" 
+copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
       <Message> Copying file to $(RTCWBASE)\Main ..</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -264,7 +265,8 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\main\mp_bin.pk3" "$(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt)" 
+copy $(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
       <Message> Copying file to $(RTCWBASE)\Main ..</Message>
     </PostBuildEvent>
     <Midl>

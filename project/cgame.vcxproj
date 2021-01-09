@@ -200,7 +200,8 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\main\mp_bin.pk3" "$(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt)" 
+copy $(SolutionDir)Builds\Debug\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
       <Message> Copying file to $(RTCWBASE)\Main ..</Message>
     </PostBuildEvent>
     <Bscmake>
@@ -316,7 +317,8 @@
       <OutputFile>$(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\main"</Command>
+      <Command>..\libs\zip.exe -uj "$(RTCWBASE)\main\mp_bin.pk3" "$(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt)" 
+copy $(SolutionDir)Builds\Release\$(ProjectName)\$(TargetName)$(TargetExt) "$(RTCWBASE)\Main"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message> Copying file to $(RTCWBASE)\Main ..</Message>
